@@ -4,7 +4,7 @@ Learn how to deploy apps on Flux, the decentralized cloud network.
 
 ## What's This?
 
-A tutorial site with interactive guides, a spec builder, and real-time cost estimates for deploying on Flux. Built it because the docs are scattered and I wanted something hands-on.
+A tutorial site with interactive guides, a spec builder, and real-time cost estimates for deploying on Flux.
 
 ## Quick Start
 
@@ -90,7 +90,7 @@ PRs welcome. Could use more tutorials for different app types.
 
 - [Flux](https://runonflux.io)
 - [Flux Docs](https://docs.runonflux.io)
-- [Discord](https://discord.gg/runonflux)
+- [Discord](https://discord.com/invite/runonflux)
 
 ## License
 
