@@ -358,11 +358,8 @@ const db = new Pool({
                 <CodeBlock title="Multiple ports configuration" language="json">
 {`{
   "name": "myapp",
-  "ports": [
-    { "containerPort": 8080, "port": 80 },      // Main web interface
-    { "containerPort": 9090, "port": 9090 },    // Admin panel
-    { "containerPort": 9100, "port": 9100 }     // Metrics endpoint
-  ],
+  "ports": [80, 9090, 9100],
+  "containerPorts": [8080, 9090, 9100],
   "cpu": 2.0,
   "ram": 4000,
   "hdd": 20
