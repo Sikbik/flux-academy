@@ -168,6 +168,14 @@ muddy halos. Scenes dim themselves behind dense content so text always has contr
 Native scrolling, always (no scroll hijacking). Everything is interruptible. Everything has a
 reduced-motion twin that is calm but complete (opacity fades, no parallax, no camera moves).
 
+A swipe is never swallowed. On a phone a form, a diagram or a log is as tall as its content and covers most
+of the page it sits in, so a scroll region inside the page keeps the overscroll to itself
+(`overscroll-behavior: contain`) only for a wheel or a trackpad, `@media (hover: hover) and (pointer: fine)`;
+on touch it hands the swipe to the page, at its ends and when it cannot scroll at all. Only something laid
+over the page (the palette, dialogs and sheets, menus, popovers) may contain it always. A drag that would take
+over a vertical swipe starts from a handle on touch, never from the whole row or card (the rows of the order
+challenge). `styles/scroll.test.ts` pins the first rule.
+
 | Token | Value | Use |
 | --- | --- | --- |
 | `--dur-1` | 120 ms | hover colour, focus rings |

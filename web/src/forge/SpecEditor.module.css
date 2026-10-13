@@ -123,9 +123,17 @@
     min-block-size: 0;
     padding: var(--space-4);
     overflow: auto;
-    overscroll-behavior: contain;
     scrollbar-color: var(--ink-4) transparent;
     scrollbar-width: thin;
+  }
+
+  /* On a phone a region is as tall as its form, so it cannot scroll and covers the editor. A swipe that
+     starts on it has to reach the page: only a wheel or a trackpad stays inside (DESIGN section 4). */
+  @media (hover: hover) and (pointer: fine) {
+    .regionBody,
+    .regionBodyBare {
+      overscroll-behavior: contain;
+    }
   }
 
   .regionBodyBare {

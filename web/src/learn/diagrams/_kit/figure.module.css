@@ -60,9 +60,16 @@
   .host[data-fitted] .window {
     overflow-x: hidden;
     overflow-y: auto;
-    overscroll-behavior: contain;
     scrollbar-width: thin;
     scrollbar-color: var(--ink-4) transparent;
+  }
+
+  /* The window is usually as tall as its diagram, so it cannot scroll, and it fills the stage. A swipe that
+     starts on it has to reach the lesson: only a wheel or a trackpad stays inside (DESIGN section 4). */
+  @media (hover: hover) and (pointer: fine) {
+    .host[data-fitted] .window {
+      overscroll-behavior: contain;
+    }
   }
 
   /* Part of the figure is below the edge: fade the edge so the window reads as scrollable. */
@@ -190,12 +197,17 @@
     /* A readable line length, centred, whatever the width of the stage. */
     padding: var(--space-3) max(var(--space-4), calc((100% - 72ch) / 2));
     overflow-y: auto;
-    overscroll-behavior: contain;
     font-size: var(--fs-sm);
     line-height: var(--lh-normal);
     color: var(--text-1);
     background: rgb(var(--ink-0-rgb) / 0.985);
     box-shadow: inset 0 0 0 1px var(--line-blue);
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .alt {
+      overscroll-behavior: contain;
+    }
   }
 
   .notice {

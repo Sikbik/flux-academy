@@ -13,9 +13,15 @@
     block-size: 100%;
     padding: var(--space-5);
     overflow: auto;
-    overscroll-behavior: contain;
     scrollbar-color: var(--ink-4) transparent;
     scrollbar-width: thin;
+  }
+
+  /* Wheel and trackpad stay in the widget; a swipe hands over to the lesson (DESIGN section 4). */
+  @media (hover: hover) and (pointer: fine) {
+    .widget {
+      overscroll-behavior: contain;
+    }
   }
 
   .widget[data-compact="true"] {

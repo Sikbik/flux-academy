@@ -2,10 +2,14 @@
  * Put the items in order. Drag a row, or use the two buttons on it (the keyboard and assistive tech path;
  * each move is spoken). A wrong check marks which rows already sit in the right place and which do not,
  * so the learner fixes what is wrong rather than starting over.
+ *
+ * A mouse drags a row from anywhere on it. A finger drags only by the handle at the left of the row: the
+ * rest of the row leaves vertical swipes to the browser, so a list that fills the screen can still be
+ * scrolled past. (`motion` would otherwise set `touch-action: pan-x` on every row.)
  */
 
-import { Reorder } from 'motion/react';
-import { useMemo, useState } from 'react';
+import { Reorder, useDragControls } from 'motion/react';
+import { useMemo, useRef, useState } from 'react';
 import { gradeOrder, shuffledOrder } from '@/learn/grade';
 import { MarkupText } from '@/learn/MarkupText';
 import { plainText } from '@/learn/markup';
@@ -20,6 +24,81 @@ interface Props {
   challenge: OrderChallenge;
   open: boolean;
   seed: string;
+}
+
+interface RowProps {
+  id: string;
+  index: number;
+  count: number;
+  label: string;
+  mark: 'right' | 'wrong' | undefined;
+  reduced: boolean;
+  onMove: (index: number, delta: -1 | 1) => void;
+}
+
+function OrderRow({ id, index, count, label, mark, reduced, onMove }: RowProps) {
+  const controls = useDragControls();
+  const handle = useRef<HTMLSpanElement>(null);
+  return (
+    <Reorder.Item
+      value={id}
+      as="li"
+      className={styles.row}
+      data-draggable="true"
+      data-verdict={mark}
+      layout="position"
+      transition={reduced ? { duration: 0 } : undefined}
+      whileDrag={reduced ? undefined : { scale: 1.015, zIndex: 2 }}
+      dragListener={false}
+      dragControls={controls}
+      onPointerDown={(e) => {
+        const onHandle = handle.current?.contains(e.target as Node) ?? false;
+        if (e.pointerType === 'mouse' || onHandle) controls.start(e);
+      }}
+    >
+      <span ref={handle} className={styles.handle} aria-hidden="true" />
+      <span className={styles.grip} aria-hidden="true">
+        <span />
+        <span />
+        <span />
+        <span />
+        <span />
+        <span />
+      </span>
+      <span className={styles.num} aria-hidden="true">
+        {index + 1}
+      </span>
+      <span className={styles.rowLabel}>
+        <span className="sr-only">Position {index + 1}. </span>
+        <MarkupText text={label} />
+        {mark ? (
+          <span className="sr-only">
+            {mark === 'right' ? '. In the right place' : '. Not in the right place'}
+          </span>
+        ) : null}
+      </span>
+      <span className={styles.moves}>
+        <IconButton
+          icon="chevron-up"
+          size="sm"
+          variant="ghost"
+          label={`Move ${plainText(label)} earlier`}
+          tooltip={false}
+          aria-disabled={index === 0 ? true : undefined}
+          onClick={() => onMove(index, -1)}
+        />
+        <IconButton
+          icon="chevron-down"
+          size="sm"
+          variant="ghost"
+          label={`Move ${plainText(label)} later`}
+          tooltip={false}
+          aria-disabled={index === count - 1 ? true : undefined}
+          onClick={() => onMove(index, 1)}
+        />
+      </span>
+    </Reorder.Item>
+  );
 }
 
 export function Order({ challenge, open, seed }: Props) {
@@ -81,7 +160,7 @@ export function Order({ challenge, open, seed }: Props) {
 
   return (
     <div>
-      <p className={styles.legend}>Drag the rows, or use the arrows on each one.</p>
+      <p className={styles.legend}>Drag the rows by the dots on the left, or use the arrows on each one.</p>
       <Reorder.Group
         as="ol"
         axis="y"
@@ -90,63 +169,18 @@ export function Order({ challenge, open, seed }: Props) {
         className={styles.order}
         aria-label="Your order"
       >
-        {order.map((id, i) => {
-          const mark = marks ? (marks[i] ? 'right' : 'wrong') : undefined;
-          return (
-            <Reorder.Item
-              key={id}
-              value={id}
-              as="li"
-              className={styles.row}
-              data-draggable="true"
-              data-verdict={mark}
-              layout="position"
-              transition={reduced ? { duration: 0 } : undefined}
-              whileDrag={reduced ? undefined : { scale: 1.015, zIndex: 2 }}
-            >
-              <span className={styles.grip} aria-hidden="true">
-                <span />
-                <span />
-                <span />
-                <span />
-                <span />
-                <span />
-              </span>
-              <span className={styles.num} aria-hidden="true">
-                {i + 1}
-              </span>
-              <span className={styles.rowLabel}>
-                <span className="sr-only">Position {i + 1}. </span>
-                <MarkupText text={label(id)} />
-                {mark ? (
-                  <span className="sr-only">
-                    {mark === 'right' ? '. In the right place' : '. Not in the right place'}
-                  </span>
-                ) : null}
-              </span>
-              <span className={styles.moves}>
-                <IconButton
-                  icon="chevron-up"
-                  size="sm"
-                  variant="ghost"
-                  label={`Move ${plainText(label(id))} earlier`}
-                  tooltip={false}
-                  aria-disabled={i === 0 ? true : undefined}
-                  onClick={() => move(i, -1)}
-                />
-                <IconButton
-                  icon="chevron-down"
-                  size="sm"
-                  variant="ghost"
-                  label={`Move ${plainText(label(id))} later`}
-                  tooltip={false}
-                  aria-disabled={i === order.length - 1 ? true : undefined}
-                  onClick={() => move(i, 1)}
-                />
-              </span>
-            </Reorder.Item>
-          );
-        })}
+        {order.map((id, i) => (
+          <OrderRow
+            key={id}
+            id={id}
+            index={i}
+            count={order.length}
+            label={label(id)}
+            mark={marks ? (marks[i] ? 'right' : 'wrong') : undefined}
+            reduced={reduced}
+            onMove={move}
+          />
+        ))}
       </Reorder.Group>
 
       <div className="sr-only" role="status" aria-live="polite">
