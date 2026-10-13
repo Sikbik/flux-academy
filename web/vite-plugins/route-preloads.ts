@@ -12,7 +12,6 @@
  */
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
-import type { Plugin } from 'vite';
 
 export const ROUTE_PRELOADS_FILE = 'route-preloads.json';
 export const ROUTE_PRELOADS_VERSION = 1;
@@ -222,8 +221,27 @@ export function computeRoutePreloads(opts: {
   return { version: ROUTE_PRELOADS_VERSION, routes: result };
 }
 
+/**
+ * The part of a Vite plugin this file returns. It is declared here and not imported from `vite` because the
+ * server's type check includes this file (its tests import the pure functions) and the server has no `vite`;
+ * Vite accepts the object structurally.
+ */
+export interface RoutePreloadsPlugin {
+  name: string;
+  apply: 'build';
+  configResolved(config: { root: string; base: string; build: { ssr?: unknown; lib?: unknown } }): void;
+  generateBundle(
+    this: {
+      warn(message: string): void;
+      emitFile(file: { type: 'asset'; fileName: string; source: string }): unknown;
+    },
+    options: unknown,
+    bundle: unknown,
+  ): void;
+}
+
 /** The Vite plugin: emits `route-preloads.json` next to `index.html` in a client build. */
-export function routePreloadsPlugin(): Plugin {
+export function routePreloadsPlugin(): RoutePreloadsPlugin {
   let root = process.cwd();
   let base = '/';
   let skip = false;
