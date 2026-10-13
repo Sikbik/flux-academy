@@ -1,0 +1,268 @@
+/*
+ * How it works. Desktop: the chapter cards scroll down the left; a sticky frame holds the right, and the
+ * scene (the stage behind the page) is framed inside it, so the bench acts each chapter out beside the
+ * text. Phones: the frame sticks to the top and the cards slide up over the lower part of the screen.
+ */
+@layer route {
+  .story {
+    position: relative;
+    z-index: 1;
+    padding-block-start: var(--section-y);
+    scroll-margin-block-start: var(--header-offset, 72px);
+  }
+
+  .track {
+    inline-size: min(100% - 2 * var(--gutter), var(--container-wide));
+    margin-inline: auto;
+    margin-block-start: var(--space-8);
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    column-gap: clamp(1.5rem, 4vw, 4.5rem);
+    pointer-events: none;
+  }
+
+  .chapters {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .chapter {
+    display: flex;
+    align-items: center;
+    min-block-size: 92svh;
+    scroll-margin-block-start: var(--header-offset, 72px);
+  }
+
+  .card {
+    inline-size: 100%;
+    pointer-events: auto;
+  }
+
+  .cardInner {
+    display: grid;
+    gap: var(--space-5);
+  }
+
+  .cardHead {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-4);
+  }
+
+  .step {
+    display: inline-flex;
+    align-items: baseline;
+    gap: var(--space-2);
+    font: 500 var(--fs-xs) / 1 var(--font-mono);
+    letter-spacing: var(--tracking-label);
+    color: var(--text-3);
+  }
+
+  .stepNum {
+    font-size: var(--fs-md);
+    color: var(--accent-text);
+  }
+
+  .cardTitle {
+    margin: 0;
+    font: 600 clamp(1.75rem, 1.3rem + 1.2vw, 2.5rem) / 1 var(--font-display);
+    letter-spacing: var(--tracking-h2);
+    color: var(--text-1);
+  }
+
+  .text {
+    margin: 0;
+    font: var(--type-body);
+    color: var(--text-2);
+    text-wrap: pretty;
+  }
+
+  .figure {
+    margin: 0;
+    display: grid;
+    gap: var(--space-3);
+  }
+
+  .go {
+    margin: 0;
+  }
+
+  .goLink {
+    display: inline-grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: baseline;
+    gap: var(--space-2) var(--space-3);
+    color: var(--accent-text);
+    text-decoration: none;
+  }
+
+  .goKicker {
+    font: 500 var(--fs-2xs) / 1 var(--font-mono);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+
+  .goTitle {
+    font: 600 var(--fs-md) / 1.3 var(--font-sans);
+  }
+
+  .goLink:is(:hover, :focus-visible) .goTitle {
+    text-decoration: underline;
+    text-underline-offset: 0.25em;
+  }
+
+  /* ---- the frame: transparent, so the stage shows through; sticky while the cards pass -------- */
+
+  .frameCol {
+    grid-column: 2;
+    grid-row: 1;
+    min-inline-size: 0;
+  }
+
+  .frame {
+    --pin: calc(var(--header-h, 64px) + var(--space-5));
+    position: sticky;
+    inset-block-start: var(--pin);
+    block-size: calc(100svh - var(--pin) - var(--space-6));
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    pointer-events: none;
+  }
+
+  /* The free area the scene is framed in: everything of the frame above the rail. */
+  .area {
+    flex: 1 1 auto;
+    min-block-size: 0;
+  }
+
+  /* ---- the rail ------------------------------------------------------------------------------ */
+
+  .rail {
+    inline-size: 100%;
+    pointer-events: auto;
+  }
+
+  .railInner ol {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--space-3);
+  }
+
+  .rail a {
+    display: grid;
+    gap: var(--space-2);
+    padding-block: var(--space-2);
+    color: var(--text-3);
+    text-decoration: none;
+    font: 500 var(--fs-xs) / 1.2 var(--font-mono);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+  }
+
+  .rail li[data-state="current"] a,
+  .rail li[data-state="done"] a {
+    color: var(--text-1);
+  }
+
+  .railNum {
+    color: var(--text-4);
+  }
+
+  .rail li[data-state="current"] .railNum {
+    color: var(--accent-text);
+  }
+
+  .railBar {
+    position: relative;
+    display: block;
+    block-size: 2px;
+    background: var(--line-2);
+    overflow: hidden;
+  }
+
+  .railBar::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: var(--accent);
+    box-shadow: 0 0 10px var(--accent-glow);
+    transform-origin: 0 50%;
+    transform: scaleX(var(--fill, 0));
+  }
+
+  .rail a:hover .railName,
+  .rail a:focus-visible .railName {
+    text-decoration: underline;
+    text-underline-offset: 0.3em;
+  }
+
+  /* ---- phones and tablets: frame on top, cards slide up under it ------------------------------ */
+
+  @media (max-width: 1099.98px) {
+    .track {
+      grid-template-columns: minmax(0, 1fr);
+      margin-block-start: 0;
+    }
+
+    .chapters,
+    .frameCol {
+      grid-column: 1;
+      grid-row: 1;
+    }
+
+    .frameCol {
+      z-index: 0;
+    }
+
+    .chapters {
+      position: relative;
+      z-index: 1;
+      padding-block-start: 46svh;
+    }
+
+    .chapter {
+      align-items: flex-end;
+      min-block-size: 100svh;
+      padding-block-end: var(--space-5);
+    }
+
+    .frame {
+      --pin: var(--header-h, 64px);
+      block-size: 46svh;
+    }
+
+    .rail {
+      display: none;
+    }
+  }
+
+  /* Phones: the bench is the point, so the card is only the words and the way deeper. */
+  @media (max-width: 719.98px) {
+    .figure {
+      display: none;
+    }
+
+    .cardInner {
+      gap: var(--space-4);
+    }
+
+    .text {
+      font-size: var(--fs-sm);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :root:not([data-motion="full"]) .railBar::after {
+      transition: none;
+    }
+  }
+}

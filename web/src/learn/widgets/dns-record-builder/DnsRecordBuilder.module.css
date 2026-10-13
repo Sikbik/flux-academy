@@ -1,0 +1,571 @@
+@layer route {
+  .root {
+    inline-size: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+  }
+
+  .head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    flex-wrap: wrap;
+  }
+
+  .headChips {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .eyebrow {
+    margin: 0;
+    font: 500 var(--fs-2xs) / 1 var(--font-mono);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent-text);
+  }
+
+  .goal {
+    margin: 0;
+    font-size: var(--fs-md);
+    line-height: 1.6;
+    color: var(--text-2);
+    max-inline-size: 62ch;
+  }
+
+  .goal code,
+  .halfText code,
+  .notes code,
+  .asked code,
+  .table code {
+    font: 500 0.92em / 1 var(--font-mono);
+    color: var(--text-1);
+    background: rgb(255 255 255 / 0.06);
+    padding: 1px 5px;
+    overflow-wrap: anywhere;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-6);
+  }
+
+  @container (min-width: 46rem) {
+    .grid {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: var(--space-6);
+    }
+  }
+
+  .col {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    min-inline-size: 0;
+  }
+
+  .colTitle {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font: 500 var(--fs-xs) / 1.2 var(--font-mono);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+
+  .step {
+    display: inline-grid;
+    place-items: center;
+    inline-size: 22px;
+    block-size: 24px;
+    font: 600 var(--fs-xs) / 1 var(--font-mono);
+    color: var(--text-1);
+    background: rgb(var(--accent-deep-rgb) / 0.5);
+    clip-path: var(--hex-clip);
+  }
+
+  .providerFixed {
+    margin: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--fs-sm);
+    color: var(--text-2);
+  }
+
+  .quirk {
+    margin: 0;
+    font-size: var(--fs-xs);
+    line-height: 1.55;
+    color: var(--text-3);
+  }
+
+  /* ---- The form: a stand-in for a provider's "add record" dialog --------------------------- */
+
+  .form {
+    display: grid;
+    gap: var(--space-4);
+    padding: var(--space-4);
+    background: rgb(var(--ink-1-rgb) / 0.7);
+    box-shadow: inset 0 0 0 1px var(--line-2);
+    clip-path: polygon(0 10px, 10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%);
+  }
+
+  .formRow {
+    align-items: start;
+    display: grid;
+    /* The type is a short word and the TTL option is a phrase, so the TTL gets the wider column. */
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    gap: var(--space-3);
+  }
+
+  .verdict {
+    margin: 0;
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-2);
+    padding: var(--space-3);
+    font-size: var(--fs-sm);
+    line-height: 1.5;
+    color: var(--text-1);
+    background: rgb(var(--status-ok-rgb) / 0.1);
+    box-shadow: inset 0 0 0 1px rgb(var(--status-ok-rgb) / 0.5);
+    animation: rise var(--dur-3) var(--ease-out) both;
+  }
+
+  .verdict svg {
+    flex: none;
+    color: var(--status-ok);
+    margin-block-start: 1px;
+  }
+
+  .issues {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  .issue {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-2);
+    font-size: var(--fs-sm);
+    line-height: 1.55;
+    color: var(--text-2);
+  }
+
+  .issue svg {
+    flex: none;
+    margin-block-start: 2px;
+    color: var(--text-3);
+  }
+
+  .issue[data-severity="error"] svg {
+    color: var(--status-crit);
+  }
+
+  .issue[data-severity="warning"] svg {
+    color: var(--status-warn);
+  }
+
+  .fix {
+    color: var(--text-1);
+  }
+
+  .inference {
+    display: inline-block;
+    margin-inline-end: var(--space-2);
+    padding: 2px 6px;
+    font: 500 var(--fs-2xs) / 1 var(--font-mono);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--status-warn);
+    box-shadow: inset 0 0 0 1px rgb(var(--status-warn-rgb) / 0.55);
+  }
+
+  /* ---- The resolver's answer -------------------------------------------------------------- */
+
+  .asked {
+    margin: 0;
+    font-size: var(--fs-sm);
+    line-height: 1.7;
+    color: var(--text-2);
+  }
+
+  .chain {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+
+  .hop {
+    position: relative;
+    display: grid;
+    grid-template-columns: 28px minmax(0, 1fr);
+    gap: var(--space-3);
+    padding-block-end: var(--space-3);
+    animation: rise var(--dur-3) var(--ease-out) both;
+  }
+
+  .hop:nth-child(2) {
+    animation-delay: 80ms;
+  }
+  .hop:nth-child(3) {
+    animation-delay: 160ms;
+  }
+
+  /* The line that joins one hop to the next draws itself in. */
+  .hop:not(:last-child)::before {
+    content: "";
+    position: absolute;
+    inset-inline-start: 13px;
+    inset-block: 28px 0;
+    inline-size: 2px;
+    background: var(--accent-line);
+    transform-origin: top;
+    animation: draw var(--dur-3) var(--ease-out) both;
+  }
+
+  .hopMark {
+    display: grid;
+    place-items: center;
+    inline-size: 26px;
+    block-size: 28px;
+    color: #04101a;
+    background: var(--status-ok);
+    clip-path: var(--hex-clip);
+  }
+
+  .hop[data-ok="false"] .hopMark {
+    color: var(--text-1);
+    background: var(--status-crit);
+  }
+
+  .hopBody {
+    min-inline-size: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  .hopHead {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .owner {
+    font: 500 var(--fs-2xs) / 1 var(--font-mono);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+
+  .owner[data-owner="you"] {
+    color: var(--accent-text);
+  }
+
+  .dig {
+    display: block;
+    font: 500 var(--fs-xs) / 1.55 var(--font-mono);
+    color: var(--text-1);
+    background: rgb(var(--ink-1-rgb) / 0.8);
+    padding: var(--space-2) var(--space-3);
+    box-shadow: inset 0 0 0 1px var(--line-1);
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
+  }
+
+  .hop[data-ok="false"] .dig {
+    box-shadow: inset 0 0 0 1px rgb(var(--status-crit-rgb) / 0.55);
+  }
+
+  .hopNote {
+    font-size: var(--fs-xs);
+    line-height: 1.5;
+    color: var(--text-3);
+  }
+
+  .emptyChain {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-4);
+    font-size: var(--fs-sm);
+    color: var(--text-3);
+    box-shadow: inset 0 0 0 1px var(--line-1);
+  }
+
+  .emptyChain[data-outcome="refused"] {
+    color: var(--text-2);
+    box-shadow: inset 0 0 0 1px rgb(var(--status-crit-rgb) / 0.5);
+  }
+
+  .outcome {
+    margin: 0;
+    padding-inline-start: var(--space-3);
+    border-inline-start: 2px solid var(--status-off);
+    font-size: var(--fs-sm);
+    line-height: 1.55;
+    color: var(--text-2);
+  }
+
+  .outcome[data-good="true"] {
+    border-inline-start-color: var(--status-ok);
+    color: var(--text-1);
+  }
+
+  .lookup {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .lookupBtn {
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-block-size: 36px;
+    padding: 0;
+    background: none;
+    border: 0;
+    font: 500 var(--fs-xs) / 1.2 var(--font-mono);
+    letter-spacing: 0.04em;
+    color: var(--accent-text);
+    cursor: pointer;
+    overflow-wrap: anywhere;
+    text-align: start;
+  }
+
+  .lookupBtn:hover {
+    color: var(--accent-strong);
+  }
+
+  .lookupBtn:focus-visible {
+    outline: 2px solid var(--focus-color);
+    outline-offset: 3px;
+  }
+
+  .lookupBody {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    padding: var(--space-3);
+    background: rgb(var(--accent-deep-rgb) / 0.08);
+    box-shadow: inset 0 0 0 1px var(--accent-line);
+  }
+
+  .lookupBody p {
+    margin: 0;
+    font-size: var(--fs-xs);
+    line-height: 1.55;
+    color: var(--text-3);
+  }
+
+  .fineprint {
+    margin: 0;
+    font-size: var(--fs-xs);
+    line-height: 1.55;
+    color: var(--text-3);
+  }
+
+  /* ---- Part two ---------------------------------------------------------------------------- */
+
+  .half {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    padding-block-start: var(--space-5);
+    border-block-start: 1px solid var(--line-1);
+  }
+
+  .halfText {
+    margin: 0;
+    font-size: var(--fs-sm);
+    line-height: 1.6;
+    color: var(--text-2);
+    max-inline-size: 62ch;
+  }
+
+  .tableWrap {
+    overflow-x: auto;
+  }
+
+  .table {
+    inline-size: 100%;
+    border-collapse: collapse;
+    font-size: var(--fs-xs);
+  }
+
+  .table th {
+    text-align: start;
+    padding: var(--space-2) var(--space-3);
+    font: 500 var(--fs-2xs) / 1.2 var(--font-mono);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-3);
+    border-block-end: 1px solid var(--line-2);
+  }
+
+  .table td {
+    padding: var(--space-2) var(--space-3);
+    color: var(--text-2);
+    border-block-end: 1px solid var(--line-1);
+    vertical-align: top;
+  }
+
+  .table td span {
+    color: var(--text-3);
+  }
+
+  /* Narrow container: the table gives way to one card per port. */
+  .portCards {
+    display: none;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    gap: var(--space-2);
+  }
+
+  .portCard {
+    padding: var(--space-3);
+    border: 1px solid var(--line-1);
+    background: rgb(var(--ink-1-rgb) / 0.5);
+  }
+
+  .portCard dl {
+    margin: 0;
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  .portCard dt {
+    font: 500 var(--fs-2xs) / 1.4 var(--font-mono);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+
+  .portCard dd {
+    margin: 0;
+    font-size: var(--fs-xs);
+    color: var(--text-2);
+  }
+
+  .portCard code {
+    font: 500 0.92em / 1.5 var(--font-mono);
+    color: var(--text-1);
+    background: rgb(255 255 255 / 0.06);
+    padding: 1px 5px;
+    overflow-wrap: break-word;
+  }
+
+  .portCard dd span {
+    color: var(--text-3);
+  }
+
+  @container (max-width: 34rem) {
+    .tableWrap {
+      display: none;
+    }
+
+    .portCards {
+      display: grid;
+    }
+  }
+
+  .notes {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  .notes li {
+    position: relative;
+    padding-inline-start: var(--space-5);
+    font-size: var(--fs-sm);
+    line-height: 1.55;
+    color: var(--text-2);
+  }
+
+  .notes li::before {
+    content: "";
+    position: absolute;
+    inset-inline-start: 2px;
+    inset-block-start: 0.5em;
+    inline-size: 8px;
+    block-size: 9px;
+    background: rgb(var(--accent-rgb) / 0.55);
+    clip-path: var(--hex-clip);
+  }
+
+  /* ---- Motion and contrast twins ----------------------------------------------------------- */
+
+  @media (prefers-reduced-motion: reduce) {
+    .hop,
+    .hop::before,
+    .verdict {
+      animation: none;
+    }
+  }
+
+  @media (forced-colors: active) {
+    .hopMark,
+    .step {
+      clip-path: none;
+      background: ButtonFace;
+      color: ButtonText;
+      border: 1px solid ButtonText;
+    }
+    .form,
+    .dig,
+    .lookupBody,
+    .verdict,
+    .emptyChain {
+      box-shadow: none;
+      border: 1px solid CanvasText;
+      clip-path: none;
+    }
+    .hop[data-ok="false"] .dig {
+      border-width: 2px;
+      border-style: dashed;
+    }
+    .outcome {
+      border-inline-start-color: CanvasText;
+    }
+  }
+
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes draw {
+    from {
+      transform: scaleY(0);
+    }
+    to {
+      transform: scaleY(1);
+    }
+  }
+}

@@ -1,0 +1,264 @@
+/*
+ * The Issues panel. Severity is a glyph, a word (screen reader) and a colour rail: never colour alone.
+ * New rows draw in with a 40 ms stagger, the same cadence as the underlines in the JSON editor.
+ */
+@layer reset, tokens, base, ui, route, utility;
+
+@layer ui {
+  .root {
+    container: forge-issues / inline-size;
+    display: grid;
+    gap: var(--space-4);
+    align-content: start;
+    min-inline-size: 0;
+  }
+
+  .summary {
+    --tone: var(--status-ok);
+    --tone-rgb: var(--status-ok-rgb);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    padding: var(--space-3);
+    background: rgb(var(--tone-rgb) / 0.09);
+    box-shadow: inset 2px 0 0 var(--tone);
+    clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%);
+    transition: background var(--dur-3) var(--ease-out);
+  }
+
+  .summary[data-valid="false"] {
+    --tone: var(--status-crit);
+    --tone-rgb: var(--status-crit-rgb);
+  }
+
+  .verdict {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3);
+    min-inline-size: 0;
+  }
+
+  .verdict svg {
+    flex: none;
+    color: var(--tone);
+  }
+
+  .verdict span {
+    display: grid;
+    gap: 2px;
+  }
+
+  .verdict strong {
+    font: 600 var(--fs-md) / 1.2 var(--font-sans);
+    color: var(--text-1);
+  }
+
+  .verdict small {
+    font: 500 var(--fs-xs) / 1.3 var(--font-mono);
+    color: var(--text-3);
+  }
+
+  .counts {
+    display: inline-flex;
+    gap: var(--space-3);
+    font: 600 var(--fs-xs) / 1 var(--font-mono);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .counts span {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .counts span[data-severity="error"] {
+    color: var(--status-crit);
+  }
+
+  .counts span[data-severity="warning"] {
+    color: var(--status-warn);
+  }
+
+  .counts span[data-severity="info"] {
+    color: var(--status-pending);
+  }
+
+  .counts span[data-zero="true"] {
+    opacity: 0.4;
+  }
+
+  .empty {
+    margin: 0;
+    padding: var(--space-3);
+    font: 400 var(--fs-sm) / 1.55 var(--font-sans);
+    color: var(--text-2);
+    border: 1px dashed var(--line-2);
+  }
+
+  .groups {
+    display: grid;
+    gap: var(--space-5);
+  }
+
+  .group {
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  .groupTitle {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin: 0;
+    font: 500 var(--fs-2xs) / 1.2 var(--font-mono);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+
+  .group[data-severity="error"] .groupTitle svg {
+    color: var(--status-crit);
+  }
+
+  .group[data-severity="warning"] .groupTitle svg {
+    color: var(--status-warn);
+  }
+
+  .group[data-severity="info"] .groupTitle svg {
+    color: var(--status-pending);
+  }
+
+  .groupCount {
+    font-variant-numeric: tabular-nums;
+    color: var(--text-1);
+  }
+
+  .list {
+    display: grid;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .item {
+    --sev: var(--status-pending);
+    --sev-rgb: var(--status-pending-rgb);
+    position: relative;
+    background: rgb(var(--ink-1-rgb) / 0.7);
+    box-shadow: inset 0 0 0 1px var(--line-1);
+    clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+    animation: draw var(--dur-3) var(--ease-out) both;
+    animation-delay: calc(var(--i, 0) * 40ms);
+  }
+
+  .item[data-severity="error"] {
+    --sev: var(--status-crit);
+    --sev-rgb: var(--status-crit-rgb);
+  }
+
+  .item[data-severity="warning"] {
+    --sev: var(--status-warn);
+    --sev-rgb: var(--status-warn-rgb);
+  }
+
+  .item::before {
+    content: "";
+    position: absolute;
+    inset-block: 0;
+    inset-inline-start: 0;
+    inline-size: 2px;
+    background: var(--sev);
+  }
+
+  .item[data-expanded="true"] {
+    background: rgb(var(--sev-rgb) / 0.06);
+  }
+
+  .trigger {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto auto;
+    align-items: center;
+    gap: var(--space-3);
+    inline-size: 100%;
+    min-block-size: 44px;
+    padding: var(--space-2) var(--space-3) var(--space-2) var(--space-4);
+    border: 0;
+    background: transparent;
+    text-align: start;
+    color: var(--text-1);
+    cursor: pointer;
+    transition: background var(--dur-1) var(--ease-out);
+  }
+
+  .trigger:hover {
+    background: rgb(var(--accent-rgb) / 0.08);
+  }
+
+  .trigger:focus-visible {
+    outline: 2px solid var(--focus-color);
+    outline-offset: -2px;
+  }
+
+  .trigger > svg:last-child {
+    color: var(--text-3);
+  }
+
+  .sev {
+    display: inline-flex;
+    color: var(--sev);
+  }
+
+  .message {
+    font: 600 var(--fs-sm) / 1.4 var(--font-sans);
+    overflow-wrap: anywhere;
+  }
+
+  .code {
+    max-inline-size: 16ch;
+    padding: 1px 6px;
+    font: 500 var(--fs-2xs) / 1.5 var(--font-mono);
+    color: var(--accent-text);
+    background: rgb(255 255 255 / 0.05);
+    box-shadow: inset 0 0 0 1px var(--line-1);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .detail {
+    padding: 0 var(--space-4) var(--space-4) var(--space-4);
+  }
+
+  @keyframes draw {
+    from {
+      opacity: 0;
+      clip-path: polygon(0 0, 0 0, 0 100%, 0 100%);
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @container forge-issues (max-width: 26rem) {
+    .code {
+      display: none;
+    }
+
+    .trigger {
+      grid-template-columns: auto minmax(0, 1fr) auto;
+    }
+  }
+
+  :global(html[data-motion="reduced"]) .item {
+    animation: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :global(html:not([data-motion="full"])) .item {
+      animation: none;
+    }
+  }
+}

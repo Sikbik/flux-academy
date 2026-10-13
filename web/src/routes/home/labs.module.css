@@ -1,0 +1,225 @@
+/*
+ * The labs: a bento of instrument cards. Desktop is four columns by two rows (eight cells), which the labs
+ * fill when two of them are double width: the first (the Spec Forge, the one the most lessons use) and the last
+ * (the newest) are wide, with the picture beside the words and on the outside edge of each, so the pair sits
+ * on a diagonal; the others are one cell, with the picture above the words. Tablet is two columns with the
+ * wide cards across; phones are one column. Only `bentoCells` (logic.ts) decides which cards are wide, and
+ * only while the cells add up, so any other number of labs falls back to one cell each and simply wraps.
+ * Cards are glass with tilt and a cursor spotlight from the design system.
+ */
+@layer route {
+  .bento {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--space-4);
+  }
+
+  .item {
+    display: block;
+    min-inline-size: 0;
+  }
+
+  .item[data-wide="true"] {
+    grid-column: span 2;
+  }
+
+  .card {
+    display: block;
+    block-size: 100%;
+    color: inherit;
+    text-decoration: none;
+  }
+
+  /* The emblems are light on black: screened as one group onto the glass, the black costs nothing. */
+  .inner {
+    display: grid;
+    gap: var(--space-4);
+    align-content: start;
+    block-size: 100%;
+    mix-blend-mode: screen;
+  }
+
+  /* A wide card: the picture beside the words, centred on the card's height. */
+  .item[data-wide="true"] .inner {
+    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+    align-items: center;
+    align-content: center;
+    column-gap: var(--space-6);
+  }
+
+  /* The picture on the outside edge: the last wide card mirrors the first. */
+  .item[data-wide="true"][data-flip="true"] .inner {
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+  }
+
+  /* ---- art ---------------------------------------------------------------------------------- */
+
+  .art {
+    --s: min(36cqi, 7.5rem);
+    position: relative;
+    display: block;
+    inline-size: var(--s);
+    block-size: var(--s);
+    pointer-events: none;
+    margin-block-end: calc(var(--space-2) * -1);
+  }
+
+  .item[data-wide="true"] .art {
+    --s: min(40cqi, 17rem);
+    justify-self: center;
+    margin: 0;
+  }
+
+  .item[data-wide="true"][data-flip="true"] .art {
+    order: 1;
+  }
+
+  .art img {
+    position: absolute;
+    inset: 0;
+    inline-size: 100%;
+    block-size: 100%;
+    max-inline-size: none;
+    transition:
+      transform var(--dur-4) var(--ease-out),
+      filter var(--dur-3) var(--ease-out);
+  }
+
+  .card:is(:hover, :focus-visible) .art img {
+    transform: scale(1.05) rotate(-1deg);
+    filter: brightness(1.2);
+  }
+
+  /* ---- words -------------------------------------------------------------------------------- */
+
+  .body {
+    display: grid;
+    gap: var(--space-3);
+    align-content: start;
+  }
+
+  .name {
+    font: 600 clamp(1.25rem, 1rem + 0.7vw, 1.625rem) / 1.1 var(--font-display);
+    letter-spacing: var(--tracking-heading);
+    color: var(--text-1);
+  }
+
+  .item[data-wide="true"] .name {
+    font-size: clamp(1.625rem, 1.1rem + 1.1vw, 2.25rem);
+  }
+
+  .summary {
+    font: var(--type-body);
+    color: var(--text-2);
+    text-wrap: pretty;
+  }
+
+  .preview {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--space-2) var(--space-3);
+    padding-block: var(--space-2);
+    border-block: 1px solid var(--line-1);
+  }
+
+  .previewNum {
+    font: 600 var(--fs-stat) / 1 var(--font-display);
+    font-variant-numeric: tabular-nums;
+    color: var(--accent-text);
+  }
+
+  .previewText {
+    display: grid;
+    font: 500 var(--fs-xs) / 1.4 var(--font-mono);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text-2);
+  }
+
+  .asOf {
+    text-transform: none;
+    letter-spacing: 0.02em;
+    color: var(--text-3);
+  }
+
+  .foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    margin-block-start: var(--space-2);
+  }
+
+  .tags {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .cta {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    font: 600 var(--fs-md) / 1 var(--font-sans);
+    color: var(--accent-text);
+    transition: gap var(--dur-3) var(--ease-out);
+  }
+
+  .card:is(:hover, :focus-visible) .cta {
+    gap: var(--space-3);
+  }
+
+  /* ---- tablet: two columns, the wide cards across -------------------------------------------- */
+
+  @media (max-width: 1279.98px) {
+    .bento {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .item[data-wide="true"] {
+      grid-column: 1 / -1;
+    }
+
+    .item[data-wide="true"] .art {
+      --s: min(44cqi, 17rem);
+    }
+  }
+
+  /* ---- phones: one column, the wide cards stack their picture over the words ------------------ */
+
+  @media (max-width: 639.98px) {
+    .bento {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .item[data-wide="true"] .inner,
+    .item[data-wide="true"][data-flip="true"] .inner {
+      grid-template-columns: minmax(0, 1fr);
+      align-content: start;
+    }
+
+    .item[data-wide="true"] .art {
+      --s: min(60cqi, 13rem);
+      margin-inline: auto;
+    }
+
+    .item[data-wide="true"][data-flip="true"] .art {
+      order: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :root:not([data-motion="full"]) .art img {
+      transition: none;
+    }
+  }
+
+  :root[data-motion="reduced"] .art img {
+    transition: none;
+  }
+}

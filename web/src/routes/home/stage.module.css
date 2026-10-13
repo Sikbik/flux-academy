@@ -1,0 +1,167 @@
+/*
+ * The stage: a sticky, viewport-sized layer inside a rail that spans the whole page, so the bench stays
+ * put while sections scroll over it and ends where the page ends (the footer is never covered). Order,
+ * bottom to top: poster plate, the WebGL scene, the veil.
+ */
+@layer route {
+  .rail {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .stage {
+    position: sticky;
+    inset-block-start: 0;
+    inline-size: 100%;
+    block-size: 100svh;
+    overflow: clip;
+    background: var(--void);
+    pointer-events: auto;
+  }
+
+  .plate,
+  .scene,
+  .veil {
+    position: absolute;
+    inset: 0;
+  }
+
+  /* The poster: the generated bench plate. It is the first frame while the scene loads and the whole
+     stage when there is no WebGL. Light on black, so screen removes the box. */
+  .plate {
+    transition: opacity 900ms var(--ease-out);
+  }
+
+  .plate img {
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
+    object-position: 50% 78%;
+    mix-blend-mode: screen;
+    opacity: 0.8;
+  }
+
+  .stage[data-ready="true"] .plate {
+    opacity: 0;
+  }
+
+  /* Without a scene the plate is the whole stage: keep it away from the copy and the controls. */
+  .stage[data-mode="lite"] .plate {
+    mask-image: linear-gradient(90deg, transparent 6%, rgb(0 0 0 / 0.55) 46%, #000 78%);
+  }
+
+  .stage[data-mode="lite"] .plate img {
+    opacity: 0.62;
+  }
+
+  .scene {
+    opacity: 0;
+    transition: opacity 900ms var(--ease-out);
+  }
+
+  .stage[data-ready="true"] .scene {
+    opacity: 1;
+  }
+
+  /* The 2D bench sits in the free area of the section on screen; it eases between sections. */
+  .scene[data-renderer="2d"] {
+    transition:
+      opacity 900ms var(--ease-out),
+      inset 500ms var(--ease-out);
+  }
+
+  /* Whatever the scene mounts fills the stage. */
+  .scene > * {
+    position: absolute;
+    inset: 0;
+    inline-size: 100%;
+    block-size: 100%;
+  }
+
+  /*
+   * The veil keeps text readable. Two layers: a side scrim that holds the copy column (hero and story),
+   * and a flat dim for the sections that sit on glass over a calm backdrop. Both ease between sections.
+   */
+  .veil::before,
+  .veil::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transition: opacity 700ms var(--ease-out);
+  }
+
+  .veil::before {
+    background:
+      linear-gradient(90deg, rgb(0 0 0 / 0.78) 0%, rgb(0 0 0 / 0.5) 34%, rgb(0 0 0 / 0) 62%),
+      linear-gradient(180deg, rgb(0 0 0 / 0.55) 0%, rgb(0 0 0 / 0) 18%);
+    opacity: 0;
+  }
+
+  .veil::after {
+    background: radial-gradient(
+      120% 90% at 50% 55%,
+      rgb(0 0 0 / var(--dim-c, 0.74)),
+      rgb(0 0 0 / var(--dim-e, 0.9))
+    );
+    opacity: 0;
+  }
+
+  /* Cards bring their own darkness, so the bench may show a little more behind them. */
+  .stage[data-section="path"],
+  .stage[data-section="labs"] {
+    --dim-c: 0.58;
+    --dim-e: 0.84;
+  }
+
+  .stage[data-section="live"],
+  .stage[data-section="build"] {
+    --dim-c: 0.66;
+    --dim-e: 0.88;
+  }
+
+  .stage[data-section="hero"] .veil::before,
+  .stage[data-section="story"] .veil::before {
+    opacity: 1;
+  }
+
+  .stage[data-section="path"] .veil::after,
+  .stage[data-section="labs"] .veil::after,
+  .stage[data-section="live"] .veil::after,
+  .stage[data-section="build"] .veil::after,
+  .stage[data-section="close"] .veil::after,
+  .stage[data-section="backdrop"] .veil::after {
+    opacity: 1;
+  }
+
+  /* The close lets the bench breathe: one line of large type sits on it. */
+  .stage[data-section="close"] .veil::after {
+    opacity: 0.6;
+  }
+
+  /* Phones: the copy sits above the bench, so the scrim runs from the top. */
+  @media (max-width: 1099.98px) {
+    .veil::before {
+      background:
+        linear-gradient(180deg, rgb(0 0 0 / 0.82) 0%, rgb(0 0 0 / 0.6) 38%, rgb(0 0 0 / 0) 64%),
+        linear-gradient(0deg, rgb(0 0 0 / 0.55) 0%, rgb(0 0 0 / 0) 22%);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :root:not([data-motion="full"]) .plate,
+    :root:not([data-motion="full"]) .scene,
+    :root:not([data-motion="full"]) .veil::before,
+    :root:not([data-motion="full"]) .veil::after {
+      transition-duration: 200ms;
+    }
+  }
+
+  :root[data-motion="reduced"] .plate,
+  :root[data-motion="reduced"] .scene,
+  :root[data-motion="reduced"] .veil::before,
+  :root[data-motion="reduced"] .veil::after {
+    transition-duration: 200ms;
+  }
+}

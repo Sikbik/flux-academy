@@ -1,0 +1,30 @@
+{
+  "version": 8,
+  "name": "academy",
+  "description": "Flux Deployment Academy",
+  "owner": "YOUR_ZELID_HERE",
+  "instances": 2,
+  "staticip": false,
+  "enterprise": "",
+  "contacts": [],
+  "geolocation": [],
+  "expire": 88000,
+  "nodes": [],
+  "compose": [
+    {
+      "name": "academy",
+      "description": "Flux Deployment Academy",
+      "repotag": "littlestache/flux-academy:latest",
+      "ports": [42069],
+      "containerPorts": [42069],
+      "domains": [""],
+      "environmentParameters": [],
+      "commands": [],
+      "containerData": "/appdata",
+      "cpu": 1,
+      "ram": 2000,
+      "hdd": 5,
+      "repoauth": ""
+    }
+  ]
+}

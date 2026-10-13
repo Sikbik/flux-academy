@@ -1,0 +1,284 @@
+@layer route {
+  /* `--rail-pin` is how much of the rail is pinned above the stage: all of it on the wide layout, none
+     when the rail scrolls away (see Player.module.css). */
+  .column {
+    position: sticky;
+    inset-block-start: calc(var(--bar-h, 64px) + var(--rail-pin, var(--rail-h, 56px)) + var(--space-4));
+    min-inline-size: 0;
+    transition: inset-block-start var(--dur-3) var(--ease-out);
+  }
+
+  /* The frame fills the viewport under the rail (never taller than 52rem) so a stage swap never makes
+     the page jump; a stage taller than that scrolls inside it. */
+  .frame {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    block-size: max(
+      26rem,
+      min(52rem, calc(100svh - var(--bar-h, 64px) - var(--rail-pin, var(--rail-h, 56px)) - var(--space-16)))
+    );
+    background: rgb(var(--ink-0-rgb) / 0.66);
+    backdrop-filter: var(--glass-filter);
+    -webkit-backdrop-filter: var(--glass-filter);
+    clip-path: polygon(0 22px, 22px 0, 100% 0, 100% calc(100% - 22px), calc(100% - 22px) 100%, 0 100%);
+  }
+
+  /* The edge: a hairline that burns hot on the top-right cut, drawn with an inset shadow. */
+  .edge {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    box-shadow: inset 0 0 0 1px var(--line-2);
+    background:
+      linear-gradient(135deg, transparent 70%, rgb(var(--accent-hot-rgb) / 0.35)) top right / 22px 22px
+      no-repeat;
+  }
+
+  .head {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-5);
+    border-block-end: 1px solid var(--line-1);
+    background: rgb(var(--ink-0-rgb) / 0.5);
+  }
+
+  .kind {
+    display: inline-flex;
+    flex: 0 1 auto;
+    min-inline-size: 0;
+    align-items: center;
+    gap: var(--space-2);
+    font: 500 var(--fs-xs) / 1.35 var(--font-mono);
+    letter-spacing: var(--tracking-label, 0.12em);
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+
+  .bullet {
+    flex: none;
+    inline-size: 8px;
+    block-size: 8px;
+    background: var(--accent);
+    box-shadow: 0 0 10px var(--accent-glow);
+    clip-path: var(--hex-clip);
+  }
+
+  .sim {
+    display: inline-flex;
+    flex: none;
+    white-space: nowrap;
+    align-items: center;
+    gap: var(--space-1);
+    padding: 3px var(--space-2);
+    font: 500 var(--fs-2xs) / 1 var(--font-mono);
+    letter-spacing: var(--tracking-label, 0.12em);
+    text-transform: uppercase;
+    color: var(--status-warn);
+    box-shadow: inset 0 0 0 1px rgb(var(--status-warn-rgb) / 0.5);
+    clip-path: polygon(0 4px, 4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%);
+  }
+
+  .collapse {
+    display: none;
+    flex: none;
+    white-space: nowrap;
+    margin-inline-start: auto;
+    align-items: center;
+    gap: var(--space-2);
+    min-block-size: 32px;
+    padding-inline: var(--space-3);
+    font: 500 var(--fs-xs) / 1 var(--font-mono);
+    color: var(--text-2);
+    box-shadow: inset 0 0 0 1px var(--line-2);
+  }
+
+  .collapse:hover {
+    color: var(--hot);
+  }
+
+  .body {
+    position: relative;
+    flex: 1 1 0;
+    display: grid;
+    min-block-size: 0;
+    overflow: auto;
+    scrollbar-gutter: stable;
+  }
+
+  /* A box that scrolls takes a tab stop (StageColumn.tsx); the ring is drawn inside the clipped frame. */
+  .body:focus-visible {
+    outline: 2px solid var(--focus-color);
+    outline-offset: -2px;
+  }
+
+  /* The collapse control sets `hidden`; an author `display` would otherwise win over the browser's rule. */
+  .body[hidden] {
+    display: none;
+  }
+
+  .stage {
+    position: relative;
+    min-inline-size: 0;
+    min-block-size: 100%;
+    grid-area: 1 / 1;
+  }
+
+  /* The hairline scan that sweeps the frame once when the stage swaps. */
+  .scan {
+    position: absolute;
+    inset-inline: 0;
+    inset-block-start: 0;
+    block-size: 1px;
+    z-index: 2;
+    pointer-events: none;
+    background: linear-gradient(90deg, transparent, var(--hot), transparent);
+    box-shadow: 0 0 12px var(--hot-glow, var(--accent-glow));
+    opacity: 0;
+    animation: scan var(--dur-3) var(--ease-in-out) both;
+  }
+
+  @keyframes scan {
+    0% {
+      opacity: 0.9;
+      transform: translateY(0);
+    }
+    100% {
+      opacity: 0;
+      transform: translateY(var(--scan-h, 30rem));
+    }
+  }
+
+  .failed {
+    display: grid;
+    justify-items: start;
+    align-content: center;
+    gap: var(--space-3);
+    min-block-size: 16rem;
+    padding: var(--space-8);
+    color: var(--status-warn);
+  }
+
+  .failedTitle {
+    margin: 0;
+    font: var(--type-h3);
+    color: var(--text-1);
+  }
+
+  .failedBody {
+    margin: 0;
+    max-inline-size: 44ch;
+    color: var(--text-2);
+  }
+
+  /* The stacked layout (a phone, a tablet in portrait, a narrow window; the three queries are the list in
+     useStacked.ts): the stage sits above the narrative, 42 svh at most, and stays under the header while
+     the narrative scrolls past it. It can be collapsed to its title bar. */
+  @media (max-width: 899.98px) and (orientation: portrait), (max-width: 899.98px) and (min-height: 500.02px),
+    (max-width: 639.98px) {
+    .column {
+      order: -1;
+      inset-block-start: var(--bar-h, 52px);
+      z-index: 4;
+      margin-inline: calc(var(--gutter) * -1);
+    }
+
+    .frame {
+      block-size: auto;
+      min-block-size: 0;
+      clip-path: none;
+      box-shadow: 0 10px 24px -14px rgb(0 0 0 / 0.8);
+    }
+
+    .body {
+      flex: 0 1 auto;
+      max-block-size: 42svh;
+    }
+
+    /* A diagram is drawn to fit its stage and a compare is two cards: both need more than 42 svh to be
+       read without scrolling, and both are things to look at rather than to type into. The terminal and
+       the spec editor keep the 42 svh: they share the screen with the narrative that asks for something. */
+    .frame[data-kind="diagram"] .body,
+    .frame[data-kind="compare"] .body {
+      max-block-size: 60svh;
+    }
+
+    .collapse {
+      display: inline-flex;
+    }
+  }
+
+  /* Tablets in portrait are stacked too, but they are tall: give the stage room for a figure and the
+     control row under it (the diorama is 16:10 here, which is about 510 px at 820 px wide). */
+  @media (min-width: 720px) and (max-width: 899.98px) and (orientation: portrait),
+    (min-width: 720px) and (max-width: 899.98px) and (min-height: 500.02px) {
+    .body,
+    .frame[data-kind="diagram"] .body,
+    .frame[data-kind="compare"] .body {
+      max-block-size: min(64svh, 44rem);
+    }
+  }
+
+  /* A short landscape viewport wide enough for two columns (a phone on its side, 844x390): the stage is
+     beside the narrative and as tall as the viewport lets it be. The wide layout's minimum of 26 rem would
+     be taller than the screen. (A short one narrower than 640 px is stacked, above.) */
+  @media (orientation: landscape) and (max-height: 500px) and (min-width: 640px) {
+    .frame {
+      block-size: calc(100svh - var(--bar-h, 64px) - var(--space-8));
+      min-block-size: 0;
+    }
+
+    .head {
+      padding-block: var(--space-2);
+      padding-inline: var(--space-4);
+    }
+  }
+
+  :root[data-motion="reduced"] .scan {
+    animation: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :root:not([data-motion="full"]) .scan {
+      animation: none;
+    }
+  }
+
+  /* Forced colours: shadows and glass are removed; the frame gets a real border and a plain background. */
+  @media (forced-colors: active) {
+    .frame {
+      clip-path: none;
+      background: Canvas;
+    }
+
+    .edge {
+      background: none;
+      box-shadow: none;
+      border: 1px solid CanvasText;
+    }
+
+    .sim,
+    .collapse {
+      box-shadow: none;
+      outline: 1px solid ButtonBorder;
+      outline-offset: -1px;
+      clip-path: none;
+    }
+
+    .collapse:hover,
+    .collapse:focus-visible {
+      outline-color: Highlight;
+    }
+
+    .bullet {
+      forced-color-adjust: none;
+      background: CanvasText;
+      box-shadow: none;
+    }
+
+    .scan {
+      display: none;
+    }
+  }
+}

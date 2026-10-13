@@ -1,0 +1,313 @@
+/*
+ * The live network: three instruments (tiers, block rhythm, places) in glass slabs. Under each, a hairline
+ * leader with a dot draws down to a numbered note that says what the instrument means for the learner.
+ */
+@layer route {
+  .grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-6) var(--space-5);
+    align-items: start;
+  }
+
+  .col {
+    display: grid;
+    gap: 0;
+    min-inline-size: 0;
+  }
+
+  .panel {
+    block-size: 100%;
+  }
+
+  .panelInner {
+    display: grid;
+    gap: var(--space-4);
+    align-content: start;
+    min-block-size: 20rem;
+  }
+
+  .head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2) var(--space-3);
+  }
+
+  .title {
+    margin: 0;
+    font: 600 var(--fs-h4) / 1.2 var(--font-display);
+    letter-spacing: var(--tracking-heading);
+    color: var(--text-1);
+  }
+
+  .asOf {
+    margin: 0;
+    font: 500 var(--fs-xs) / 1.4 var(--font-mono);
+    letter-spacing: 0.04em;
+    color: var(--text-3);
+  }
+
+  .empty {
+    margin: 0;
+    padding-block: var(--space-6);
+    font: var(--type-body);
+    color: var(--text-3);
+  }
+
+  /* ---- tiers -------------------------------------------------------------------------------- */
+
+  .tiers {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-3);
+  }
+
+  .tier {
+    display: grid;
+    justify-items: center;
+    gap: var(--space-1);
+    text-align: center;
+  }
+
+  .count {
+    margin-block-start: var(--space-2);
+    font: 600 clamp(1.25rem, 0.9rem + 0.7vw, 1.75rem) / 1 var(--font-display);
+    font-variant-numeric: tabular-nums;
+    color: var(--accent-text);
+  }
+
+  .unit {
+    font: 500 var(--fs-2xs) / 1.2 var(--font-mono);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+
+  .collateral {
+    margin-block-start: var(--space-2);
+    font: 500 var(--fs-xs) / 1.2 var(--font-mono);
+    letter-spacing: 0.02em;
+    font-variant-numeric: tabular-nums;
+    color: var(--text-2);
+  }
+
+  .collateral b {
+    font-weight: 600;
+    color: var(--text-1);
+  }
+
+  /* ---- blocks ------------------------------------------------------------------------------- */
+
+  .spark {
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  .facts {
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-3);
+  }
+
+  .facts dt {
+    font: 500 var(--fs-2xs) / 1.2 var(--font-mono);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+
+  .facts dd {
+    margin: var(--space-1) 0 0;
+    font: 600 var(--fs-md) / 1.1 var(--font-display);
+    font-variant-numeric: tabular-nums;
+    color: var(--text-1);
+  }
+
+  /* ---- places ------------------------------------------------------------------------------- */
+
+  .places {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: var(--space-3);
+  }
+
+  .place {
+    display: grid;
+    grid-template-columns: minmax(5.5rem, 8rem) minmax(0, 1fr) auto;
+    align-items: center;
+    gap: var(--space-3);
+    font: 500 var(--fs-xs) / 1.2 var(--font-mono);
+    letter-spacing: 0.02em;
+  }
+
+  .country {
+    color: var(--text-1);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .bar {
+    display: flex;
+    inline-size: calc(var(--w, 1) * 100%);
+    min-inline-size: 6px;
+    block-size: 8px;
+    gap: 2px;
+  }
+
+  .bar i {
+    display: block;
+    flex-basis: 0;
+    min-inline-size: 0;
+    background: var(--tier);
+    box-shadow: 0 0 8px rgb(var(--tier-rgb) / 0.4);
+  }
+
+  .bar i[data-tier="cumulus"] {
+    --tier: var(--cumulus);
+    --tier-rgb: var(--cumulus-rgb);
+  }
+
+  .bar i[data-tier="nimbus"] {
+    --tier: var(--nimbus);
+    --tier-rgb: var(--nimbus-rgb);
+  }
+
+  .bar i[data-tier="stratus"] {
+    --tier: var(--stratus);
+    --tier-rgb: var(--stratus-rgb);
+  }
+
+  .n {
+    font-variant-numeric: tabular-nums;
+    color: var(--text-2);
+    text-align: end;
+  }
+
+  .sum {
+    margin: 0;
+    font: 500 var(--fs-xs) / 1.5 var(--font-mono);
+    letter-spacing: 0.02em;
+    color: var(--text-3);
+  }
+
+  /* ---- the note and its leader ---------------------------------------------------------------- */
+
+  .note {
+    position: relative;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    column-gap: var(--space-3);
+    padding-block-start: calc(var(--space-6) + 4px);
+    padding-inline-start: var(--space-5);
+  }
+
+  /* The leader runs from the slab's edge down to the ring, drawn once the column scrolls in. */
+  .leader {
+    position: absolute;
+    inset-inline-start: calc(var(--space-5) + 13px);
+    inset-block-start: 0;
+    block-size: var(--space-6);
+    inline-size: 1px;
+    background: var(--blueprint-strong, var(--accent));
+    transform-origin: 50% 0;
+    transform: scaleY(0);
+    transition: transform var(--dur-4) var(--ease-out) 150ms;
+  }
+
+  .leader::before {
+    content: "";
+    position: absolute;
+    inset-inline-start: -2px;
+    inset-block-start: -2px;
+    inline-size: 5px;
+    block-size: 5px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+
+  .col[data-drawn="true"] .leader {
+    transform: scaleY(1);
+  }
+
+  .ring {
+    display: grid;
+    place-items: center;
+    inline-size: 26px;
+    block-size: 26px;
+    border: 1px solid var(--blueprint-strong, var(--accent));
+    border-radius: 50%;
+    font: 600 var(--fs-xs) / 1 var(--font-mono);
+    color: var(--accent-text);
+    background: rgb(var(--ink-0-rgb) / 0.7);
+    opacity: 0;
+    transition: opacity var(--dur-3) var(--ease-out) 650ms;
+  }
+
+  .col[data-drawn="true"] .ring {
+    opacity: 1;
+  }
+
+  .noteText {
+    margin: 0;
+    display: grid;
+    gap: var(--space-1);
+    font: var(--type-body);
+    color: var(--text-2);
+    text-wrap: pretty;
+  }
+
+  .noteLabel {
+    font: 500 var(--fs-2xs) / 1.2 var(--font-mono);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--accent-text);
+  }
+
+  @media (max-width: 1099.98px) {
+    .grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .panelInner {
+      min-block-size: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :root:not([data-motion="full"]) :is(.leader, .ring) {
+      transition: none;
+    }
+
+    :root:not([data-motion="full"]) .leader {
+      transform: scaleY(1);
+    }
+
+    :root:not([data-motion="full"]) .ring {
+      opacity: 1;
+    }
+  }
+
+  :root[data-motion="reduced"] :is(.leader, .ring) {
+    transition: none;
+  }
+
+  :root[data-motion="reduced"] .leader {
+    transform: scaleY(1);
+  }
+
+  :root[data-motion="reduced"] .ring {
+    opacity: 1;
+  }
+}

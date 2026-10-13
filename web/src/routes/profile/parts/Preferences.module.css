@@ -1,0 +1,209 @@
+@layer route {
+  .panel {
+    inline-size: 100%;
+  }
+
+  .body {
+    display: grid;
+    gap: var(--space-6);
+  }
+
+  .field {
+    display: grid;
+    gap: var(--space-3) var(--space-6);
+    align-items: center;
+    padding-block-start: var(--space-6);
+    border-block-start: 1px solid var(--line-1);
+  }
+
+  @media (min-width: 720px) {
+    .field {
+      grid-template-columns: minmax(0, 1fr) auto;
+    }
+  }
+
+  .fieldText {
+    display: grid;
+    gap: var(--space-1);
+    min-inline-size: 0;
+  }
+
+  .fieldLabel {
+    margin: 0;
+    padding: 0;
+    font: 700 var(--fs-md) / 1.2 var(--font-display);
+    letter-spacing: var(--tracking-heading);
+    color: var(--text-1);
+  }
+
+  .fieldNote {
+    margin: 0;
+    max-inline-size: 56ch;
+    font-size: var(--fs-sm);
+    line-height: 1.5;
+    color: var(--text-3);
+    text-wrap: pretty;
+  }
+
+  .control {
+    justify-self: start;
+  }
+
+  @media (min-width: 720px) {
+    .control {
+      justify-self: end;
+    }
+  }
+
+  /* ---- accent ------------------------------------------------------------------------------- */
+
+  .accent {
+    display: grid;
+    gap: var(--space-3);
+    margin: 0;
+    padding: 0;
+    border: 0;
+    min-inline-size: 0;
+  }
+
+  .accent legend {
+    padding: 0;
+    margin-block-end: var(--space-1);
+  }
+
+  .options {
+    display: grid;
+    gap: var(--space-3);
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  @media (min-width: 520px) {
+    .options {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  .option {
+    position: relative;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    gap: var(--space-3);
+    min-block-size: 56px;
+    padding: var(--space-2) var(--space-3);
+    cursor: pointer;
+    isolation: isolate;
+  }
+
+  /* The option's plate is a pseudo-element with the family cut. */
+  .option::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: rgb(255 255 255 / 0.03);
+    box-shadow: inset 0 0 0 1px var(--line-2);
+    clip-path: polygon(0 8px, 8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%);
+    transition:
+      background var(--dur-1) var(--ease-out),
+      box-shadow var(--dur-1) var(--ease-out);
+  }
+
+  .option:hover::before {
+    background: rgb(255 255 255 / 0.06);
+  }
+
+  .option[data-checked="true"]::before {
+    background: var(--accent-soft);
+    box-shadow: inset 0 0 0 1px var(--accent-line);
+  }
+
+  .swatch {
+    --sw: var(--accent-solid);
+    inline-size: 26px;
+    block-size: 30px;
+    background: var(--sw);
+    clip-path: var(--hex-clip);
+    box-shadow: 0 0 14px color-mix(in oklab, var(--sw) 60%, transparent);
+  }
+
+  /* Fixed colours: these show each accent whatever the page's accent is right now. */
+  .swatch[data-accent="flux"] {
+    --sw: #2b61d1; /* Flux Blue Wave */
+  }
+
+  .swatch[data-accent="cumulus"] {
+    --sw: var(--cumulus);
+  }
+
+  .swatch[data-accent="nimbus"] {
+    --sw: var(--nimbus);
+  }
+
+  .swatch[data-accent="stratus"] {
+    --sw: var(--stratus);
+  }
+
+  .option[data-locked="true"] {
+    cursor: not-allowed;
+  }
+
+  .option[data-locked="true"] .swatch {
+    opacity: 0.45;
+  }
+
+  /* The radio is the real control; it is visually hidden and its focus is drawn on the plate. */
+  .option input {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    opacity: 0;
+    cursor: inherit;
+  }
+
+  .option:has(input:focus-visible)::before {
+    box-shadow:
+      inset 0 0 0 1px var(--focus-color),
+      inset 0 0 0 3px rgb(var(--accent-hot-rgb) / 0.35);
+  }
+
+  .optionText {
+    display: grid;
+    gap: 2px;
+    min-inline-size: 0;
+  }
+
+  .optionName {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    font: 700 var(--fs-sm) / 1.2 var(--font-display);
+    letter-spacing: var(--tracking-heading);
+    color: var(--text-1);
+  }
+
+  .option[data-locked="true"] .optionName {
+    color: var(--text-2);
+  }
+
+  .optionRule {
+    font: 500 var(--fs-2xs) / 1.35 var(--font-mono);
+    letter-spacing: 0.03em;
+    color: var(--text-3);
+  }
+
+  @media (forced-colors: active) {
+    .option::before {
+      box-shadow: none;
+      border: 1px solid GrayText;
+    }
+
+    .option[data-checked="true"]::before {
+      border: 2px solid Highlight;
+    }
+
+    .swatch {
+      forced-color-adjust: none;
+    }
+  }
+}

@@ -1,0 +1,25 @@
+@layer route {
+  /*
+   * The lesson player asks for the toast strip at the top of a phone, upright or on its side
+   * (`data-place="top"` on the toast layer, see routes/lesson/useToastLift.ts): its bar is at the bottom
+   * there and the help ladder sits right above it, so a toast at the bottom would cover what the learner
+   * is reading.
+   *
+   * The strip under the header is drawn by the list inside it. The viewport section itself collapses to a
+   * zero-height line at the bottom edge, which is where it was: the chord hint measures that box to stay
+   * clear of toasts, and a box that really spanned the screen would push the hint up under the header.
+   */
+  :global([data-layer="toast"][data-place="top"]) .host {
+    inset-block: auto 0;
+    block-size: 0;
+    padding-inline: 0;
+  }
+
+  :global([data-layer="toast"][data-place="top"]) .host > div {
+    position: fixed;
+    inset-block-start: calc(var(--header-h, 64px) + var(--space-2));
+    inset-inline: var(--space-4);
+    margin-inline: auto;
+    inline-size: min(100% - 2 * var(--space-4), 480px);
+  }
+}

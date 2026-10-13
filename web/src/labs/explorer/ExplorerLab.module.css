@@ -1,0 +1,151 @@
+@layer route {
+  .lab {
+    container-type: inline-size;
+    container-name: explorer;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+    padding-block-end: var(--space-4);
+  }
+
+  .search,
+  .bench,
+  .summary,
+  .details {
+    min-inline-size: 0;
+  }
+
+  /* The suggestion list hangs below the search panel: lift the whole panel above the stage. */
+  .search {
+    position: relative;
+    z-index: 3;
+  }
+
+  .stage {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-5);
+  }
+
+  .bench {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .caption {
+    margin: 0;
+    font-size: var(--fs-xs);
+    line-height: 1.5;
+    color: var(--text-3);
+  }
+
+  .summary {
+    display: flex;
+  }
+
+  .summary > * {
+    flex: 1 1 auto;
+  }
+
+  /* ---- Empty ---------------------------------------------------------------------------------- */
+
+  .empty {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-3);
+  }
+
+  /* The emblem is light on black. Screening the panel's whole content group onto the glass makes the
+     black cost nothing (the home page cards do the same); screening the image alone would leave a
+     black tile, because the panel's content is its own isolated group. */
+  .screened {
+    mix-blend-mode: screen;
+  }
+
+  .art {
+    display: block;
+    inline-size: 9rem;
+    block-size: 9rem;
+    margin-block: calc(-1 * var(--space-3));
+    margin-inline-start: calc(-1 * var(--space-4));
+    flex: none;
+  }
+
+  .art img {
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: contain;
+    pointer-events: none;
+    user-select: none;
+  }
+
+  .emptyText {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    font-size: var(--fs-sm);
+    line-height: 1.6;
+    color: var(--text-2);
+  }
+
+  .emptyText p {
+    margin: 0;
+  }
+
+  .emptyTitle {
+    margin: 0;
+    font: 600 var(--fs-h4) / 1.25 var(--font-display);
+    color: var(--text-1);
+  }
+
+  /* ---- Loading and failed ----------------------------------------------------------------------- */
+
+  .loading {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .loadingText {
+    margin: 0;
+    font: 500 var(--fs-xs) / 1.2 var(--font-mono);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+
+  .failed {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    font-size: var(--fs-sm);
+    line-height: 1.6;
+    color: var(--text-2);
+  }
+
+  .failed p {
+    margin: 0;
+  }
+
+  .failTitle {
+    margin: 0;
+    font: 600 var(--fs-h4) / 1.25 var(--font-display);
+    color: var(--text-1);
+  }
+
+  .failActions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    padding-block-start: var(--space-2);
+  }
+
+  @container explorer (min-width: 62rem) {
+    .stage {
+      grid-template-columns: minmax(0, 1fr) 26rem;
+      align-items: stretch;
+    }
+  }
+}

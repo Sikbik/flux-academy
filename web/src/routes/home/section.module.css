@@ -1,0 +1,94 @@
+/*
+ * Shared frame of the home page sections after the hero: a padded band, a container on the same edges
+ * as the hero's, and a head (number, label, heading, one sentence). Sections sit on the stage, which the
+ * veil dims, so nothing here paints a full-bleed background of its own.
+ */
+@layer route {
+  .section {
+    position: relative;
+    z-index: 1;
+    padding-block: var(--section-y);
+    scroll-margin-block-start: var(--header-offset, 72px);
+  }
+
+  .inner {
+    inline-size: min(100% - 2 * var(--gutter), var(--container-wide));
+    margin-inline: auto;
+    display: grid;
+    gap: var(--section-gap);
+  }
+
+  .head {
+    position: relative;
+    isolation: isolate;
+    display: grid;
+    gap: var(--space-4);
+    max-inline-size: 60rem;
+    justify-items: start;
+  }
+
+  /* A soft vignette behind the words, so they keep their contrast wherever the bench is bright. */
+  .head::before {
+    content: "";
+    position: absolute;
+    inset: -3rem -4rem -2rem -3rem;
+    z-index: -1;
+    background: radial-gradient(
+      closest-side at 32% 50%,
+      rgb(0 0 0 / 0.72),
+      rgb(0 0 0 / 0.42) 55%,
+      transparent
+    );
+    pointer-events: none;
+  }
+
+  .eyebrow {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    inline-size: 100%;
+    margin: 0;
+    font: 500 var(--fs-xs) / 1.4 var(--font-mono);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--text-2);
+  }
+
+  .num {
+    color: var(--accent-text);
+  }
+
+  .slash {
+    color: var(--text-4);
+  }
+
+  .rule {
+    flex: 1 1 auto;
+    max-inline-size: 16rem;
+    block-size: 1px;
+    background: linear-gradient(90deg, var(--line-2), transparent);
+  }
+
+  .title {
+    margin: 0;
+    font: var(--type-h2);
+    letter-spacing: var(--tracking-h2);
+    color: var(--text-1);
+    text-wrap: balance;
+  }
+
+  .lead {
+    margin: 0;
+    max-inline-size: 58ch;
+    font: var(--type-lead);
+    color: var(--text-2);
+    text-wrap: pretty;
+  }
+
+  .aside {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-3);
+  }
+}

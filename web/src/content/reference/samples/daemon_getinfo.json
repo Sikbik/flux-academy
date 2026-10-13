@@ -1,0 +1,19 @@
+{
+  "status": "success",
+  "data": {
+    "version": 9010050,
+    "protocolversion": 170021,
+    "walletversion": 60000,
+    "blocks": 3031426,
+    "timeoffset": 0,
+    "connections": 228,
+    "proxy": "",
+    "difficulty": 0.05212114355610414,
+    "testnet": false,
+    "keypoololdest": 1779457978,
+    "keypoolsize": 101,
+    "paytxfee": 0,
+    "relayfee": 1e-6,
+    "errors": ""
+  }
+}

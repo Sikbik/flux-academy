@@ -1,0 +1,29 @@
+{
+  "status": "success",
+  "data": [
+    {
+      "appSpecifications": {
+        "version": 8,
+        "name": "valheim1790521593341",
+        "description": "Valheim on Flux Decentralized Cloud",
+        "owner": "1HdxNMgpoh4WQy21xwLgG1buUseUK9H5fu",
+        "compose": [],
+        "instances": 2,
+        "contacts": [],
+        "geolocation": ["acNA_CA"],
+        "expire": 64650,
+        "nodes": [],
+        "staticip": false,
+        "enterprise": "<base64 ciphertext, 1496 chars>"
+      },
+      "type": "fluxappupdate",
+      "version": 1,
+      "hash": "d7ebcbf67cee7455028c32abd568df43106119dc78daf8a90861b9d486491376",
+      "timestamp": 1791831855948,
+      "signature": "Hxmd3TlrELEsM0uPTZXkxqA/SWUaqNy6iM6SwN3EnilccwePtdAOCPxxSsGemQGCq+bHLvkLsUTPKLe5GL41Yks=",
+      "receivedAt": "2026-10-12T19:04:19.290Z",
+      "expireAt": "2026-10-12T20:04:19.290Z",
+      "arcaneSender": true
+    }
+  ]
+}

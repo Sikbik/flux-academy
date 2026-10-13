@@ -1,0 +1,9 @@
+{
+  "status": "success",
+  "data": {
+    "tableAvailable": true,
+    "tableGenerated": "2026-10-02T13:03:05.957Z",
+    "total": { "nodes": 7093, "domains": 272 },
+    "unresolved": 35
+  }
+}

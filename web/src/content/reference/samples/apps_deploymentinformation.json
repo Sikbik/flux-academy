@@ -1,0 +1,40 @@
+{
+  "status": "success",
+  "data": {
+    "price": [
+      { "height": -1, "cpu": 3, "ram": 1, "hdd": 0.5, "minPrice": 1, "port": 2, "scope": 6, "staticip": 3 },
+      {
+        "height": 983000,
+        "cpu": 0.3,
+        "ram": 0.1,
+        "hdd": 0.05,
+        "minPrice": 0.1,
+        "port": 2,
+        "scope": 6,
+        "staticip": 3
+      }
+    ],
+    "appSpecsEnforcementHeights": {
+      "1": 0,
+      "2": 0,
+      "3": 983000,
+      "4": 1004000,
+      "5": 1142000,
+      "6": 1300000,
+      "7": 1420000,
+      "8": 1932380
+    },
+    "address": "t3NryfAQLGeFs9jEoeqsxmBN2QLRaRKFLUX",
+    "portMin": 1,
+    "portMax": 65535,
+    "enterprisePorts": ["0-1023", 8080],
+    "bannedPorts": ["16100-16299", "26100-26299"],
+    "maxImageSize": 5000000000,
+    "minimumInstances": 3,
+    "maximumInstances": 100,
+    "blocksLasting": 22000,
+    "minBlocksAllowance": 5000,
+    "maxBlocksAllowance": 1056000,
+    "blocksAllowanceInterval": 1000
+  }
+}

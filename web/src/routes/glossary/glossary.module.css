@@ -1,0 +1,425 @@
+@layer route {
+  .page {
+    /* The sticky search bar's height is written by the page; the rest follows from it. */
+    --bar-h: 92px;
+    --bar-top: calc(var(--header-h-condensed, 52px) + var(--space-2));
+    --entry-scroll-margin: calc(var(--bar-top) + var(--bar-h) + var(--space-4));
+    inline-size: min(100% - 2 * var(--gutter), var(--container));
+    margin: clamp(var(--space-8), 5vw, var(--space-12)) auto var(--space-16);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+  }
+
+  /* ---- header -------------------------------------------------------------------------- */
+
+  .head {
+    display: grid;
+    gap: var(--space-3);
+  }
+
+  .eyebrow {
+    margin: 0;
+    font: 500 var(--fs-xs) / 1 var(--font-mono);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent-text);
+  }
+
+  .h1 {
+    margin: 0;
+    font: 700 clamp(1.875rem, 1.3rem + 1.7vw, 2.75rem) / 1.05 var(--font-display);
+    letter-spacing: var(--tracking-h2);
+    color: var(--text-1);
+    outline: none;
+  }
+
+  .lead {
+    margin: 0;
+    max-inline-size: 80ch;
+    font: var(--type-lead);
+    color: var(--text-2);
+    text-wrap: pretty;
+  }
+
+  /* ---- search bar and filters ---------------------------------------------------------- */
+
+  /* Only the search row sticks. The filters scroll away under it, so the bar stays small. */
+  .bar {
+    display: block;
+    position: sticky;
+    inset-block-start: var(--bar-top);
+    z-index: var(--z-raised, 10);
+  }
+
+  /* The Surface fill is 96% ink, which lets the entries behind it ghost through a little. The bar sits over
+     moving text, so it gets a solid ink under the fill, in the same silhouette. */
+  .barSurface {
+    background: rgb(var(--ink-1-rgb));
+    clip-path: var(--clip-outer);
+  }
+
+  .barBody {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2) var(--space-4);
+    padding: var(--space-2) var(--space-3);
+  }
+
+  /* The field is a grid whose one column takes the input's intrinsic width as its minimum, which pushes the
+     frame past the row on a phone. One shrinkable column keeps the frame inside its box. */
+  .search {
+    flex: 1 1 18rem;
+    min-inline-size: 0;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .count {
+    margin: 0;
+    font: 500 var(--fs-sm) / 1.4 var(--font-mono);
+    color: var(--text-2);
+    white-space: nowrap;
+  }
+
+  .count strong {
+    font-weight: 600;
+    color: var(--text-1);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* On a phone the bar is one row of about 60px: the field, the count and a Clear icon. When the count is
+     "8 of 90" the word "terms" gives way; the words stay in the page for a screen reader. */
+  @media (max-width: 560px) {
+    .barBody {
+      flex-wrap: nowrap;
+      gap: var(--space-2);
+      padding: var(--space-1) var(--space-2);
+    }
+
+    .search {
+      flex: 1 1 0;
+    }
+
+    .shortOnPhone,
+    .count[data-narrowed="true"] .countNoun {
+      position: absolute;
+      inline-size: 1px;
+      block-size: 1px;
+      margin: -1px;
+      padding: 0;
+      border: 0;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+  }
+
+  .facets {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2) var(--space-6);
+    margin-block-start: calc(-1 * var(--space-2));
+  }
+
+  .facetGroup {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+    min-inline-size: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+
+  .facetLabel {
+    font: 500 var(--fs-2xs) / 1 var(--font-mono);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--text-3);
+    margin-inline-end: var(--space-1);
+  }
+
+  .hint {
+    margin: 0;
+    font: 400 var(--fs-xs) / 1.4 var(--font-sans);
+    color: var(--text-3);
+  }
+
+  .notice {
+    max-inline-size: 70ch;
+  }
+
+  .noticeText {
+    margin: 0;
+    color: var(--text-1);
+    font-size: var(--fs-md);
+    line-height: 1.55;
+  }
+
+  .noticeText code {
+    font-family: var(--font-mono);
+    font-size: 0.92em;
+  }
+
+  /* ---- list ---------------------------------------------------------------------------- */
+
+  .layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-4);
+    align-items: start;
+  }
+
+  @media (min-width: 900px) {
+    .layout {
+      grid-template-columns: minmax(0, 1fr) 2.25rem;
+      gap: var(--space-6);
+    }
+  }
+
+  .results {
+    min-inline-size: 0;
+    display: grid;
+    gap: var(--space-8);
+  }
+
+  .group {
+    display: grid;
+    gap: 0;
+  }
+
+  .letter {
+    margin: 0;
+    padding-block: var(--space-2);
+    font: 300 var(--fs-h2) / 1 var(--font-display);
+    letter-spacing: var(--tracking-display);
+    color: var(--accent-text);
+    outline: none;
+    scroll-margin-block-start: var(--entry-scroll-margin, 15rem);
+  }
+
+  .list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  /* ---- the letter rail ------------------------------------------------------------------ */
+
+  .rail {
+    min-inline-size: 0;
+    order: -1;
+  }
+
+  /* On a phone the letters are one scrolling strip above the list. */
+  .railList {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: thin;
+    border-block: 1px solid var(--line-1);
+  }
+
+  .railList > li {
+    flex: none;
+  }
+
+  .railLetter {
+    display: grid;
+    place-items: center;
+    inline-size: 2.75rem;
+    block-size: 2.75rem;
+    padding: 0;
+    border: 0;
+    background: none;
+    font: 500 var(--fs-sm) / 1 var(--font-mono);
+    letter-spacing: 0.04em;
+    color: var(--text-2);
+    cursor: pointer;
+    position: relative;
+  }
+
+  .railLetter[data-empty="true"] {
+    color: var(--text-4);
+    cursor: default;
+  }
+
+  @media (hover: hover) {
+    button.railLetter:hover {
+      color: var(--text-1);
+    }
+  }
+
+  .railLetter[aria-current="location"] {
+    color: var(--accent-text);
+    font-weight: 700;
+  }
+
+  .railLetter:focus-visible {
+    outline: 2px solid var(--accent-text);
+    outline-offset: -2px;
+  }
+
+  @media (min-width: 900px) {
+    .rail {
+      order: 0;
+      position: sticky;
+      inset-block-start: calc(var(--bar-top) + var(--bar-h) + var(--space-2));
+    }
+
+    .railList {
+      flex-direction: column;
+      overflow: visible;
+      border-block: 0;
+    }
+
+    .railLetter {
+      inline-size: 2.25rem;
+      block-size: 1.5rem;
+      font-size: var(--fs-xs);
+    }
+
+    .railLetter[aria-current="location"]::before {
+      content: "";
+      position: absolute;
+      inset-inline-start: 0;
+      inset-block: 5px;
+      inline-size: 2px;
+      background: var(--accent-solid);
+    }
+  }
+
+  /* ---- nothing found --------------------------------------------------------------------- */
+
+  .empty {
+    max-inline-size: 60rem;
+  }
+
+  .emptyTitle {
+    margin: 0 0 var(--space-3);
+    font: 700 var(--fs-h3) / 1.2 var(--font-display);
+    letter-spacing: var(--tracking-heading);
+    color: var(--text-1);
+    overflow-wrap: anywhere;
+  }
+
+  .emptyText {
+    margin: 0 0 var(--space-5);
+    max-inline-size: 58ch;
+    color: var(--text-2);
+    line-height: 1.6;
+    text-wrap: pretty;
+  }
+
+  .emptyActions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+  }
+
+  .near {
+    margin-block-start: var(--space-8);
+  }
+
+  .nearTitle {
+    margin: 0 0 var(--space-3);
+    font: 500 var(--fs-2xs) / 1 var(--font-mono);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+
+  .nearList {
+    display: grid;
+    gap: var(--space-3);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr));
+  }
+
+  /* ---- forced colours, print ----------------------------------------------------------------- */
+
+  @media (forced-colors: active) {
+    .letter {
+      color: CanvasText;
+    }
+
+    .railLetter {
+      color: ButtonText;
+    }
+
+    /* The current letter is marked by an underline, not by a Highlight colour. */
+    .railLetter[aria-current="location"] {
+      color: ButtonText;
+      text-decoration: underline;
+      text-decoration-thickness: 2px;
+      text-underline-offset: 4px;
+    }
+
+    .railLetter[data-empty="true"] {
+      color: GrayText;
+    }
+  }
+
+  @media print {
+    .page {
+      inline-size: 100%;
+      margin: 0;
+      gap: var(--space-3);
+    }
+
+    .bar,
+    .facets,
+    .rail,
+    .notice {
+      display: none;
+    }
+
+    .h1,
+    .lead,
+    .eyebrow,
+    .letter {
+      color: #000;
+    }
+
+    .letter {
+      break-after: avoid;
+      font-size: 1.5rem;
+      border-block-end: 2px solid #000;
+    }
+
+    .group {
+      break-inside: auto;
+    }
+  }
+}
+
+/* Printing. Unlayered on purpose, so it wins over the theme: the page is black on white, without the site
+   header, footer and backdrop, and nothing outside this page changes. The marker is on this page's root. */
+@media print {
+  html:has([data-print-page="glossary"]),
+  body:has([data-print-page="glossary"]) {
+    background: #fff;
+    color: #000;
+  }
+
+  body:has([data-print-page="glossary"]) :is(header, footer, canvas):not(main *) {
+    display: none;
+  }
+
+  [data-print-page="glossary"],
+  [data-print-page="glossary"] * {
+    color: #000;
+    background: transparent;
+    box-shadow: none;
+    text-shadow: none;
+    border-color: #999;
+  }
+}

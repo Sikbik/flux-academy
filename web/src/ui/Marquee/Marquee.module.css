@@ -1,0 +1,125 @@
+/*
+ * Marquee: one measured run repeated to cover the viewport, moved by a compositor translate
+ * of exactly one run per loop (--run, --dur are set from the measured width and the speed).
+ * Reduced motion shows the single run as a static, wrapped row.
+ */
+@layer reset, tokens, base, ui, route, utility;
+
+@layer ui {
+  .marquee {
+    --gap: 32px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    inline-size: 100%;
+    min-inline-size: 0;
+  }
+
+  .viewport {
+    flex: 1 1 auto;
+    min-inline-size: 0;
+    /* clip, not hidden: nothing may scroll this box, so a focused item cannot shove the track */
+    overflow: clip;
+  }
+
+  .marquee[data-fade="true"] .viewport {
+    -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 7%, #000 93%, transparent 100%);
+    mask-image: linear-gradient(90deg, transparent 0, #000 7%, #000 93%, transparent 100%);
+  }
+
+  .track {
+    display: flex;
+    inline-size: max-content;
+  }
+
+  .track[data-moving="true"] {
+    will-change: transform;
+    animation: run var(--dur) linear infinite;
+  }
+
+  .marquee[data-direction="right"] .track[data-moving="true"] {
+    animation-direction: reverse;
+  }
+
+  @keyframes run {
+    to {
+      transform: translate3d(calc(var(--run) * -1), 0, 0);
+    }
+  }
+
+  /* Each run carries its trailing gap, so the seam between runs is just another gap. */
+  .run {
+    display: flex;
+    flex: none;
+    align-items: center;
+    gap: var(--gap);
+    padding-inline-end: var(--gap);
+  }
+
+  /* Paused by the visitor's control, off-screen, a hidden tab, or the pointer or focus on the track. */
+  .marquee[data-paused="true"] .track,
+  .marquee[data-live="false"] .track,
+  .marquee[data-hover-pause="true"] .viewport:is(:hover, :focus-within) .track {
+    animation-play-state: paused;
+  }
+
+  .control {
+    flex: none;
+  }
+
+  /* ---- modes -------------------------------------------------------------------------- */
+
+  :global(html[data-motion="reduced"]) .viewport {
+    overflow: visible;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+
+  /* biome-ignore lint/style/noDescendingSpecificity: the mode overrides read best last */
+  :global(html[data-motion="reduced"]) .track {
+    inline-size: 100%;
+    animation: none;
+    transform: none;
+  }
+
+  :global(html[data-motion="reduced"]) .run {
+    flex-wrap: wrap;
+    row-gap: var(--gap);
+    padding-inline-end: 0;
+  }
+
+  :global(html[data-motion="reduced"]) .copy {
+    display: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :global(html:not([data-motion="full"])) .viewport {
+      overflow: visible;
+      -webkit-mask-image: none;
+      mask-image: none;
+    }
+
+    :global(html:not([data-motion="full"])) .track {
+      inline-size: 100%;
+      animation: none;
+      transform: none;
+    }
+
+    :global(html:not([data-motion="full"])) .run {
+      flex-wrap: wrap;
+      row-gap: var(--gap);
+      padding-inline-end: 0;
+    }
+
+    :global(html:not([data-motion="full"])) .copy {
+      display: none;
+    }
+  }
+
+  @media (forced-colors: active) {
+    .viewport {
+      -webkit-mask-image: none;
+      mask-image: none;
+    }
+  }
+}

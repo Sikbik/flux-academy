@@ -1,0 +1,15 @@
+/*
+ * The one global stylesheet. Import it once, before any component:
+ *
+ *   import '@/styles/index.css';
+ *
+ * Layer order (lowest to highest): reset, tokens, base, ui (primitives), route (pages),
+ * utility. Component CSS Modules wrap their rules in `@layer ui`; route modules in
+ * `@layer route`.
+ */
+@layer reset, tokens, base, ui, route, utility;
+
+@import "./tokens.css";
+@import "./fonts.css";
+@import "./base.css";
+@import "./utilities.css";

@@ -1,0 +1,14 @@
+@layer route {
+  /* The page slides under the glass header so the stage is full bleed from the very top. */
+  .home {
+    position: relative;
+    isolation: isolate;
+    margin-block-start: calc(var(--header-h, 64px) * -1);
+    overflow-x: clip;
+  }
+
+  .home > :where(section) {
+    position: relative;
+    z-index: 1;
+  }
+}

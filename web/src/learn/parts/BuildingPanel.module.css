@@ -1,0 +1,44 @@
+@layer route {
+  .panel {
+    position: relative;
+    display: grid;
+    align-content: center;
+    justify-items: start;
+    gap: var(--space-3);
+    min-block-size: 16rem;
+    padding: var(--space-8);
+    background:
+      repeating-linear-gradient(0deg, transparent 0 23px, rgb(var(--accent-rgb) / 0.07) 23px 24px),
+      repeating-linear-gradient(90deg, transparent 0 23px, rgb(var(--accent-rgb) / 0.07) 23px 24px);
+  }
+
+  .glyph {
+    display: grid;
+    place-items: center;
+    inline-size: 52px;
+    block-size: 52px;
+    color: var(--accent-text);
+    background: var(--accent-soft);
+    clip-path: var(--hex-clip, polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%));
+  }
+
+  .eyebrow {
+    margin: 0;
+    font: 500 var(--fs-xs) / 1 var(--font-mono);
+    letter-spacing: var(--tracking-label, 0.12em);
+    text-transform: uppercase;
+    color: var(--accent-text);
+  }
+
+  .title {
+    margin: 0;
+    font: var(--type-h3);
+    color: var(--text-1);
+  }
+
+  .note {
+    margin: 0;
+    max-inline-size: 46ch;
+    color: var(--text-2);
+  }
+}

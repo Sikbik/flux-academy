@@ -1,0 +1,60 @@
+/*
+ * SplitReveal: each word sits in a clipping line box and rises into place. The mask has a
+ * little vertical slack so descenders and the gradient on key words are not cut.
+ */
+@layer reset, tokens, base, ui, route, utility;
+
+@layer ui {
+  .word {
+    display: inline-block;
+    overflow: clip;
+    overflow-clip-margin: 0.1em;
+    padding-block: 0.12em;
+    margin-block: -0.12em;
+    vertical-align: top;
+  }
+
+  .inner {
+    display: inline-block;
+    translate: 0 110%;
+    opacity: 0;
+    transition:
+      translate var(--dur-4) var(--ease-out)
+      calc(var(--split-delay, 0ms) + var(--i, 0) * var(--split-step, 40ms)),
+      opacity var(--dur-3) var(--ease-out)
+      calc(var(--split-delay, 0ms) + var(--i, 0) * var(--split-step, 40ms));
+  }
+
+  .root[data-shown="true"] .inner {
+    translate: 0 0;
+    opacity: 1;
+  }
+
+  /* Calm twin: no travel, a short fade for all words at once. */
+  :global(html[data-motion="reduced"]) .inner {
+    translate: 0 0;
+    transition: opacity var(--dur-3) linear;
+  }
+
+  :global(html[data-motion="reduced"]) .word {
+    overflow: visible;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :global(html:not([data-motion="full"])) .inner {
+      translate: 0 0;
+      transition: opacity var(--dur-3) linear;
+    }
+
+    :global(html:not([data-motion="full"])) .word {
+      overflow: visible;
+    }
+  }
+
+  @media print {
+    .inner {
+      translate: 0 0;
+      opacity: 1;
+    }
+  }
+}

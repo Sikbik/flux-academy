@@ -1,0 +1,374 @@
+/*
+ * SegmentedControl: a radio group with a sliding thumb. Segments are equal width, so the
+ * thumb is `translate: calc(var(--i) * 100%)` and nothing else: no measuring, no scaling, so
+ * its hex edges never distort. data-mode (row, compact, stack) is set by the fit effect.
+ * Pseudo-state hooks: data-force="hover|press" on an option, force="focus" via the root.
+ */
+@layer reset, tokens, base, ui, route, utility;
+
+@layer ui {
+  .group {
+    --c: 8px;
+    --cm: 3px;
+    --bw: 1px;
+    --pad: 3px;
+    --h: 44px;
+    --px: 16px;
+    --fs: 0.875rem;
+    --hp: 8px;
+    position: relative;
+    isolation: isolate;
+    display: inline-grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 1fr;
+    align-items: stretch;
+    inline-size: fit-content;
+    min-inline-size: 0;
+    max-inline-size: 100%;
+    min-block-size: var(--h);
+    padding: var(--pad);
+    vertical-align: middle;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .group[data-size="sm"] {
+    --h: 36px;
+    --px: 12px;
+    --fs: 0.8125rem;
+    --hp: 7px;
+  }
+
+  .group[data-size="lg"] {
+    --h: 52px;
+    --px: 20px;
+    --fs: 0.9375rem;
+    --hp: 9px;
+    --c: 10px;
+  }
+
+  @media (pointer: coarse) {
+    .group[data-size="sm"] {
+      --h: 44px;
+    }
+  }
+
+  .group[data-full="true"] {
+    display: grid;
+    inline-size: 100%;
+  }
+
+  /* ---- the track ------------------------------------------------------------------ */
+
+  .edge,
+  .fill {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  .edge {
+    z-index: 0;
+    clip-path: var(--clip-ring);
+    background: linear-gradient(
+      165deg,
+      rgb(var(--accent-rgb) / 0.5),
+      rgb(var(--accent-rgb) / 0.16) 50%,
+      rgb(var(--accent-rgb) / 0.34)
+    );
+  }
+
+  .fill {
+    inset: var(--bw);
+    z-index: 1;
+    clip-path: var(--clip-inner);
+    background:
+      linear-gradient(180deg, rgb(var(--accent-rgb) / 0.06), transparent 60%), rgb(var(--ink-0-rgb) / 0.72);
+    box-shadow: var(--inset-hi);
+  }
+
+  /* ---- the thumb: a hex-edged slab; translate only ------------------------------------ */
+
+  .thumb {
+    --k1: 0.72;
+    --k2: 1.05;
+    --tb: 1px;
+    position: absolute;
+    z-index: 2;
+    inset-block-start: var(--pad);
+    inset-inline-start: var(--pad);
+    inline-size: calc((100% - 2 * var(--pad)) / var(--n, 1));
+    block-size: calc(100% - 2 * var(--pad));
+    translate: calc(var(--i, 0) * 100%) 0;
+    transition: translate var(--dur-3) var(--ease-out);
+    filter: drop-shadow(0 0 6px rgb(var(--accent-deep-rgb) / 0.5));
+    pointer-events: none;
+  }
+
+  .group:where(:dir(rtl)) .thumb {
+    translate: calc(var(--i, 0) * -100%) 0;
+  }
+
+  .group[data-empty="true"] .thumb {
+    opacity: 0;
+  }
+
+  .thumbEdge,
+  .thumbFace {
+    position: absolute;
+    display: block;
+  }
+
+  .thumbEdge {
+    inset: 0;
+    clip-path: polygon(
+      evenodd,
+      var(--hp) 0,
+      calc(100% - var(--hp)) 0,
+      100% 50%,
+      calc(100% - var(--hp)) 100%,
+      var(--hp) 100%,
+      0 50%,
+      var(--hp) 0,
+      calc(var(--hp) + var(--k1) * var(--tb)) var(--tb),
+      calc(100% - var(--hp) - var(--k1) * var(--tb)) var(--tb),
+      calc(100% - var(--k2) * var(--tb)) 50%,
+      calc(100% - var(--hp) - var(--k1) * var(--tb)) calc(100% - var(--tb)),
+      calc(var(--hp) + var(--k1) * var(--tb)) calc(100% - var(--tb)),
+      calc(var(--k2) * var(--tb)) 50%,
+      calc(var(--hp) + var(--k1) * var(--tb)) var(--tb)
+    );
+    background: linear-gradient(
+      165deg,
+      #fff,
+      rgb(var(--accent-hot-rgb) / 0.88) 38%,
+      rgb(var(--accent-rgb) / 0.82)
+    );
+  }
+
+  .thumbFace {
+    inset: var(--tb);
+    --hpi: calc(var(--hp) - (1 - var(--k1)) * var(--tb));
+    clip-path: polygon(
+      var(--hpi) 0,
+      calc(100% - var(--hpi)) 0,
+      100% 50%,
+      calc(100% - var(--hpi)) 100%,
+      var(--hpi) 100%,
+      0 50%
+    );
+    background:
+      linear-gradient(180deg, rgb(var(--accent-rgb) / 0.4), rgb(var(--accent-rgb) / 0.14)),
+      rgb(var(--ink-0-rgb) / 0.82);
+  }
+
+  /* Keyboard focus: the thumb's rim thickens and the one-shot beam orbits it. */
+  .group[data-focus="true"] .thumb {
+    --tb: 2px;
+  }
+
+  .group[data-focus="true"] .thumbEdge {
+    background: conic-gradient(
+      from var(--beam-angle),
+      #fff,
+      rgb(var(--accent-hot-rgb) / 0.95) 16%,
+      rgb(var(--accent-rgb) / 0.9) 50%,
+      rgb(var(--accent-hot-rgb) / 0.95) 84%,
+      #fff
+    );
+    animation: beam 900ms var(--ease-out) both;
+  }
+
+  @keyframes beam {
+    to {
+      --beam-angle: 360deg;
+    }
+  }
+
+  /* ---- the options ---------------------------------------------------------------------- */
+
+  .opt {
+    position: relative;
+    z-index: 3;
+    display: grid;
+    place-items: center;
+    min-block-size: calc(var(--h) - 2 * var(--pad));
+    padding-inline: var(--px);
+    color: var(--text-3);
+    font: 600 var(--fs) / 1 var(--font-display);
+    letter-spacing: 0.005em;
+    white-space: nowrap;
+    cursor: pointer;
+    user-select: none;
+    transition: color var(--dur-1) var(--ease-out);
+  }
+
+  .input {
+    position: absolute;
+    inset: 0;
+    inline-size: 100%;
+    block-size: 100%;
+    margin: 0;
+    opacity: 0;
+    cursor: inherit;
+  }
+
+  .content {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    pointer-events: none;
+    transition: scale var(--dur-1) var(--ease-snap);
+  }
+
+  .icon {
+    display: inline-flex;
+    flex: none;
+    color: var(--text-3);
+    transition: color var(--dur-1) var(--ease-out);
+  }
+
+  .count {
+    flex: none;
+    padding-inline-start: 8px;
+    border-inline-start: 1px solid var(--line-3);
+    font: 500 var(--fs-2xs) / 1 var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    color: var(--text-3);
+  }
+
+  .opt:where(:hover, [data-force="hover"]):where(:not([data-disabled="true"])) {
+    color: var(--text-1);
+  }
+
+  .opt:where(:hover, [data-force="hover"]):where(:not([data-disabled="true"])) .icon {
+    color: var(--accent-text);
+  }
+
+  .opt[data-checked="true"] {
+    color: var(--text-1);
+  }
+
+  .opt[data-checked="true"] .icon,
+  .opt[data-checked="true"] .count {
+    color: var(--accent-strong);
+  }
+
+  .opt:where(:active, [data-force="press"]):where(:not([data-disabled="true"])) .content {
+    scale: var(--press-scale);
+  }
+
+  .opt[data-disabled="true"] {
+    opacity: 0.42;
+    cursor: not-allowed;
+  }
+
+  /* ---- fit modes ------------------------------------------------------------------------- */
+
+  .group[data-mode="compact"] {
+    --px: 8px;
+  }
+
+  .group[data-mode="compact"] .count {
+    display: none;
+  }
+
+  .group[data-mode="compact"] .icon:has(+ .label) {
+    display: none;
+  }
+
+  .group[data-mode="stack"] {
+    grid-auto-flow: row;
+    grid-auto-columns: auto;
+  }
+
+  .group[data-mode="stack"] .thumb {
+    inline-size: calc(100% - 2 * var(--pad));
+    block-size: calc((100% - 2 * var(--pad)) / var(--n, 1));
+    translate: 0 calc(var(--i, 0) * 100%);
+  }
+
+  .group[data-mode="stack"]:where(:dir(rtl)) .thumb {
+    translate: 0 calc(var(--i, 0) * 100%);
+  }
+
+  .group[data-mode="stack"] .opt {
+    white-space: normal;
+    text-align: center;
+  }
+
+  /* ---- reduced motion, contrast, forced colours --------------------------------------------- */
+
+  :global(html[data-motion="reduced"]) .thumb {
+    transition: none;
+  }
+
+  :global(html[data-motion="reduced"]) .group[data-focus="true"] .thumbEdge {
+    animation: none;
+    background: rgb(255 255 255 / 0.92);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :global(html:not([data-motion="full"])) .thumb {
+      transition: none;
+    }
+
+    :global(html:not([data-motion="full"])) .group[data-focus="true"] .thumbEdge {
+      animation: none;
+      background: rgb(255 255 255 / 0.92);
+    }
+  }
+
+  @media (prefers-contrast: more) {
+    .edge {
+      background: rgb(255 255 255 / 0.75);
+    }
+  }
+
+  @media (forced-colors: active) {
+    .edge {
+      background: ButtonText;
+    }
+
+    .fill {
+      background: Canvas;
+      box-shadow: none;
+    }
+
+    .thumb {
+      filter: none;
+    }
+
+    /* The thumb is an outlined plate and the selected label is CanvasText with an underline.
+       Highlight / HighlightText is avoided: a translucent Highlight makes the browser paint a
+       Canvas backplate behind the label and the label vanishes. */
+    .thumbEdge {
+      background: CanvasText;
+    }
+
+    .thumbFace {
+      background: Canvas;
+    }
+
+    .opt[data-checked="true"] {
+      color: CanvasText;
+      text-decoration: underline;
+      text-decoration-thickness: 2px;
+      text-underline-offset: 4px;
+    }
+
+    .opt {
+      color: ButtonText;
+    }
+
+    .group[data-focus="true"] {
+      outline: 2px solid Highlight;
+      outline-offset: 2px;
+    }
+
+    .group[data-focus="true"] .thumbEdge {
+      background: CanvasText;
+      animation: none;
+    }
+  }
+}

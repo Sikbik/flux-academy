@@ -1,0 +1,184 @@
+@layer reset, tokens, base, ui, route, utility;
+
+@layer ui {
+  .viewport {
+    position: fixed;
+    inset-inline: 0;
+    z-index: var(--z-toast);
+    display: flex;
+    justify-content: center;
+    padding-inline: var(--space-4);
+    pointer-events: none;
+  }
+
+  .viewport[data-position="bottom"] {
+    inset-block-end: max(var(--space-5), var(--safe-bottom));
+  }
+
+  .viewport[data-position="top"] {
+    inset-block-start: max(var(--space-5), var(--safe-top));
+  }
+
+  .list {
+    display: grid;
+    gap: var(--space-2);
+    justify-items: center;
+    inline-size: min(100%, 480px);
+  }
+
+  .item {
+    inline-size: 100%;
+    pointer-events: auto;
+    animation: toast-in var(--dur-3) var(--ease-out) both;
+  }
+
+  .item[data-leaving="true"] {
+    animation: toast-out 240ms var(--ease-in) both;
+    pointer-events: none;
+  }
+
+  @keyframes toast-in {
+    from {
+      opacity: 0;
+      translate: 0 12px;
+    }
+  }
+
+  @keyframes toast-out {
+    to {
+      opacity: 0;
+      translate: 0 8px;
+    }
+  }
+
+  .toast {
+    inline-size: 100%;
+    overflow: visible;
+  }
+
+  .row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    min-block-size: 44px;
+    padding: var(--space-2) var(--space-3) var(--space-2) var(--space-4);
+  }
+
+  .glyph {
+    flex: none;
+    display: grid;
+    place-items: center;
+    color: var(--accent-text);
+  }
+
+  .glyph[data-kind="success"] {
+    color: var(--status-ok);
+  }
+
+  .glyph[data-kind="warn"] {
+    color: var(--status-warn);
+  }
+
+  .glyph[data-kind="error"] {
+    color: var(--status-crit);
+  }
+
+  .text {
+    flex: 1;
+    min-inline-size: 0;
+    color: var(--text-1);
+    font: 500 var(--fs-sm) / 1.4 var(--font-sans);
+    max-inline-size: none;
+    text-wrap: balance;
+  }
+
+  .action {
+    flex: none;
+    padding: var(--space-2) var(--space-3);
+    margin-block: calc(var(--space-2) * -1);
+    font: 600 var(--fs-xs) / 1 var(--font-mono);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--accent-strong);
+    cursor: pointer;
+    min-block-size: 44px;
+  }
+
+  .action:hover {
+    color: var(--text-1);
+  }
+
+  .action:focus-visible {
+    outline: 2px solid var(--focus-color);
+    outline-offset: -2px;
+  }
+
+  .dismiss {
+    flex: none;
+  }
+
+  /* A hairline that shows the time left: transform only. */
+  .timeline {
+    position: absolute;
+    inset-inline: 6px;
+    inset-block-end: 0;
+    block-size: 1px;
+    background: linear-gradient(90deg, rgb(var(--accent-rgb) / 0.8), rgb(var(--accent-hot-rgb) / 0.9));
+    transform-origin: left center;
+    animation: timeline var(--toast-ms, 2400ms) linear both;
+  }
+
+  /* Held (pointer over, or focus inside): the time left stops with the owner's timer. */
+  .toast[data-held="true"] .timeline {
+    animation-play-state: paused;
+  }
+
+  @keyframes timeline {
+    to {
+      transform: scaleX(0);
+    }
+  }
+
+  :global(html[data-motion="reduced"]) .item,
+  :global(html[data-motion="reduced"]) .item[data-leaving="true"] {
+    animation-name: fade-in;
+    animation-duration: var(--dur-3);
+  }
+
+  :global(html[data-motion="reduced"]) .item[data-leaving="true"] {
+    animation-name: fade-out;
+  }
+
+  :global(html[data-motion="reduced"]) .timeline {
+    animation: none;
+    display: none;
+  }
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+  }
+
+  @keyframes fade-out {
+    to {
+      opacity: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :global(html:not([data-motion="full"])) .item {
+      animation-name: fade-in;
+      animation-duration: var(--dur-3);
+    }
+
+    :global(html:not([data-motion="full"])) .item[data-leaving="true"] {
+      animation-name: fade-out;
+    }
+
+    :global(html:not([data-motion="full"])) .timeline {
+      animation: none;
+      display: none;
+    }
+  }
+}

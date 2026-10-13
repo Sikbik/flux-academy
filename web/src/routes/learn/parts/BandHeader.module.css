@@ -1,0 +1,292 @@
+@layer route {
+  .head {
+    --tier-soft: rgb(var(--tier-rgb) / 0.14);
+    display: grid;
+    align-content: start;
+    gap: var(--space-3);
+    min-inline-size: 0;
+  }
+
+  .main {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: var(--space-3);
+    min-inline-size: 0;
+  }
+
+  /* No filter, container or clip on anything that holds art: each of those isolates the group and the
+     art's screen blend would then have nothing to blend with (a black box). The glow is a plain
+     gradient behind it. */
+  .emblem {
+    position: relative;
+    display: grid;
+    place-items: center;
+    inline-size: 58px;
+    block-size: 58px;
+    margin-inline-start: calc(var(--space-2) * -1);
+  }
+
+  .emblem::before {
+    content: "";
+    position: absolute;
+    inset: -18%;
+    background: radial-gradient(closest-side, rgb(var(--tier-rgb) / 0.22), transparent);
+  }
+
+  .head[data-variant="row"] .emblem {
+    inline-size: 104px;
+    block-size: 104px;
+  }
+
+  .text {
+    display: grid;
+    gap: 2px;
+    min-inline-size: 0;
+  }
+
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin: 0;
+    font: 500 var(--fs-2xs) / 1 var(--font-mono);
+    letter-spacing: var(--tracking-label);
+    color: var(--tier);
+  }
+
+  .title {
+    margin: 0;
+    font: 700 1.1875rem / 1.15 var(--font-display);
+    letter-spacing: var(--tracking-heading);
+    color: var(--text-1);
+    text-wrap: balance;
+  }
+
+  .head[data-variant="row"] .title {
+    font-size: clamp(1.5rem, 1.2rem + 1vw, 2rem);
+    letter-spacing: -0.02em;
+  }
+
+  .meta {
+    margin: 0;
+    font: 500 var(--fs-xs) / 1.3 var(--font-mono);
+    letter-spacing: 0.04em;
+    color: var(--text-3);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .summary {
+    margin: var(--space-2) 0 0;
+    max-inline-size: 52ch;
+    font-size: var(--fs-md);
+    line-height: 1.5;
+    color: var(--text-2);
+  }
+
+  .reward {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin: var(--space-2) 0 0;
+    font: 500 var(--fs-xs) / 1.3 var(--font-mono);
+    letter-spacing: 0.04em;
+    color: var(--text-3);
+  }
+
+  .head[data-complete="true"] .reward {
+    color: var(--tier);
+  }
+
+  .ring {
+    --accent: var(--tier);
+  }
+
+  .ringNum {
+    font: 600 0.9375rem / 1 var(--font-display);
+    color: var(--text-1);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .ringNum small {
+    font: 500 0.6875rem / 1 var(--font-mono);
+    color: var(--text-3);
+  }
+
+  .head[data-variant="row"] .ringNum {
+    font-size: 1.25rem;
+  }
+
+  .modules {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1) var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .module {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    min-block-size: 30px;
+    padding: 0 var(--space-2) 0 2px;
+    color: var(--text-2);
+    font: 500 var(--fs-xs) / 1 var(--font-sans);
+  }
+
+  /* The chip's plate is a pseudo-element, so the art inside is not clipped and its screen blend
+     reaches the map behind it. */
+  .module::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgb(255 255 255 / 0.03);
+    box-shadow: inset 0 0 0 1px var(--line-1);
+    clip-path: polygon(0 5px, 5px 0, 100% 0, 100% calc(100% - 5px), calc(100% - 5px) 100%, 0 100%);
+    transition:
+      background var(--dur-1) var(--ease-out),
+      box-shadow var(--dur-1) var(--ease-out);
+  }
+
+  .module > * {
+    position: relative;
+  }
+
+  .module:hover,
+  .module:focus-visible {
+    color: var(--text-1);
+  }
+
+  .module:hover::before,
+  .module:focus-visible::before {
+    background: rgb(var(--tier-rgb) / 0.1);
+    box-shadow: inset 0 0 0 1px rgb(var(--tier-rgb) / 0.5);
+  }
+
+  .module[aria-pressed="true"] {
+    color: var(--text-1);
+  }
+
+  .module[aria-pressed="true"]::before {
+    background: rgb(var(--tier-rgb) / 0.16);
+    box-shadow: inset 0 0 0 1px var(--tier);
+  }
+
+  .module:focus-visible {
+    outline: 2px solid var(--focus-color);
+    outline-offset: 1px;
+  }
+
+  .moduleArt {
+    margin-inline-end: -4px;
+  }
+
+  .moduleName {
+    white-space: nowrap;
+  }
+
+  .module[data-done="true"]::after {
+    content: "";
+    inline-size: 6px;
+    block-size: 6px;
+    margin-inline-start: 2px;
+    background: var(--tier);
+    clip-path: var(--hex-clip);
+  }
+
+  /* The phone's one-strip form: the track name over the title, the count at the end. Two short lines
+     fit the strip at any phone width, so nothing wraps and nothing is cut. */
+  .head[data-variant="strip"] {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "eyebrow count"
+      "title count";
+    align-items: center;
+    gap: 3px var(--space-3);
+  }
+
+  .head[data-variant="strip"] .eyebrow {
+    grid-area: eyebrow;
+    white-space: nowrap;
+  }
+
+  .head[data-variant="strip"] .title {
+    grid-area: title;
+    font-size: 1rem;
+    line-height: 1.1;
+    text-wrap: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .stripCount {
+    grid-area: count;
+    margin: 0;
+    font: 500 var(--fs-sm) / 1 var(--font-mono);
+    color: var(--text-3);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .head[data-complete="true"] .stripCount {
+    color: var(--tier);
+  }
+
+  /* A track's heading in the list, on a phone: the emblem and the ring share the first line and the words
+     get the whole width under them (beside them they would be a column of a few letters). */
+  @media (max-width: 559px) {
+    .head[data-variant="row"] .main {
+      grid-template-columns: auto minmax(0, 1fr);
+      grid-template-areas:
+        "emblem ring"
+        "text text";
+      row-gap: var(--space-2);
+    }
+
+    .head[data-variant="row"] .emblem {
+      grid-area: emblem;
+    }
+
+    .head[data-variant="row"] .ring {
+      grid-area: ring;
+      justify-self: end;
+    }
+
+    .head[data-variant="row"] .text {
+      grid-area: text;
+    }
+  }
+
+  /* A narrow band (set by the map from the measured width): the ring gives way, then the art. */
+  .head[data-density="compact"] .main {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .head[data-density="compact"] .ring,
+  .head[data-density="tiny"] .ring {
+    display: none;
+  }
+
+  .head[data-density="tiny"] .main {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .head[data-density="tiny"] .emblem,
+  .head[data-density="tiny"] .modules {
+    display: none;
+  }
+
+  @media (forced-colors: active) {
+    .module::before {
+      box-shadow: none;
+      border: 1px solid ButtonText;
+    }
+
+    .module[aria-pressed="true"]::before {
+      border-color: Highlight;
+    }
+  }
+}

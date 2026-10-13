@@ -1,0 +1,222 @@
+/*
+ * Meter: a slim segmented bar. Each cell is a tiny chamfered slab whose fill scales in with a
+ * stagger; zones (auto tone) colour the cells by where they sit on the scale.
+ */
+@layer reset, tokens, base, ui, route, utility;
+
+@layer ui {
+  .root {
+    --cell-h: 10px;
+    --cell-c: 3px;
+    --cell-gap: 3px;
+    display: grid;
+    gap: 8px;
+    min-inline-size: 0;
+    color: var(--text-2);
+  }
+
+  .root[data-size="sm"] {
+    --cell-h: 6px;
+    --cell-c: 2px;
+    --cell-gap: 2px;
+    gap: 6px;
+  }
+
+  .head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .label {
+    font: 500 var(--fs-2xs) / 1.3 var(--font-mono);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+
+  .value {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 10px;
+    font: 500 var(--fs-xs) / 1 var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    color: var(--text-1);
+  }
+
+  .state {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.625rem;
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--accent-text);
+    align-self: center;
+  }
+
+  .track {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(var(--n, 20), minmax(0, 1fr));
+    gap: var(--cell-gap);
+    padding-block: 5px var(--pad-end, 5px);
+  }
+
+  .cell {
+    --cell-rgb: var(--accent-rgb);
+    position: relative;
+    block-size: var(--cell-h);
+    background: rgb(255 255 255 / 0.075);
+    overflow: hidden;
+    clip-path: polygon(
+      0 0,
+      calc(100% - var(--cell-c)) 0,
+      100% var(--cell-c),
+      100% 100%,
+      var(--cell-c) 100%,
+      0 calc(100% - var(--cell-c))
+    );
+  }
+
+  .cell[data-tone="ok"] {
+    --cell-rgb: var(--status-ok-rgb);
+  }
+
+  .cell[data-tone="warn"] {
+    --cell-rgb: var(--status-warn-rgb);
+  }
+
+  .cell[data-tone="crit"] {
+    --cell-rgb: var(--status-crit-rgb);
+  }
+
+  .cell::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transform-origin: left center;
+    scale: var(--f, 0) 1;
+    background: rgb(var(--cell-rgb));
+    transition: scale var(--dur-2) var(--ease-out);
+    transition-delay: calc(var(--i, 0) * 16ms);
+  }
+
+  /* The newest lit cell burns brighter: the head of the bar. */
+  .cell[data-head="true"]::after {
+    background: color-mix(in oklab, rgb(var(--cell-rgb)), white 38%);
+  }
+
+  /* An unlit cell of a zoned meter keeps a hint of its zone, so the bands read at rest. */
+  .cell[data-tone="warn"] {
+    background: rgb(var(--status-warn-rgb) / 0.13);
+  }
+
+  .cell[data-tone="crit"] {
+    background: rgb(var(--status-crit-rgb) / 0.16);
+  }
+
+  .limit,
+  .target {
+    position: absolute;
+    inset-block-start: 0;
+    inset-block-end: calc(var(--pad-end, 5px) - 5px);
+    inline-size: 0;
+    pointer-events: none;
+  }
+
+  .limit::before {
+    content: "";
+    position: absolute;
+    inset-block: 0;
+    inset-inline-start: -1px;
+    inline-size: 2px;
+    background: #fff;
+  }
+
+  .limit::after {
+    content: "";
+    position: absolute;
+    inset-block-start: -3px;
+    inset-inline-start: -3px;
+    inline-size: 6px;
+    block-size: 6px;
+    background: #fff;
+    clip-path: var(--hex-clip);
+  }
+
+  .target::before {
+    content: "";
+    position: absolute;
+    inset-block: 0;
+    inset-inline-start: 0;
+    border-inline-start: 1px dashed rgb(var(--accent-hot-rgb) / 0.9);
+  }
+
+  /* Marker captions sit under the cells, clear of the readout above. */
+  .track[data-tags="true"] {
+    --pad-end: 17px;
+  }
+
+  .tag {
+    position: absolute;
+    inset-block-start: calc(100% + 3px);
+    inset-inline-start: 0;
+    translate: -50% 0;
+    font: 500 0.5625rem / 1 var(--font-mono);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: var(--text-3);
+  }
+
+  .tag[data-edge="start"] {
+    translate: 0 0;
+  }
+
+  .tag[data-edge="end"] {
+    translate: -100% 0;
+  }
+
+  :global(html[data-motion="reduced"]) .cell::after {
+    transition: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :global(html:not([data-motion="full"])) .cell::after {
+      transition: none;
+    }
+  }
+
+  @media (prefers-contrast: more) {
+    .cell {
+      background: rgb(255 255 255 / 0.24);
+    }
+  }
+
+  @media (forced-colors: active) {
+    .cell {
+      background: color-mix(in srgb, CanvasText 36%, Canvas);
+      forced-color-adjust: none;
+    }
+
+    .cell::after {
+      background: Highlight;
+    }
+
+    .limit::before,
+    .limit::after {
+      background: CanvasText;
+    }
+
+    .target::before {
+      border-color: CanvasText;
+    }
+
+    .value,
+    .state {
+      color: CanvasText;
+    }
+  }
+}

@@ -1,0 +1,88 @@
+@layer route {
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2) var(--space-5);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font: 500 var(--fs-xs) / 1 var(--font-mono);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+
+  .legend li {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .idle {
+    fill: var(--ink-0);
+    stroke: rgb(255 255 255 / 0.4);
+    stroke-width: 1.4;
+  }
+
+  .started {
+    fill: var(--ink-0);
+    stroke: var(--accent);
+    stroke-width: 1.4;
+  }
+
+  .track {
+    fill: none;
+    stroke: rgb(255 255 255 / 0.14);
+    stroke-width: 2;
+  }
+
+  .arc {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 2.4;
+  }
+
+  .done {
+    fill: var(--accent);
+    stroke: var(--accent-strong);
+    stroke-width: 1.4;
+  }
+
+  .next {
+    fill: none;
+    stroke: #fff;
+    stroke-width: 2;
+    filter: drop-shadow(0 0 3px rgb(255 255 255 / 0.8));
+  }
+
+  .line {
+    stroke: var(--accent);
+    stroke-width: 1.6;
+    stroke-linecap: round;
+  }
+
+  @media (forced-colors: active) {
+    .idle,
+    .started {
+      fill: Canvas;
+      stroke: CanvasText;
+    }
+
+    .done {
+      fill: Highlight;
+      stroke: Highlight;
+    }
+
+    .arc,
+    .next,
+    .line {
+      stroke: Highlight;
+      filter: none;
+    }
+
+    .track {
+      stroke: GrayText;
+    }
+  }
+}

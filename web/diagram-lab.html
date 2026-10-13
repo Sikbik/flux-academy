@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en" data-accent="flux">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="robots" content="noindex" />
+    <title>Flux Academy diagram lab</title>
+    <!-- Dev-only gallery of every lesson diagram and the two diagram widgets. Not part of the production
+         build (vite builds index.html only).
+         Query: ?only=<id>  ?w=<px>  ?beat=<n>  ?sheet=1 (every beat)  ?reduced=1  ?accent=flux|cumulus|nimbus|stratus -->
+    <style>
+      html,
+      body {
+        margin: 0;
+        background: #000;
+        color: #fff;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/learn/diagrams/_lab/main.tsx"></script>
+  </body>
+</html>

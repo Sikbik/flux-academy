@@ -1,0 +1,567 @@
+/*
+ * The cost reactor: three hex gauges, the price as odometers, the subscription selector, the itemised
+ * waterfall and the price against instances. Numbers are mono and tabular, every figure that comes from the
+ * network carries its basis and its age, and layout is by container query so it fits a column, a lesson
+ * stage and a phone.
+ */
+@layer reset, tokens, base, ui, route, utility;
+
+@layer ui {
+  .reactor {
+    container: forge-reactor / inline-size;
+    display: grid;
+    gap: var(--space-5);
+    align-content: start;
+    min-inline-size: 0;
+  }
+
+  .header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .headerTitle {
+    margin-inline-end: auto;
+    font: 500 var(--fs-2xs) / 1 var(--font-mono);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+
+  .sectionTitle {
+    margin: 0 0 var(--space-2);
+    font: 500 var(--fs-2xs) / 1.2 var(--font-mono);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+
+  /* ---- gauges ---------------------------------------------------------------------- */
+
+  .gauges {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-2);
+    justify-items: center;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .gauge {
+    display: grid;
+    justify-items: center;
+    gap: 4px;
+    min-inline-size: 0;
+    text-align: center;
+  }
+
+  .gaugeNum {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    font: 500 var(--fs-md) / 1 var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    color: var(--text-1);
+  }
+
+  .gaugeNum small {
+    margin-block-start: 2px;
+    font: 500 var(--fs-2xs) / 1 var(--font-mono);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+
+  .gaugeLabel {
+    font: 600 var(--fs-xs) / 1 var(--font-mono);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--text-1);
+  }
+
+  .gaugeNote {
+    font: 400 var(--fs-2xs) / 1.3 var(--font-mono);
+    color: var(--text-3);
+  }
+
+  .gauge[data-over="true"] .gaugeNote {
+    color: var(--status-crit);
+  }
+
+  .fit {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .fitLabel {
+    font: 500 var(--fs-2xs) / 1 var(--font-mono);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+
+  .fitChip[data-fit="false"] {
+    opacity: 0.35;
+    filter: saturate(0.4);
+  }
+
+  .helpBtn {
+    display: inline-grid;
+    place-items: center;
+    inline-size: 24px;
+    block-size: 24px;
+    margin-inline-start: auto;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--text-3);
+    cursor: pointer;
+  }
+
+  .helpBtn:hover {
+    color: var(--accent-text);
+  }
+
+  .helpBtn:focus-visible {
+    outline: 2px solid var(--focus-color);
+    outline-offset: 2px;
+  }
+
+  .help {
+    display: grid;
+    gap: var(--space-3);
+    font: 400 var(--fs-sm) / 1.55 var(--font-sans);
+    color: var(--text-2);
+  }
+
+  .help p {
+    margin: 0;
+  }
+
+  .help ul {
+    display: grid;
+    gap: var(--space-1);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .help strong {
+    color: var(--text-1);
+    font-weight: 600;
+  }
+
+  /* ---- the price -------------------------------------------------------------------- */
+
+  .price {
+    display: grid;
+    gap: var(--space-4);
+    padding: var(--space-4);
+    background: linear-gradient(180deg, rgb(var(--accent-rgb) / 0.08), rgb(var(--ink-1-rgb) / 0.5));
+    box-shadow: inset 0 0 0 1px var(--line-1);
+    clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 14px 100%, 0 calc(100% - 14px));
+  }
+
+  .figures {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--space-4) var(--space-6);
+  }
+
+  .figure {
+    display: grid;
+    gap: 6px;
+    min-inline-size: 0;
+  }
+
+  .figureLabel {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    font: 500 var(--fs-2xs) / 1 var(--font-mono);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+
+  .big {
+    font: 300 clamp(2.25rem, 1.6rem + 2.2vw, 3.25rem) / 1 var(--font-display);
+    letter-spacing: -0.02em;
+    color: var(--text-1);
+  }
+
+  .bigFlux {
+    font: 300 clamp(1.5rem, 1.2rem + 1.2vw, 2.1rem) / 1 var(--font-display);
+    letter-spacing: -0.02em;
+    color: var(--text-2);
+  }
+
+  .per {
+    font: 500 var(--fs-xs) / 1 var(--font-mono);
+    color: var(--text-3);
+  }
+
+  .saving {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 2px 8px;
+    font: 600 var(--fs-2xs) / 1.4 var(--font-mono);
+    color: var(--status-ok);
+    background: rgb(var(--status-ok-rgb) / 0.12);
+    box-shadow: inset 0 0 0 1px rgb(var(--status-ok-rgb) / 0.35);
+  }
+
+  .saving button {
+    all: unset;
+    cursor: help;
+    display: inline-flex;
+  }
+
+  .saving button:focus-visible {
+    outline: 2px solid var(--focus-color);
+    outline-offset: 2px;
+  }
+
+  .sub {
+    margin: 0;
+    font: 400 var(--fs-xs) / 1.5 var(--font-sans);
+    color: var(--text-2);
+  }
+
+  .sub b {
+    font-family: var(--font-mono);
+    font-weight: 600;
+    color: var(--text-1);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .verifyRow {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-3);
+  }
+
+  .verifyMsg {
+    flex: 1 1 12rem;
+    margin: 0;
+    font: 400 var(--fs-xs) / 1.45 var(--font-sans);
+    color: var(--text-2);
+  }
+
+  .verifyMsg[data-status="official"] {
+    color: var(--status-ok);
+  }
+
+  .verifyAuto {
+    margin-inline-start: auto;
+  }
+
+  /* ---- waterfall --------------------------------------------------------------------- */
+
+  .waterfall {
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  .wfList,
+  .wfSub {
+    display: grid;
+    gap: 2px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .wfSub {
+    padding-inline-start: var(--space-3);
+    border-inline-start: 1px solid var(--line-2);
+    margin-inline-start: 7px;
+  }
+
+  .wfRow {
+    animation: rowIn var(--dur-3) var(--ease-out) both;
+    animation-delay: calc(var(--i, 0) * 18ms);
+  }
+
+  .wfButton,
+  .wfGroupButton {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "label amount"
+      "bar bar";
+    align-items: baseline;
+    gap: 3px var(--space-3);
+    inline-size: 100%;
+    padding: 6px var(--space-2);
+    border: 0;
+    background: transparent;
+    color: var(--text-2);
+    text-align: start;
+    cursor: pointer;
+    transition: background var(--dur-1) var(--ease-out);
+  }
+
+  .wfButton:disabled {
+    cursor: default;
+  }
+
+  .wfButton:hover:not(:disabled),
+  .wfGroupButton:hover {
+    background: rgb(var(--accent-rgb) / 0.08);
+  }
+
+  .wfButton:focus-visible,
+  .wfGroupButton:focus-visible {
+    outline: 2px solid var(--focus-color);
+    outline-offset: -2px;
+  }
+
+  .wfLabel {
+    grid-area: label;
+    font: 500 var(--fs-sm) / 1.35 var(--font-sans);
+    color: var(--text-1);
+    overflow-wrap: anywhere;
+  }
+
+  .wfAmount {
+    grid-area: amount;
+    font: 500 var(--fs-sm) / 1.35 var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    color: var(--text-1);
+    white-space: nowrap;
+  }
+
+  .wfAmount[data-neg="true"] {
+    color: var(--status-ok);
+  }
+
+  .wfTrack {
+    grid-area: bar;
+    position: relative;
+    block-size: 4px;
+    background: rgb(255 255 255 / 0.05);
+    clip-path: polygon(2px 0, calc(100% - 2px) 0, 100% 50%, calc(100% - 2px) 100%, 2px 100%, 0 50%);
+  }
+
+  .wfBar {
+    position: absolute;
+    inset-block: 0;
+    background: linear-gradient(90deg, rgb(var(--accent-deep-rgb) / 0.9), rgb(var(--accent-rgb)));
+    transition:
+      inset-inline-start var(--dur-3) var(--ease-out),
+      inline-size var(--dur-3) var(--ease-out);
+  }
+
+  .wfBar[data-dir="down"] {
+    background: linear-gradient(90deg, rgb(var(--status-ok-rgb) / 0.9), rgb(var(--status-ok-rgb) / 0.5));
+  }
+
+  .wfNote {
+    margin: 0;
+    padding: 2px var(--space-2) var(--space-2);
+    font: 400 var(--fs-xs) / 1.5 var(--font-sans);
+    color: var(--text-3);
+  }
+
+  .wfRow[data-nested="true"] .wfLabel {
+    font-weight: 400;
+    color: var(--text-2);
+  }
+
+  .wfGroupButton {
+    grid-template-columns: auto minmax(0, 1fr) auto auto;
+    grid-template-areas: none;
+    align-items: center;
+    background: rgb(255 255 255 / 0.03);
+  }
+
+  .wfGroupName {
+    font: 600 var(--fs-sm) / 1.3 var(--font-mono);
+    color: var(--text-1);
+    overflow-wrap: anywhere;
+  }
+
+  .wfGroupHint {
+    font: 400 var(--fs-2xs) / 1 var(--font-mono);
+    color: var(--text-3);
+  }
+
+  .wfGroupButton .wfAmount {
+    grid-area: auto;
+  }
+
+  .wfTotal {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-3);
+    margin-block-start: var(--space-2);
+    padding: var(--space-3) var(--space-2) 0;
+    border-block-start: 1px solid var(--line-3);
+    font: 600 var(--fs-sm) / 1.3 var(--font-sans);
+    color: var(--text-1);
+  }
+
+  .wfTotal .wfAmount {
+    font-size: var(--fs-md);
+  }
+
+  @keyframes rowIn {
+    from {
+      opacity: 0;
+      transform: translateX(-6px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  /* ---- price against instances --------------------------------------------------------- */
+
+  .curve {
+    margin: 0;
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  .curveBox {
+    position: relative;
+  }
+
+  .curveSvg {
+    display: block;
+    inline-size: 100%;
+    block-size: auto;
+    overflow: visible;
+  }
+
+  .curveAxis {
+    stroke: var(--line-3);
+    stroke-width: 1;
+  }
+
+  .curveTick {
+    font: 500 9px / 1 var(--font-mono);
+    fill: var(--text-3);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .curveTick[data-current="true"] {
+    fill: var(--text-1);
+    font-weight: 700;
+  }
+
+  .curveLine {
+    fill: none;
+    stroke: rgb(var(--accent-rgb));
+    stroke-width: 2;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 0;
+    animation: lineDraw 700ms var(--ease-out) both;
+  }
+
+  .curveDot {
+    fill: var(--ink-0);
+    stroke: rgb(var(--accent-rgb));
+    stroke-width: 1.5;
+    transition: r var(--dur-2) var(--ease-snap);
+  }
+
+  .curveDot[data-current="true"] {
+    fill: var(--hot);
+    stroke: rgb(var(--accent-hot-rgb));
+    stroke-width: 2;
+    filter: drop-shadow(0 0 5px rgb(var(--accent-hot-rgb) / 0.8));
+  }
+
+  .cliffRule {
+    stroke: var(--status-warn);
+    stroke-width: 1.5;
+    stroke-dasharray: 3 2;
+  }
+
+  .cliffText {
+    font: 600 8px / 1 var(--font-mono);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    fill: var(--status-warn);
+  }
+
+  .curvePicks {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  .curvePick {
+    position: absolute;
+    inset-block: 0;
+    inline-size: 28px;
+    translate: -50% 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+    pointer-events: auto;
+  }
+
+  .curvePick:disabled {
+    cursor: default;
+  }
+
+  .curvePick:hover:not(:disabled) {
+    background: rgb(var(--accent-rgb) / 0.12);
+  }
+
+  .curvePick:focus-visible {
+    outline: 2px solid var(--focus-color);
+    outline-offset: -2px;
+  }
+
+  .curveNote {
+    margin: 0;
+    font: 400 var(--fs-xs) / 1.5 var(--font-sans);
+    color: var(--text-3);
+  }
+
+  @keyframes lineDraw {
+    from {
+      stroke-dashoffset: 1;
+    }
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  @container forge-reactor (max-width: 22rem) {
+    .figures {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+
+  :global(html[data-motion="reduced"]) .wfRow,
+  :global(html[data-motion="reduced"]) .curveLine {
+    animation: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :global(html:not([data-motion="full"])) .wfRow,
+    :global(html:not([data-motion="full"])) .curveLine {
+      animation: none;
+    }
+  }
+}

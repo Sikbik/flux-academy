@@ -1,0 +1,224 @@
+/*
+ * The blueprint annotation parts. SVG-native: every part is a <g> that goes inside an <svg>.
+ *
+ * DRAW, never fade. Strokes carry pathLength="1" and a dash pattern of "1 2"; the undrawn
+ * state is dashoffset 1 (the gap), the drawn state is 0, and the transition between them is
+ * the draw. Dots, arrowheads and ring discs snap in (scale with the --ease-snap overshoot)
+ * at the moment their line starts or ends. Text is revealed last by a left to right wipe.
+ *
+ * Timeline per element: --s is where it starts and --k how much of the part's duration it
+ * spans, both as fractions. Delay and duration come from --draw-delay and --draw-duration
+ * (set inline from the `delay` and `duration` props; default --dur-4).
+ *
+ * Reduced motion: no dash travel. Strokes sit fully drawn and fade in with opacity only;
+ * dots and text appear with the same fade.
+ */
+@layer reset, tokens, base, ui, route, utility;
+
+@layer ui {
+  .part {
+    --d: var(--draw-delay, 0ms);
+    --t: var(--draw-duration, var(--dur-4));
+    --line: var(--fig-callout, rgb(var(--accent-hot-rgb) / 0.92));
+    --num: var(--fig-number, var(--text-1));
+    color: var(--line);
+  }
+
+  /* Furniture (dimension lines, rulers, crosshairs) is quieter than a callout. */
+  .part[data-kind="furniture"] {
+    --line: var(--fig-furniture, rgb(var(--accent-hot-rgb) / 0.7));
+  }
+
+  /* ---- strokes ------------------------------------------------------------------------ */
+
+  .stroke {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1;
+    stroke-linecap: butt;
+    stroke-linejoin: miter;
+    stroke-dasharray: 1 2;
+    stroke-dashoffset: 1;
+    transition: stroke-dashoffset calc(var(--t) * var(--k, 1)) var(--ease-out)
+      calc(var(--d) + var(--t) * var(--s, 0));
+  }
+
+  .part[data-drawn="true"] .stroke {
+    stroke-dashoffset: 0;
+  }
+
+  /* ---- snaps: dots and arrowheads --------------------------------------------------------- */
+
+  .dot,
+  .arrow {
+    fill: currentColor;
+    stroke: none;
+    transform-box: fill-box;
+    transform-origin: center;
+    scale: 0;
+    transition: scale 240ms var(--ease-snap) calc(var(--d) + var(--t) * var(--s, 0));
+  }
+
+  .part[data-drawn="true"] .dot,
+  .part[data-drawn="true"] .arrow {
+    scale: 1;
+  }
+
+  /* ---- ring disc and numbers ------------------------------------------------------------------ */
+
+  .disc {
+    fill: rgb(var(--ink-0-rgb) / 0.86);
+    stroke: none;
+    transform-box: fill-box;
+    transform-origin: center;
+    scale: 0;
+    transition: scale 260ms var(--ease-snap) calc(var(--d) + var(--t) * var(--s, 0));
+  }
+
+  .part[data-drawn="true"] .disc {
+    scale: 1;
+  }
+
+  /* ---- text ------------------------------------------------------------------------------------- */
+
+  .text {
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum" 1;
+    paint-order: stroke;
+    stroke: none;
+    clip-path: inset(0 100% 0 0);
+    transition: clip-path calc(var(--t) * var(--k, 0.3)) var(--ease-out)
+      calc(var(--d) + var(--t) * var(--s, 0.8));
+  }
+
+  .part[data-drawn="true"] .text {
+    clip-path: inset(0 0 0 0);
+  }
+
+  .num {
+    font-size: 11px;
+    fill: var(--num);
+    letter-spacing: 0;
+  }
+
+  .tag {
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    fill: var(--fig-label, var(--accent-strong));
+  }
+
+  .value {
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    fill: var(--fig-label, var(--accent-strong));
+  }
+
+  /* ---- reduced motion: calm but complete -------------------------------------------------------- */
+
+  :global(html[data-motion="reduced"]) .stroke {
+    stroke-dashoffset: 0;
+    opacity: 0;
+    transition: opacity var(--dur-3) linear;
+  }
+
+  :global(html[data-motion="reduced"]) .part[data-drawn="true"] .stroke {
+    opacity: 1;
+  }
+
+  :global(html[data-motion="reduced"]) .dot,
+  :global(html[data-motion="reduced"]) .arrow,
+  :global(html[data-motion="reduced"]) .disc {
+    scale: 1;
+    opacity: 0;
+    transition: opacity var(--dur-3) linear;
+  }
+
+  :global(html[data-motion="reduced"]) .part[data-drawn="true"] .dot,
+  :global(html[data-motion="reduced"]) .part[data-drawn="true"] .arrow,
+  :global(html[data-motion="reduced"]) .part[data-drawn="true"] .disc {
+    opacity: 1;
+  }
+
+  :global(html[data-motion="reduced"]) .text {
+    clip-path: none;
+    opacity: 0;
+    transition: opacity var(--dur-3) linear;
+  }
+
+  :global(html[data-motion="reduced"]) .part[data-drawn="true"] .text {
+    opacity: 1;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :global(html:not([data-motion="full"])) .stroke {
+      stroke-dashoffset: 0;
+      opacity: 0;
+      transition: opacity var(--dur-3) linear;
+    }
+
+    :global(html:not([data-motion="full"])) .part[data-drawn="true"] .stroke {
+      opacity: 1;
+    }
+
+    :global(html:not([data-motion="full"])) .dot,
+    :global(html:not([data-motion="full"])) .arrow,
+    :global(html:not([data-motion="full"])) .disc {
+      scale: 1;
+      opacity: 0;
+      transition: opacity var(--dur-3) linear;
+    }
+
+    :global(html:not([data-motion="full"])) .part[data-drawn="true"] .dot,
+    :global(html:not([data-motion="full"])) .part[data-drawn="true"] .arrow,
+    :global(html:not([data-motion="full"])) .part[data-drawn="true"] .disc {
+      opacity: 1;
+    }
+
+    :global(html:not([data-motion="full"])) .text {
+      clip-path: none;
+      opacity: 0;
+      transition: opacity var(--dur-3) linear;
+    }
+
+    :global(html:not([data-motion="full"])) .part[data-drawn="true"] .text {
+      opacity: 1;
+    }
+  }
+
+  /* ---- accessibility modes ------------------------------------------------------------------------- */
+
+  @media (prefers-contrast: more) {
+    .part {
+      --line: #fff;
+    }
+
+    .part[data-kind="furniture"] {
+      --line: rgb(255 255 255 / 0.9);
+    }
+
+    .tag,
+    .value {
+      fill: #fff;
+    }
+  }
+
+  @media (forced-colors: active) {
+    .part,
+    .part[data-kind="furniture"] {
+      --line: CanvasText;
+      --num: CanvasText;
+    }
+
+    .disc {
+      fill: Canvas;
+    }
+
+    .tag,
+    .value {
+      fill: CanvasText;
+    }
+  }
+}

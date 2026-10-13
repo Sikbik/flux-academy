@@ -1,0 +1,460 @@
+/* ==========================================================================
+   Diagram kit: the annotation language as CSS.
+
+   A diagram renders every element it will ever draw and tags each with a
+   state (`data-s`): off, on or focus. This file is the whole animation
+   system: strokes DRAW (stroke-dashoffset on a path with pathLength=1),
+   glass fills settle after their edge, text WIPES in from the left, and the
+   rest of the figure dims behind the focus. Nothing fades in that is a line.
+
+   Transitions are CSS, so they are interruptible (a new beat retargets from
+   wherever the old one got to) and cost no per-frame JS. Reduced motion
+   (data-reduced="true") renders the end state with no transition at all.
+   ========================================================================== */
+
+@layer ui {
+  .root {
+    position: relative;
+    inline-size: 100%;
+    max-inline-size: 920px;
+    margin-inline: auto;
+    --k-draw: 620ms;
+    --k-fade: 420ms;
+    --k-wipe: 460ms;
+    --k-move: 640ms;
+  }
+
+  .svg {
+    display: block;
+    inline-size: 100%;
+    block-size: auto;
+    overflow: visible;
+    /* The figure is a picture, not a text block: no accidental selection while exploring. */
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  .skeleton {
+    inline-size: 100%;
+    block-size: 220px;
+  }
+
+  /* ---- roles, redeclared per element so a data-tier or data-tone subtree re-resolves them ---- */
+  .root,
+  .k {
+    --k-edge: rgb(var(--accent-rgb) / 0.7);
+    --k-edge-hot: var(--accent-strong);
+    --k-ann: rgb(var(--accent-rgb) / 0.82);
+    --k-ann-hot: var(--hot);
+    --k-line: rgb(var(--accent-rgb) / 0.4);
+    --k-glass: rgb(var(--ink-1-rgb) / 0.9);
+    --k-glass-deep: rgb(var(--ink-0-rgb) / 0.92);
+    --k-wash: rgb(var(--accent-rgb) / 0.12);
+    --k-wash-hot: rgb(var(--accent-rgb) / 0.26);
+    --k-text: var(--text-2);
+    --k-text-hot: var(--text-1);
+    --k-text-dim: var(--text-3);
+    --k-rest: 0.8;
+  }
+
+  /* Tiers are the subject of the figure that sets data-tier: give them their full colour. */
+  .k[data-tier] {
+    --k-edge: rgb(var(--accent-rgb) / 0.92);
+    --k-wash: rgb(var(--accent-rgb) / 0.2);
+    --k-wash-hot: rgb(var(--accent-rgb) / 0.36);
+  }
+
+  /* ---- the state machine ------------------------------------------------------------------- */
+
+  .k {
+    --d: 0ms;
+    transition: opacity var(--k-fade) var(--ease-out) var(--d);
+  }
+
+  /* Context: dimmed behind the focus. Text stays above AA contrast at this opacity. */
+  .k[data-s="on"] {
+    opacity: var(--k-rest);
+  }
+
+  .k[data-s="off"] {
+    pointer-events: none;
+    transition-delay: 0ms;
+  }
+
+  /* Strokes draw on. pathLength=1 on the element makes 1 mean "the whole stroke". */
+  .draw {
+    fill: none;
+    stroke: var(--k-edge);
+    stroke-width: 1;
+    stroke-linejoin: round;
+    stroke-linecap: butt;
+    stroke-dasharray: 1 1;
+    stroke-dashoffset: 0;
+    transition:
+      stroke-dashoffset var(--k-draw) var(--ease-out) var(--d),
+      stroke var(--k-fade) var(--ease-out),
+      stroke-width var(--k-fade) var(--ease-out);
+  }
+
+  .k[data-s="off"] .draw {
+    stroke-dashoffset: 1;
+    transition-delay: 0ms;
+  }
+
+  .k[data-s="focus"] .draw.hot {
+    stroke: var(--k-edge-hot);
+  }
+
+  /* Line tones. */
+  .ann {
+    stroke: var(--k-ann);
+  }
+  .k[data-s="focus"] .draw.ann {
+    stroke: var(--k-ann-hot);
+  }
+  .line {
+    stroke: var(--k-line);
+  }
+  .k[data-s="focus"] .draw.line {
+    stroke: var(--k-ann);
+  }
+  .strong {
+    stroke-width: 1.5;
+  }
+  /* A dashed line cannot use the dash machinery, so a solid stroke in a mask draws on and
+     the dashes are revealed through it. */
+  .maskStroke {
+    stroke: #fff;
+    stroke-width: 8;
+    stroke-linecap: butt;
+  }
+  .dashedLine {
+    fill: none;
+    stroke: var(--k-line);
+    stroke-width: 1;
+    stroke-dasharray: 2 4;
+  }
+  .dashedLine.ann {
+    stroke: var(--k-ann);
+  }
+  .k[data-s="focus"] .dashedLine.ann,
+  .k[data-s="focus"] .dashedLine.line {
+    stroke: var(--k-ann);
+  }
+
+  /* A hairline that is NOT drawn on (furniture such as a frame): no dash machinery. */
+  .still {
+    fill: none;
+    stroke: var(--k-line);
+    stroke-width: 1;
+  }
+
+  /* Glass fills settle behind their own edge. */
+  .fill {
+    stroke: none;
+    fill: var(--k-glass);
+    opacity: 1;
+    transition: opacity var(--k-fade) var(--ease-out) calc(var(--d) + 160ms);
+  }
+  .k[data-s="off"] .fill {
+    opacity: 0;
+    transition-delay: 0ms;
+  }
+  .wash {
+    fill: var(--k-wash);
+  }
+  .k[data-s="focus"] .fill.wash {
+    fill: var(--k-wash-hot);
+  }
+  .deep {
+    fill: var(--k-glass-deep);
+  }
+  .solid {
+    fill: var(--k-edge);
+  }
+  .k[data-s="focus"] .fill.solid {
+    fill: var(--k-edge-hot);
+  }
+  .dot {
+    fill: var(--k-ann);
+  }
+  .k[data-s="focus"] .fill.dot {
+    fill: var(--k-ann-hot);
+  }
+
+  /* Focus glow: the same outline, wide and faint. Opacity only. */
+  .halo {
+    fill: none;
+    stroke: var(--k-edge-hot);
+    stroke-width: 7;
+    stroke-linejoin: round;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--k-fade) var(--ease-out) var(--d);
+  }
+  .k[data-s="focus"] .halo {
+    opacity: 0.16;
+  }
+
+  /* Text wipes in from the left, after the line that points to it has started. */
+  .txt {
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: 11px;
+    font-variant-numeric: tabular-nums;
+    fill: var(--k-text);
+    clip-path: inset(-3px -3px -3px -3px);
+    transition:
+      clip-path var(--k-wipe) var(--ease-out) calc(var(--d) + 140ms),
+      fill var(--k-fade) var(--ease-out);
+  }
+  .k[data-s="off"] .txt {
+    clip-path: inset(-3px 101% -3px -3px);
+    transition-delay: 0ms;
+  }
+  .k[data-s="focus"] .txt.hot {
+    fill: var(--k-text-hot);
+  }
+  .caps {
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  /* A halo in the glass colour: knocks lines out from behind a label. */
+  .knock {
+    stroke: var(--k-glass-deep);
+    stroke-width: 3.5px;
+    paint-order: stroke;
+    stroke-linejoin: round;
+  }
+  .lit {
+    fill: var(--k-text-hot);
+  }
+  .dim {
+    fill: var(--k-text-dim);
+  }
+  .acc {
+    fill: var(--accent-text);
+  }
+  .semi {
+    font-weight: 600;
+  }
+  .disp {
+    font-family: var(--font-display);
+    font-weight: 300;
+    letter-spacing: -0.02em;
+  }
+
+  /* Status tones: always paired with a word or a glyph by the diagram. */
+  .crit {
+    --k-edge: rgb(var(--status-crit-rgb) / 0.85);
+    --k-edge-hot: var(--status-crit);
+    --k-ann: rgb(var(--status-crit-rgb) / 0.9);
+    --k-ann-hot: var(--status-crit);
+    --k-wash: rgb(var(--status-crit-rgb) / 0.12);
+    --k-wash-hot: rgb(var(--status-crit-rgb) / 0.22);
+    --k-text: #ff8fa1;
+    --k-text-hot: #ffb3c0;
+  }
+  .ok {
+    --k-edge: rgb(var(--status-ok-rgb) / 0.8);
+    --k-edge-hot: var(--status-ok);
+    --k-ann: rgb(var(--status-ok-rgb) / 0.9);
+    --k-ann-hot: var(--status-ok);
+    --k-wash: rgb(var(--status-ok-rgb) / 0.1);
+    --k-wash-hot: rgb(var(--status-ok-rgb) / 0.2);
+    --k-text: #7fe7b4;
+    --k-text-hot: #b5f5d2;
+  }
+  .warn {
+    --k-edge: rgb(var(--status-warn-rgb) / 0.85);
+    --k-edge-hot: var(--status-warn);
+    --k-ann: rgb(var(--status-warn-rgb) / 0.9);
+    --k-ann-hot: var(--status-warn);
+    --k-wash: rgb(var(--status-warn-rgb) / 0.12);
+    --k-wash-hot: rgb(var(--status-warn-rgb) / 0.22);
+    --k-text: #ffbb80;
+    --k-text-hot: #ffd8b3;
+  }
+
+  /* ---- the callout marker: ring, number, leader ------------------------------------------------ */
+  .markerRing {
+    fill: none;
+    stroke: var(--k-ann);
+    stroke-width: 1;
+    stroke-dasharray: 1 1;
+    stroke-dashoffset: 0;
+    transition:
+      stroke-dashoffset var(--k-draw) var(--ease-out) calc(var(--d) + 200ms),
+      stroke var(--k-fade) var(--ease-out);
+  }
+  .k[data-s="off"] .markerRing {
+    stroke-dashoffset: 1;
+    transition-delay: 0ms;
+  }
+  .k[data-s="focus"] .markerRing {
+    stroke: var(--k-ann-hot);
+    stroke-width: 1.5;
+  }
+  .markerFill {
+    fill: var(--k-glass-deep);
+    transition:
+      fill var(--k-fade) var(--ease-out),
+      opacity var(--k-fade) var(--ease-out) calc(var(--d) + 160ms);
+  }
+  .k[data-s="off"] .markerFill {
+    opacity: 0;
+    transition-delay: 0ms;
+  }
+  .k[data-s="focus"] .markerFill {
+    fill: var(--k-wash-hot);
+  }
+  .markerNum {
+    font-family: var(--font-mono);
+    font-weight: 600;
+    font-size: 11px;
+    font-variant-numeric: tabular-nums;
+    text-anchor: middle;
+    dominant-baseline: central;
+    fill: var(--k-text);
+    transition:
+      opacity var(--k-fade) var(--ease-out) calc(var(--d) + 360ms),
+      fill var(--k-fade) var(--ease-out);
+  }
+  .k[data-s="off"] .markerNum {
+    opacity: 0;
+    transition-delay: 0ms;
+  }
+  .k[data-s="focus"] .markerNum {
+    fill: var(--k-text-hot);
+  }
+
+  /* ---- movers: packets and tokens travel between beats ----------------------------------------- */
+  .mover {
+    transition:
+      transform var(--k-move) var(--ease-in-out) var(--d),
+      opacity var(--k-fade) var(--ease-out) var(--d);
+  }
+  .k[data-s="off"] .mover {
+    opacity: 0;
+  }
+
+  /* ---- ambient life, only on the focus and only when motion is allowed ------------------------- */
+  .flow {
+    fill: none;
+    stroke: var(--k-ann-hot);
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-dasharray: 1 9;
+    opacity: 0;
+    transition: opacity var(--k-fade) var(--ease-out) var(--d);
+  }
+  .k[data-s="focus"] .flow {
+    opacity: 0.9;
+    animation: kflow 900ms linear infinite;
+  }
+  @keyframes kflow {
+    to {
+      stroke-dashoffset: -10;
+    }
+  }
+
+  .ping {
+    fill: none;
+    stroke: var(--k-ann-hot);
+    stroke-width: 1;
+    opacity: 0;
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+  .k[data-s="focus"] .ping {
+    animation: kping 2400ms var(--ease-out) infinite;
+  }
+  @keyframes kping {
+    0% {
+      opacity: 0.7;
+      transform: scale(0.7);
+    }
+    80%,
+    100% {
+      opacity: 0;
+      transform: scale(1.7);
+    }
+  }
+
+  /* A highlight that steps along a queue: dot k lights for one slot of the loop. --n is the length. */
+  .qlit {
+    fill: none;
+    stroke: var(--k-ann-hot);
+    stroke-width: 1.5;
+    opacity: 0;
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+  .k[data-s="focus"] .qlit {
+    animation: kqlit calc(var(--n, 6) * 900ms) linear infinite;
+    animation-delay: calc(var(--i, 0) * 900ms);
+  }
+  @keyframes kqlit {
+    0% {
+      opacity: 1;
+      transform: scale(1.5);
+    }
+    5% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    16% {
+      opacity: 1;
+    }
+    22%,
+    100% {
+      opacity: 0;
+    }
+  }
+
+  .breathe {
+    animation: kbreathe 3600ms var(--ease-in-out) infinite;
+  }
+  @keyframes kbreathe {
+    0%,
+    100% {
+      opacity: 0.1;
+    }
+    50% {
+      opacity: 0.22;
+    }
+  }
+
+  /* ---- reduced motion: the end state, no movement ------------------------------------------------- */
+  .root[data-reduced="true"] *,
+  .root[data-reduced="true"] *::before,
+  .root[data-reduced="true"] *::after {
+    transition: none;
+  }
+  /* The looping ones are set under a state selector, so they are switched off with a stronger one. */
+  .root[data-reduced="true"] .k[data-s] .flow,
+  .root[data-reduced="true"] .k[data-s] .ping,
+  .root[data-reduced="true"] .k[data-s] .qlit,
+  .root[data-reduced="true"] .breathe {
+    animation: none;
+  }
+
+  @media (prefers-contrast: more) {
+    .root,
+    .k {
+      --k-rest: 0.78;
+    }
+  }
+
+  @media (forced-colors: active) {
+    .draw,
+    .markerRing,
+    .still {
+      stroke: CanvasText;
+    }
+    .txt,
+    .markerNum {
+      fill: CanvasText;
+    }
+  }
+}

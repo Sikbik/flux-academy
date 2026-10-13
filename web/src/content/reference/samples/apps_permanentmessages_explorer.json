@@ -1,0 +1,39 @@
+{
+  "status": "success",
+  "data": [
+    {
+      "type": "fluxappregister",
+      "version": 1,
+      "appSpecifications": {
+        "version": 4,
+        "name": "explorer",
+        "description": "Flux explorer ran on Flux",
+        "owner": "196GJWyLxzAw3MirTT7Bqs2iGpUQio29GH",
+        "compose": [
+          {
+            "name": "mongodb",
+            "description": "db component",
+            "repotag": "mvertes/alpine-mongo:latest",
+            "ports": [],
+            "domains": [],
+            "environmentParameters": [],
+            "commands": [],
+            "containerPorts": [],
+            "containerData": "/db",
+            "cpu": 1,
+            "ram": 2000,
+            "hdd": 10,
+            "tiered": false
+          }
+        ],
+        "instances": 10
+      },
+      "hash": "7d7a6e336ef2c3545226b03a697cc6f420b636dec2421203a252429b351a954e",
+      "timestamp": 1639125854536,
+      "signature": "H4OQgpLOXYEFhVJ+sKemBLWPRqE6KOSzi1Q7GT68GuS6GBIRPgTTwy44HyyDXnNFPqO4/JxnkzIXUQCIQ19f0Ww=",
+      "txid": "4c0af5dffabadf6f4c5b197ca90d133351d08c6441e3088cb87d099cd03b21bf",
+      "height": 1009733,
+      "valueSat": 1600000000
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "status": "success",
+  "data": [
+    {
+      "collateral": "COutPoint(4a8d43cb2f4857ef1d59d1856980df8a2e2ba43e2ce9ce73a05ddcfabf6dfc77, 0)",
+      "added_height": 3030873,
+      "payment_address": "t1cQY3J9KtSdJ2sk7WfCZhgJcSccmnzTUuR",
+      "eligible_in": 161,
+      "amount": "1000.00"
+    }
+  ]
+}

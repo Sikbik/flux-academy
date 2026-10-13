@@ -1,0 +1,162 @@
+@layer route {
+  .head {
+    display: grid;
+    gap: var(--space-6);
+    align-items: end;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  @media (min-width: 1100px) {
+    .head {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.45fr);
+      gap: var(--space-10);
+    }
+  }
+
+  .intro {
+    display: grid;
+    gap: var(--space-3);
+    align-content: end;
+  }
+
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin: 0;
+    font: 500 var(--fs-xs) / 1 var(--font-mono);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--accent-text);
+  }
+
+  .title {
+    margin: 0;
+    font: 300 clamp(1.875rem, 1.3rem + 1.7vw, 2.875rem) / 1.04 var(--font-display);
+    letter-spacing: var(--tracking-display);
+    color: var(--text-1);
+    text-wrap: balance;
+    outline: none;
+  }
+
+  .title b {
+    display: block;
+    font-weight: 700;
+  }
+
+  .lede {
+    margin: 0;
+    max-inline-size: 46ch;
+    font: var(--type-lead);
+    color: var(--text-2);
+    text-wrap: pretty;
+  }
+
+  /* ---- the cluster ---------------------------------------------------------------------- */
+
+  .cluster {
+    inline-size: 100%;
+  }
+
+  /* Three readouts on top, the action on its own row below: the caption of the button then has room to
+     say where it goes, and nothing has to shrink. */
+  .clusterBody {
+    display: grid;
+    gap: var(--space-5) var(--space-6);
+    align-items: center;
+    grid-template-columns: auto minmax(0, 1fr);
+    padding-inline-start: var(--space-8);
+  }
+
+  @media (min-width: 720px) {
+    .clusterBody {
+      grid-template-columns: auto auto minmax(0, 1fr);
+    }
+  }
+
+  .cell {
+    display: grid;
+    gap: var(--space-2);
+    justify-items: start;
+    min-inline-size: 0;
+  }
+
+  .cell[data-wide] {
+    grid-column: 1 / -1;
+  }
+
+  @media (min-width: 720px) {
+    .cell[data-wide] {
+      grid-column: auto;
+    }
+  }
+
+  .cell:first-child {
+    justify-items: center;
+  }
+
+  .ringNum {
+    font: 700 1.5rem / 1 var(--font-display);
+    color: var(--text-1);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .ringNum small {
+    font: 500 0.75rem / 1 var(--font-mono);
+    color: var(--text-3);
+  }
+
+  .xp {
+    margin: 0;
+  }
+
+  .xpNum {
+    font: 300 clamp(1.75rem, 1.2rem + 1.5vw, 2.5rem) / 1 var(--font-display);
+    letter-spacing: -0.02em;
+    color: var(--text-1);
+  }
+
+  .rank {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin: 0;
+    font: 700 1.25rem / 1.1 var(--font-display);
+    letter-spacing: var(--tracking-heading);
+    color: var(--text-1);
+  }
+
+  .cell[data-tier] .rank {
+    color: var(--tier);
+  }
+
+  .cap {
+    margin: 0;
+    max-inline-size: 32ch;
+    font: 500 var(--fs-xs) / 1.35 var(--font-mono);
+    letter-spacing: 0.04em;
+    color: var(--text-3);
+  }
+
+  .cta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-3) var(--space-5);
+    grid-column: 1 / -1;
+    padding-block-start: var(--space-4);
+    border-block-start: 1px solid var(--line-1);
+  }
+
+  .ctaCap {
+    margin: 0;
+    flex: 1 1 14rem;
+    font: 500 var(--fs-xs) / 1.35 var(--font-mono);
+    letter-spacing: 0.04em;
+    color: var(--text-3);
+  }
+
+  .capNowrap {
+    white-space: nowrap;
+  }
+}

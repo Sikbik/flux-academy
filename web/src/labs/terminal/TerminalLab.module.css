@@ -1,0 +1,200 @@
+/*
+ * The Terminal lab's working area: scenario tabs, the terminal window and, beside it, the challenge
+ * card with its goals. The frame (title, purpose, Teach me, status strip) comes from LabFrame.
+ */
+@layer reset, tokens, base, ui, route, utility;
+
+@layer route {
+  .lab {
+    --lab-term-h: clamp(26rem, calc(100svh - 21rem), 46rem);
+    display: grid;
+    gap: var(--space-4);
+    min-inline-size: 0;
+    padding: var(--space-4) var(--gutter) var(--space-8);
+  }
+
+  .tabs {
+    min-inline-size: 0;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-5);
+    align-items: start;
+    min-inline-size: 0;
+  }
+
+  .term {
+    min-inline-size: 0;
+    block-size: var(--lab-term-h);
+  }
+
+  .side {
+    display: grid;
+    gap: var(--space-4);
+    min-inline-size: 0;
+  }
+
+  @media (min-width: 1000px) {
+    .grid {
+      grid-template-columns: minmax(0, 1fr) minmax(18rem, 22rem);
+    }
+
+    .side {
+      position: sticky;
+      inset-block-start: calc(var(--header-offset, 76px) + var(--space-2));
+    }
+  }
+
+  @media (max-width: 719.98px) {
+    .lab {
+      --lab-term-h: clamp(24rem, 68svh, 36rem);
+      padding-inline: var(--space-3);
+    }
+  }
+
+  /* ---- challenge card ------------------------------------------------------------------------- */
+
+  .card {
+    display: grid;
+    gap: var(--space-3);
+  }
+
+  .eyebrow {
+    max-inline-size: none;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-1) var(--space-3);
+    margin: 0;
+    font: 500 var(--fs-2xs) / 1.3 var(--font-mono);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+
+  .eyebrow b {
+    font-weight: var(--fw-medium);
+    color: var(--accent-text);
+  }
+
+  .cardTitle {
+    margin: 0;
+    font: var(--type-h4);
+    font-size: 1.25rem;
+    letter-spacing: var(--tracking-heading);
+    color: var(--text-1);
+  }
+
+  .objective {
+    margin: 0;
+    font: 400 var(--fs-md) / 1.5 var(--font-sans);
+    color: var(--text-2);
+    text-wrap: pretty;
+  }
+
+  .meter {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    font: 500 var(--fs-xs) / 1 var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    color: var(--text-3);
+  }
+
+  .meter span:first-child {
+    color: var(--text-1);
+  }
+
+  .bar {
+    flex: 1 1 auto;
+    block-size: 4px;
+    background: var(--ink-4);
+    overflow: hidden;
+  }
+
+  .bar > span {
+    display: block;
+    block-size: 100%;
+    inline-size: calc(var(--p, 0) * 100%);
+    background: var(--accent);
+    transition: inline-size var(--dur-3) var(--ease-out);
+  }
+
+  .bar[data-done="true"] > span {
+    background: var(--status-ok);
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .complete {
+    display: grid;
+    gap: var(--space-2);
+    padding: var(--space-3);
+    border-inline-start: 2px solid var(--status-ok);
+    background: rgb(var(--status-ok-rgb) / 0.08);
+  }
+
+  .complete p {
+    margin: 0;
+    font: 400 var(--fs-sm) / 1.5 var(--font-sans);
+    color: var(--text-2);
+  }
+
+  .complete strong {
+    font-weight: var(--fw-semibold);
+    color: var(--status-ok);
+  }
+
+  .tips {
+    display: grid;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font: 400 var(--fs-sm) / 1.45 var(--font-sans);
+    color: var(--text-3);
+  }
+
+  .tips li {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-2);
+  }
+
+  .tips code {
+    font: 500 var(--fs-xs) / 1 var(--font-mono);
+    color: var(--text-1);
+  }
+
+  .tipsHead {
+    max-inline-size: none;
+    margin: 0 0 var(--space-1);
+    font: 500 var(--fs-2xs) / 1.2 var(--font-mono);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+
+  /* Forced colours replace fills, so the meter becomes a frame with a solid CanvasText fill. */
+  @media (forced-colors: active) {
+    .bar {
+      block-size: 8px;
+      border: 1px solid CanvasText;
+    }
+
+    .bar > span {
+      background: CanvasText;
+    }
+
+    .complete {
+      border: 1px solid CanvasText;
+      border-inline-start-width: 4px;
+    }
+  }
+}

@@ -1,0 +1,155 @@
+@layer route {
+  .strip {
+    pointer-events: auto;
+  }
+
+  .content {
+    display: block;
+  }
+
+  .cells {
+    display: grid;
+    grid-template-columns: repeat(var(--cells, 3), minmax(0, 1fr));
+    margin: 0;
+  }
+
+  .cell {
+    position: relative;
+    min-inline-size: 0;
+    padding-inline: clamp(0.75rem, 2vw, 1.75rem);
+    border-inline-start: 1px solid var(--line-1);
+  }
+
+  .cell:first-child {
+    padding-inline-start: 0;
+    border-inline-start: 0;
+  }
+
+  .cell:last-child {
+    padding-inline-end: 0;
+  }
+
+  /* ---- the next-block ring -------------------------------------------------------------- */
+
+  .ring {
+    position: absolute;
+    inset-inline-end: clamp(0.75rem, 2vw, 1.75rem);
+    inset-block-end: 4px;
+    display: grid;
+    place-items: center;
+    inline-size: 60px;
+    block-size: 60px;
+    color: var(--accent);
+  }
+
+  .cell:first-child .ring {
+    inset-inline-end: clamp(0.75rem, 2vw, 1.75rem);
+  }
+
+  .ring svg {
+    position: absolute;
+    inset: 0;
+    inline-size: 100%;
+    block-size: 100%;
+    overflow: visible;
+  }
+
+  .seg {
+    fill: none;
+    stroke: rgb(var(--accent-rgb) / 0.18);
+    stroke-width: 4.5;
+    stroke-linecap: butt;
+    transition:
+      stroke var(--dur-3) var(--ease-out),
+      filter var(--dur-3) var(--ease-out);
+  }
+
+  .seg[data-lit] {
+    stroke: rgb(var(--accent-rgb) / 0.95);
+  }
+
+  .seg[data-head] {
+    stroke: var(--hot);
+    filter: drop-shadow(0 0 4px rgb(var(--accent-hot-rgb) / 0.9));
+  }
+
+  .ring[data-live="false"] .seg {
+    stroke: rgb(255 255 255 / 0.08);
+  }
+
+  .ringText {
+    position: relative;
+    font: 500 var(--fs-sm) / 1 var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    color: var(--text-1);
+  }
+
+  .ring[data-live="false"] .ringText {
+    color: var(--text-3);
+  }
+
+  /* A real block lands: the ring flares once. The two names restart the animation each block. */
+  .ring[data-flare="a"] svg {
+    animation: flare-a var(--dur-4) var(--ease-out);
+  }
+
+  .ring[data-flare="b"] svg {
+    animation: flare-b var(--dur-4) var(--ease-out);
+  }
+
+  @keyframes flare-a {
+    0% {
+      filter: drop-shadow(0 0 10px rgb(var(--accent-hot-rgb) / 0.9));
+    }
+  }
+
+  @keyframes flare-b {
+    0% {
+      filter: drop-shadow(0 0 10px rgb(var(--accent-hot-rgb) / 0.9));
+    }
+  }
+
+  @media (max-width: 899.98px) {
+    .cells {
+      grid-template-columns: minmax(0, 1fr);
+      row-gap: var(--space-4);
+    }
+
+    .cell {
+      padding-inline: 0;
+      padding-block: var(--space-3);
+      border-inline-start: 0;
+      border-block-start: 1px solid var(--line-1);
+    }
+
+    .cell:first-child {
+      padding-block-start: 0;
+      border-block-start: 0;
+    }
+
+    .cell:last-child {
+      padding-block-end: 0;
+    }
+
+    .ring {
+      inset-inline-end: 0;
+      inset-block-end: auto;
+      inset-block-start: var(--space-3);
+    }
+
+    .cell:first-child .ring {
+      inset-block-start: 0;
+      inset-inline-end: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :root:not([data-motion="full"]) .ring svg {
+      animation: none;
+    }
+  }
+
+  :root[data-motion="reduced"] .ring svg {
+    animation: none;
+  }
+}

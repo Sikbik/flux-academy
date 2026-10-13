@@ -1,0 +1,251 @@
+@layer route {
+  .entry {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(9rem, 13.5rem) minmax(0, 1fr) auto;
+    gap: var(--space-3) var(--space-8);
+    padding: var(--space-5) var(--space-3) var(--space-5) var(--space-4);
+    border-block-start: 1px solid var(--line-1);
+    /* The page sets this from the measured height of the sticky toolbar. */
+    scroll-margin-block-start: var(--entry-scroll-margin, 15rem);
+    outline: none;
+  }
+
+  /* The left edge of a term the visitor was sent to: a bar and a wash, then it settles. */
+  .entry[data-target="true"] {
+    background: linear-gradient(90deg, rgb(var(--accent-rgb) / 0.12), transparent 70%);
+    box-shadow: inset 2px 0 0 var(--accent-solid);
+    animation: arrive 1400ms var(--ease-out) both;
+  }
+
+  @keyframes arrive {
+    from {
+      background: linear-gradient(90deg, rgb(var(--accent-rgb) / 0.34), transparent 85%);
+    }
+  }
+
+  :global(html[data-motion="reduced"]) .entry[data-target="true"] {
+    animation: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :global(html:not([data-motion="full"])) .entry[data-target="true"] {
+      animation: none;
+    }
+  }
+
+  /* ---- name column -------------------------------------------------------------------- */
+
+  .name {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-2);
+    min-inline-size: 0;
+  }
+
+  .term {
+    margin: 0;
+    font: 700 var(--fs-h4) / 1.2 var(--font-display);
+    letter-spacing: var(--tracking-heading);
+    color: var(--text-1);
+    overflow-wrap: anywhere;
+  }
+
+  .aka {
+    margin: 0;
+    font: 400 var(--fs-xs) / 1.45 var(--font-sans);
+    color: var(--text-3);
+  }
+
+  .akaLabel {
+    margin-inline-end: var(--space-2);
+    font: 500 var(--fs-2xs) / 1 var(--font-mono);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+  }
+
+  .mark {
+    background: rgb(var(--accent-rgb) / 0.28);
+    color: inherit;
+    border-radius: 0;
+    padding-inline: 1px;
+    margin-inline: -1px;
+  }
+
+  /* ---- body --------------------------------------------------------------------------- */
+
+  .body {
+    display: grid;
+    gap: var(--space-3);
+    min-inline-size: 0;
+    max-inline-size: 70ch;
+  }
+
+  .short {
+    margin: 0;
+    font: 400 var(--fs-body) / 1.55 var(--font-sans);
+    color: var(--text-1);
+    text-wrap: pretty;
+  }
+
+  .why {
+    margin: 0;
+    font: 400 var(--fs-md) / 1.55 var(--font-sans);
+    color: var(--text-2);
+    text-wrap: pretty;
+  }
+
+  .label,
+  .rowLabel {
+    display: block;
+    font: 500 var(--fs-2xs) / 1.3 var(--font-mono);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+
+  .label {
+    margin-block-end: 2px;
+  }
+
+  .links {
+    display: grid;
+    gap: var(--space-2);
+    padding-block-start: var(--space-1);
+  }
+
+  .row {
+    display: grid;
+    grid-template-columns: 6.5rem minmax(0, 1fr);
+    align-items: start;
+    gap: var(--space-3);
+  }
+
+  .rowLabel {
+    padding-block-start: 8px;
+  }
+
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    min-inline-size: 0;
+  }
+
+  .chips > li {
+    display: inline-flex;
+    min-inline-size: 0;
+    max-inline-size: 100%;
+  }
+
+  .more {
+    min-block-size: 26px;
+    padding: 0 var(--space-3);
+    border: 1px dashed var(--line-3);
+    background: none;
+    color: var(--text-2);
+    font: 500 var(--fs-xs) / 1 var(--font-sans);
+    cursor: pointer;
+  }
+
+  .more:hover {
+    color: var(--text-1);
+    border-color: var(--text-3);
+  }
+
+  .more:focus-visible {
+    outline: 2px solid var(--accent-text);
+    outline-offset: 2px;
+  }
+
+  .tools {
+    display: flex;
+    align-items: flex-start;
+  }
+
+  /* ---- narrow ------------------------------------------------------------------------- */
+
+  @media (max-width: 719.98px) {
+    .entry {
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: var(--space-3) var(--space-4);
+      padding-inline: 0;
+    }
+
+    .name {
+      grid-column: 1;
+    }
+
+    .tools {
+      grid-column: 2;
+      grid-row: 1;
+    }
+
+    .body {
+      grid-column: 1 / -1;
+    }
+
+    .row {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--space-1);
+    }
+
+    .rowLabel {
+      padding-block-start: 0;
+    }
+  }
+
+  @media (forced-colors: active) {
+    .entry {
+      border-block-start-color: CanvasText;
+    }
+
+    .entry[data-target="true"] {
+      box-shadow: none;
+      border-inline-start: 3px solid Highlight;
+      background: none;
+    }
+
+    /* Not a Highlight fill: some forced palettes make it translucent and paint a Canvas backplate behind
+       the text. A rule and an underline carry the match instead. */
+    .mark {
+      background: Canvas;
+      color: CanvasText;
+      outline: 1px solid CanvasText;
+      text-decoration: underline;
+    }
+  }
+
+  @media print {
+    .entry {
+      break-inside: avoid;
+      grid-template-columns: 11rem minmax(0, 1fr);
+      border-block-start: 1px solid #999;
+      padding-inline: 0;
+      background: none;
+      box-shadow: none;
+      animation: none;
+    }
+
+    .tools {
+      display: none;
+    }
+
+    .term,
+    .short,
+    .why,
+    .aka,
+    .label,
+    .rowLabel {
+      color: #000;
+    }
+
+    .row {
+      grid-template-columns: 5rem minmax(0, 1fr);
+    }
+  }
+}

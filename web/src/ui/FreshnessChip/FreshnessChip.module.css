@@ -1,0 +1,25 @@
+@layer reset, tokens, base, ui, route, utility;
+
+@layer ui {
+  .fresh {
+    font-variant-numeric: tabular-nums;
+  }
+
+  .parts {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .age {
+    color: var(--text-3);
+    letter-spacing: 0.04em;
+  }
+
+  .hint {
+    color: var(--text-3);
+    letter-spacing: 0.04em;
+    text-transform: none;
+    font-style: italic;
+  }
+}

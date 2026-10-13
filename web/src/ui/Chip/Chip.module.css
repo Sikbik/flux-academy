@@ -1,0 +1,237 @@
+/*
+ * Chip: a small chamfered tag. Status and tier colours re-point --chip through the shared
+ * data-status and data-tier remaps; the glyph and the words always travel with the colour.
+ */
+@layer reset, tokens, base, ui, route, utility;
+
+@layer ui {
+  .chip {
+    --c: 6px;
+    --cm: 2px;
+    --bw: 1px;
+    --h: 26px;
+    --px: 10px;
+    --chip: var(--text-3);
+    --chip-rgb: 165 173 189;
+    position: relative;
+    isolation: isolate;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-block-size: var(--h);
+    padding-inline: var(--px);
+    color: var(--text-2);
+    font: 500 var(--fs-2xs) / 1 var(--font-mono);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    white-space: nowrap;
+    vertical-align: middle;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .chip[data-size="sm"] {
+    --h: 22px;
+    --px: 8px;
+    --c: 5px;
+    font-size: 0.625rem;
+  }
+
+  .chip[data-kind="filter"] {
+    --h: 32px;
+    --px: 12px;
+    font: 500 var(--fs-sm) / 1 var(--font-sans);
+    letter-spacing: 0;
+    text-transform: none;
+  }
+
+  .chip[data-kind="filter"][data-size="sm"] {
+    --h: 28px;
+    font-size: var(--fs-xs);
+  }
+
+  .chip[data-tone="accent"] {
+    --chip: var(--accent-text);
+    --chip-rgb: var(--accent-rgb);
+    color: var(--accent-strong);
+  }
+
+  .chip[data-status] {
+    --chip: var(--status);
+    --chip-rgb: var(--status-rgb);
+    color: var(--status);
+  }
+
+  .chip[data-status="pending"] {
+    color: var(--status-pending);
+  }
+
+  .chip[data-tier="cumulus"] {
+    --chip: var(--cumulus);
+    --chip-rgb: var(--cumulus-rgb);
+    color: var(--cumulus);
+  }
+
+  .chip[data-tier="nimbus"] {
+    --chip: var(--nimbus);
+    --chip-rgb: var(--nimbus-rgb);
+    color: var(--nimbus);
+  }
+
+  .chip[data-tier="stratus"] {
+    --chip: var(--stratus);
+    --chip-rgb: var(--stratus-rgb);
+    color: var(--stratus);
+  }
+
+  .edge,
+  .face {
+    position: absolute;
+    z-index: -1;
+    pointer-events: none;
+  }
+
+  .edge {
+    inset: 0;
+    clip-path: var(--clip-ring);
+    background: linear-gradient(
+      165deg,
+      rgb(var(--chip-rgb) / 0.62),
+      rgb(var(--chip-rgb) / 0.22) 55%,
+      rgb(var(--chip-rgb) / 0.4)
+    );
+    transition: opacity var(--dur-2) var(--ease-out);
+  }
+
+  .face {
+    inset: var(--bw);
+    clip-path: var(--clip-inner);
+    background:
+      linear-gradient(180deg, rgb(var(--chip-rgb) / 0.1), rgb(var(--chip-rgb) / 0.03)),
+      rgb(var(--ink-0-rgb) / 0.7);
+    transition: background var(--dur-2) var(--ease-out);
+  }
+
+  .content {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .content svg {
+    flex: none;
+  }
+
+  .count {
+    padding-inline-start: 6px;
+    margin-inline-start: 2px;
+    border-inline-start: 1px solid rgb(var(--chip-rgb) / 0.35);
+    font-variant-numeric: tabular-nums;
+    color: var(--text-3);
+  }
+
+  /* ---- interactive filter chips ---------------------------------------------------- */
+
+  .chip[data-interactive="true"] {
+    cursor: pointer;
+    user-select: none;
+  }
+
+  /* Reach 44 px of hit area without growing the visual. */
+  .chip[data-interactive="true"]::before {
+    content: "";
+    position: absolute;
+    inset: -8px -2px;
+  }
+
+  .chip[data-interactive="true"]:is(:hover, [data-force="hover"]) {
+    color: var(--text-1);
+  }
+
+  /* Low specificity on purpose: selected and focus-visible out-rank hover on the edge. */
+  :where(.chip[data-interactive="true"]:is(:hover, [data-force="hover"])) .edge {
+    background: linear-gradient(165deg, rgb(255 255 255 / 0.7), rgb(var(--chip-rgb) / 0.45));
+  }
+
+  .chip[data-interactive="true"]:is(:active, [data-force="press"]) {
+    scale: var(--press-scale);
+  }
+
+  .chip[data-selected="true"] {
+    --chip: var(--accent-text);
+    --chip-rgb: var(--accent-rgb);
+    color: var(--text-1);
+  }
+
+  .chip[data-selected="true"] .face {
+    background:
+      linear-gradient(180deg, rgb(var(--accent-rgb) / 0.34), rgb(var(--accent-rgb) / 0.14)),
+      rgb(var(--ink-0-rgb) / 0.7);
+  }
+
+  .chip[data-selected="true"] .edge {
+    background: linear-gradient(165deg, rgb(255 255 255 / 0.85), rgb(var(--accent-rgb) / 0.7));
+  }
+
+  .chip:is(:disabled, [aria-disabled="true"]) {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  .chip:is(:focus-visible, [data-force="focus"]) {
+    outline: none;
+    --bw: 2px;
+  }
+
+  .chip:is(:focus-visible, [data-force="focus"]) .edge {
+    background: conic-gradient(
+      from var(--beam-angle),
+      var(--hot),
+      rgb(var(--accent-hot-rgb) / 0.95) 16%,
+      rgb(var(--accent-rgb) / 0.9) 50%,
+      rgb(var(--accent-hot-rgb) / 0.95) 84%,
+      var(--hot)
+    );
+    animation: beam 900ms var(--ease-out) both;
+  }
+
+  @keyframes beam {
+    to {
+      --beam-angle: 360deg;
+    }
+  }
+
+  :global(html[data-motion="reduced"]) .chip:is(:focus-visible, [data-force="focus"]) .edge {
+    animation: none;
+    background: rgb(255 255 255 / 0.92);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :global(html:not([data-motion="full"])) .chip:is(:focus-visible, [data-force="focus"]) .edge {
+      animation: none;
+      background: rgb(255 255 255 / 0.92);
+    }
+  }
+
+  @media (forced-colors: active) {
+    .edge {
+      background: ButtonText;
+    }
+
+    .face {
+      background: ButtonFace;
+    }
+
+    .chip {
+      color: ButtonText;
+    }
+
+    .chip[data-selected="true"] .edge {
+      background: Highlight;
+    }
+
+    .chip:is(:focus-visible, [data-force="focus"]) {
+      outline: 2px solid Highlight;
+      outline-offset: 2px;
+    }
+  }
+}

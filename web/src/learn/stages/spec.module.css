@@ -1,0 +1,15 @@
+/* The spec stage: the editor sits inside the stage frame with a little air around it. */
+@layer reset, tokens, base, ui, route, utility;
+
+@layer ui {
+  .stage {
+    box-sizing: border-box;
+    block-size: 100%;
+    min-block-size: 0;
+    padding: var(--space-3);
+  }
+
+  .stage[data-compact="true"] {
+    padding: var(--space-2);
+  }
+}

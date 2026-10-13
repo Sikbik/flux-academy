@@ -1,0 +1,8 @@
+{
+  "status": "success",
+  "data": {
+    "1791828979546": {"cumulus": 3585, "nimbus": 1692, "stratus": 1830},
+    "1791828032924": {"cumulus": 3584, "nimbus": 1692, "stratus": 1830},
+    "1791827178380": {"cumulus": 3584, "nimbus": 1692, "stratus": 1830}
+  }
+}

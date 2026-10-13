@@ -1,0 +1,902 @@
+/*
+ * The sandbox terminal. A glass window in the Academy material: chamfered slab, a tick ruler on
+ * the left, crosshairs at the corners (all from Panel). Inside: a title bar that says what this
+ * is, a notice that says it is a simulation, an output log, the prompt and a row of next steps.
+ *
+ * The sandbox's own voice is never confused with program output: lines from the sandbox carry a
+ * bar and a label ("sandbox") and are the only thing in the log set in the sans face.
+ */
+@layer reset, tokens, base, ui, route, utility;
+
+@layer ui {
+  .root {
+    --tv-pad: var(--space-4);
+    --tv-font: 0.8125rem;
+    --tv-lh: 1.62;
+    container-type: inline-size;
+    display: block;
+    min-inline-size: 0;
+    block-size: 100%;
+    min-block-size: 0;
+  }
+
+  /* The window (Panel root) and the plain frame (a host that already has one) fill the root. */
+  .window,
+  .plain {
+    block-size: 100%;
+  }
+
+  .window.window {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .plain {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    background: rgb(var(--ink-0-rgb) / 0.4);
+  }
+
+  /* The Panel's content wrapper and the plain frame share one column layout. */
+  .frame {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-block-size: 0;
+    block-size: 100%;
+  }
+
+  /* ---- title bar ------------------------------------------------------------------------- */
+
+  .bar {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    min-block-size: 48px;
+    padding: var(--space-2) var(--tv-pad);
+    border-block-end: 1px solid var(--line-1);
+    background: rgb(var(--ink-0-rgb) / 0.5);
+  }
+
+  .bullet {
+    flex: none;
+    inline-size: 9px;
+    block-size: 9px;
+    background: var(--accent);
+    box-shadow: 0 0 10px var(--accent-glow);
+    clip-path: var(--hex-clip);
+  }
+
+  .where {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: nowrap;
+    gap: 0 var(--space-2);
+    min-inline-size: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    font: 500 var(--fs-sm) / 1.3 var(--font-mono);
+    letter-spacing: 0.01em;
+    color: var(--text-1);
+  }
+
+  .where .who {
+    color: var(--text-1);
+  }
+
+  .where .cwd {
+    color: var(--accent-text);
+  }
+
+  .titleExtra {
+    min-inline-size: 0;
+    color: var(--text-3);
+    font: 400 var(--fs-xs) / 1.3 var(--font-sans);
+  }
+
+  .barTools {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-inline-start: auto;
+    flex: none;
+  }
+
+  /* ---- sandbox notice ---------------------------------------------------------------------- */
+
+  .notice {
+    max-inline-size: none;
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-2);
+    margin: 0;
+    padding: var(--space-2) var(--tv-pad);
+    border-block-end: 1px solid var(--line-1);
+    font: 400 var(--fs-xs) / 1.45 var(--font-sans);
+    color: var(--text-3);
+    background: rgb(var(--status-pending-rgb) / 0.06);
+  }
+
+  .notice svg {
+    flex: none;
+    margin-block-start: 1px;
+    color: var(--status-pending);
+  }
+
+  .notice strong {
+    font-weight: var(--fw-semibold);
+    color: var(--text-2);
+  }
+
+  /* ---- screen: the output log -------------------------------------------------------------- */
+
+  .screenWrap {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 14rem;
+    min-block-size: 10rem;
+    max-block-size: var(--tv-screen-max, none);
+  }
+
+  .screen {
+    flex: 1 1 auto;
+    min-block-size: 0;
+    overflow-x: auto;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-gutter: stable;
+    padding: var(--space-3) var(--tv-pad) var(--space-2);
+    font: 400 var(--tv-font) / var(--tv-lh) var(--font-mono);
+    font-variant-ligatures: none;
+    tab-size: 8;
+    color: var(--text-2);
+    background: rgb(var(--ink-0-rgb) / 0.62);
+    scroll-padding-block-end: var(--space-4);
+  }
+
+  .screen:focus-visible {
+    outline: 2px solid var(--focus-color);
+    outline-offset: -2px;
+  }
+
+  /* Older output slides under a soft edge instead of being sliced mid line. */
+  .screenWrap::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto 0;
+    z-index: 1;
+    block-size: var(--space-5);
+    pointer-events: none;
+    background: linear-gradient(to bottom, rgb(var(--ink-0-rgb) / 0.88), rgb(var(--ink-0-rgb) / 0));
+    opacity: 0;
+    transition: opacity var(--dur-2) var(--ease-out);
+  }
+
+  .screenWrap[data-scrolled="true"]::before {
+    opacity: 1;
+  }
+
+  .jump {
+    position: absolute;
+    inset-block-end: var(--space-3);
+    inset-inline-end: var(--space-5);
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    min-block-size: 32px;
+    padding-inline: var(--space-3);
+    font: 500 var(--fs-xs) / 1 var(--font-mono);
+    letter-spacing: 0.04em;
+    color: var(--text-1);
+    background: var(--ink-3);
+    box-shadow: inset 0 0 0 1px var(--accent-line);
+    clip-path: polygon(0 6px, 6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%);
+    cursor: pointer;
+  }
+
+  .jump:hover {
+    color: var(--hot);
+    background: var(--ink-4);
+  }
+
+  /* ---- one command and its output ------------------------------------------------------------ */
+
+  .entry {
+    position: relative;
+    margin-block-end: var(--space-3);
+  }
+
+  .entry[data-kind="intro"] {
+    padding-block-end: var(--space-1);
+    margin-block-end: var(--space-4);
+    border-block-end: 1px dashed var(--line-1);
+  }
+
+  .cmdline {
+    max-inline-size: none;
+    display: block;
+    margin: 0;
+    padding-block-start: var(--space-1);
+    padding-inline-end: 34px;
+    color: var(--text-1);
+    white-space: pre-wrap;
+    word-break: break-all;
+  }
+
+  .ps {
+    white-space: pre;
+  }
+
+  .psCwd {
+    color: var(--accent-text);
+  }
+
+  .psSym {
+    color: var(--hot);
+  }
+
+  .typed {
+    white-space: pre-wrap;
+  }
+
+  .out {
+    position: relative;
+    margin-block-start: 2px;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+
+  .line {
+    min-block-size: 1lh;
+    color: var(--text-2);
+  }
+
+  /* A table keeps its columns: it stays on one line and the screen scrolls sideways. */
+  .line[data-table="true"] {
+    white-space: pre;
+    overflow-wrap: normal;
+  }
+
+  .line[data-tone="ok"] {
+    color: var(--status-ok);
+  }
+
+  .line[data-tone="warn"] {
+    color: var(--status-warn);
+  }
+
+  .line[data-tone="err"] {
+    color: var(--status-crit);
+  }
+
+  .line[data-tone="dim"] {
+    color: var(--text-3);
+  }
+
+  /* Inline kinds, shared by output, echo and the input mirror. */
+  .s[data-k="key"] {
+    color: var(--code-key);
+  }
+
+  .s[data-k="str"] {
+    color: var(--code-string);
+  }
+
+  .s[data-k="num"] {
+    color: var(--code-number);
+  }
+
+  .s[data-k="kw"] {
+    color: var(--code-keyword);
+  }
+
+  .s[data-k="flag"] {
+    color: var(--code-flag);
+  }
+
+  .s[data-k="cmd"] {
+    color: var(--accent-strong);
+  }
+
+  .s[data-k="path"] {
+    color: var(--code-type);
+  }
+
+  .s[data-k="hi"] {
+    color: var(--text-1);
+    font-weight: var(--fw-semibold);
+    background: rgb(var(--accent-rgb) / 0.22);
+    box-shadow: 0 0 0 1px rgb(var(--accent-rgb) / 0.3);
+    border-radius: 1px;
+  }
+
+  .s[data-k="ok"] {
+    color: var(--status-ok);
+  }
+
+  .s[data-k="warn"] {
+    color: var(--status-warn);
+  }
+
+  .s[data-k="err"] {
+    color: var(--status-crit);
+  }
+
+  .s[data-k="dim"] {
+    color: var(--text-3);
+  }
+
+  /* The sandbox speaking: a bar, the sans face, and a label for everyone who cannot see the bar. */
+  .line[data-channel="note"] {
+    margin-block: 2px;
+    padding: 2px var(--space-3) 2px var(--space-3);
+    border-inline-start: 2px solid var(--accent);
+    font: 400 var(--fs-sm) / 1.5 var(--font-sans);
+    color: var(--accent-strong);
+    background: rgb(var(--accent-rgb) / 0.07);
+  }
+
+  .line[data-channel="note"][data-tone="warn"] {
+    border-inline-start-color: var(--status-warn);
+    color: var(--status-warn);
+    background: rgb(var(--status-warn-rgb) / 0.08);
+  }
+
+  .line[data-channel="note"][data-tone="ok"] {
+    border-inline-start-color: var(--status-ok);
+    color: var(--status-ok);
+    background: rgb(var(--status-ok-rgb) / 0.07);
+  }
+
+  .line[data-channel="note"][data-tone="err"] {
+    border-inline-start-color: var(--status-crit);
+    color: var(--status-crit);
+    background: rgb(var(--status-crit-rgb) / 0.08);
+  }
+
+  .explain code {
+    padding: 1px 5px;
+    font: 400 0.92em / 1 var(--font-mono);
+    color: var(--text-1);
+    background: rgb(var(--ink-0-rgb) / 0.7);
+    box-shadow: inset 0 0 0 1px var(--line-2);
+    border-radius: var(--r-xs);
+    overflow-wrap: anywhere;
+  }
+
+  .line[data-channel="note"] code {
+    padding: 0 4px;
+    font: 500 0.92em / 1.2 var(--font-mono);
+    color: var(--text-1);
+    background: rgb(var(--ink-0-rgb) / 0.7);
+    box-shadow: inset 0 0 0 1px var(--line-2);
+    border-radius: var(--r-xs);
+  }
+
+  .copy {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-end: 0;
+    inline-size: 28px;
+    block-size: 28px;
+    display: grid;
+    place-items: center;
+    color: var(--text-3);
+    background: rgb(var(--ink-1-rgb) / 0.9);
+    box-shadow: inset 0 0 0 1px var(--line-2);
+    clip-path: polygon(0 5px, 5px 0, 100% 0, 100% calc(100% - 5px), calc(100% - 5px) 100%, 0 100%);
+    opacity: 0;
+    transition:
+      opacity var(--dur-1) var(--ease-out),
+      color var(--dur-1) var(--ease-out);
+    cursor: pointer;
+  }
+
+  .entry:hover .copy,
+  .copy:focus-visible,
+  .entry:focus-within .copy,
+  .copy[data-done="true"] {
+    opacity: 1;
+  }
+
+  @media (hover: none) {
+    .copy {
+      opacity: 0.8;
+    }
+  }
+
+  .copy:hover {
+    color: var(--hot);
+  }
+
+  .copy[data-done="true"] {
+    color: var(--status-ok);
+  }
+
+  /* What just happened: under the latest command only. */
+  .explain {
+    margin-block: var(--space-2) var(--space-1);
+    padding: var(--space-2) var(--space-3) var(--space-3);
+    border-inline-start: 2px solid var(--accent);
+    background: linear-gradient(90deg, rgb(var(--accent-rgb) / 0.12), rgb(var(--accent-rgb) / 0.03));
+    font: 400 var(--fs-sm) / 1.55 var(--font-sans);
+    color: var(--text-2);
+    animation: rise var(--dur-3) var(--ease-out) both;
+  }
+
+  .explainLabel {
+    display: block;
+    margin-block-end: 2px;
+    font: 500 var(--fs-2xs) / 1.2 var(--font-mono);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--accent-text);
+  }
+
+  .explain strong {
+    font-weight: var(--fw-semibold);
+    color: var(--text-1);
+  }
+
+  .goalDone {
+    max-inline-size: none;
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin: var(--space-2) 0 0;
+    font: 500 var(--fs-sm) / 1.4 var(--font-sans);
+    color: var(--status-ok);
+  }
+
+  .goalDone svg {
+    flex: none;
+    animation: snap var(--dur-3) var(--ease-snap) both;
+  }
+
+  .goalDone span {
+    color: var(--text-1);
+  }
+
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @keyframes snap {
+    0% {
+      opacity: 0;
+      transform: scale(0.4) rotate(-12deg);
+    }
+    60% {
+      opacity: 1;
+      transform: scale(1.25) rotate(2deg);
+    }
+    100% {
+      transform: none;
+    }
+  }
+
+  /* ---- the prompt -------------------------------------------------------------------------- */
+
+  .promptForm {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-2);
+    margin: 0;
+    padding: var(--space-3) var(--tv-pad);
+    border-block-start: 1px solid var(--line-2);
+    background: rgb(var(--ink-1-rgb) / 0.85);
+    font: 400 var(--tv-font) / var(--tv-lh) var(--font-mono);
+    font-variant-ligatures: none;
+    color: var(--text-1);
+    cursor: text;
+  }
+
+  .promptForm[data-active="true"] {
+    box-shadow: inset 0 1px 0 var(--accent-line);
+  }
+
+  .field {
+    position: relative;
+    flex: 1 1 auto;
+    min-inline-size: 0;
+  }
+
+  /* The visible text. It decides the height, so a long command wraps and the field grows. */
+  .mirror {
+    display: block;
+    /* The real textarea covers this box, so it is also the touch target: at least 24 CSS px (WCAG 2.2). */
+    min-block-size: max(1lh, 24px);
+    padding-block-start: 1px;
+    white-space: pre-wrap;
+    word-break: break-all;
+    pointer-events: none;
+  }
+
+  /* The prompt is the first thing in the mirror; the real control indents its first line past it. */
+  .mirror .ps {
+    color: var(--text-1);
+  }
+
+  .ghost {
+    color: var(--text-3);
+    opacity: 0.7;
+  }
+
+  .caret {
+    display: inline-block;
+    inline-size: 0.62em;
+    block-size: 1.15em;
+    margin-inline: 0 -0.62em;
+    vertical-align: text-bottom;
+    background: #fff;
+    mix-blend-mode: difference;
+    transform: translateY(1px);
+  }
+
+  .caret[data-blink="true"] {
+    animation: blink 1.1s steps(1, end) infinite;
+  }
+
+  .caret[data-focused="false"] {
+    background: transparent;
+    box-shadow: inset 0 0 0 1px var(--text-3);
+    animation: none;
+  }
+
+  /* The caret overlaps the next character, as a block caret does, instead of pushing text. */
+  .mirrorAfter {
+    margin-inline-start: 0;
+  }
+
+  @keyframes blink {
+    0%,
+    55% {
+      opacity: 1;
+    }
+    56%,
+    100% {
+      opacity: 0;
+    }
+  }
+
+  /* The real control: same box, invisible text, no native caret. It handles input, IME, selection. */
+  .real {
+    position: absolute;
+    inset: 0;
+    inline-size: 100%;
+    block-size: 100%;
+    margin: 0;
+    padding: 1px 0 0;
+    border: 0;
+    outline: 0;
+    resize: none;
+    overflow: hidden;
+    font: inherit;
+    letter-spacing: inherit;
+    text-indent: calc(var(--ps-len, 0) * 1ch);
+    white-space: pre-wrap;
+    word-break: break-all;
+    color: transparent;
+    caret-color: transparent;
+    background: transparent;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .real::selection {
+    background: var(--selection-bg);
+    -webkit-text-fill-color: transparent;
+  }
+
+  .real::placeholder {
+    color: transparent;
+  }
+
+  .placeholder {
+    color: var(--text-3);
+    opacity: 0.8;
+    word-break: normal;
+  }
+
+  .promptForm:focus-within {
+    box-shadow: inset 0 2px 0 var(--accent);
+  }
+
+  .run {
+    flex: none;
+    inline-size: 36px;
+    block-size: 36px;
+    display: none;
+    place-items: center;
+    margin-block: -4px;
+    color: var(--text-1);
+    background: var(--accent-solid);
+    clip-path: polygon(0 7px, 7px 0, 100% 0, 100% calc(100% - 7px), calc(100% - 7px) 100%, 0 100%);
+    cursor: pointer;
+  }
+
+  .run:hover {
+    background: var(--accent-solid-hover);
+  }
+
+  @media (hover: none) and (pointer: coarse) {
+    .run {
+      display: grid;
+      inline-size: 44px;
+      block-size: 44px;
+      margin-block: -8px;
+    }
+  }
+
+  /* ---- completions and next steps ------------------------------------------------------------ */
+
+  .completions {
+    max-inline-size: none;
+    min-inline-size: 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-1) var(--space-2);
+    margin: 0;
+    padding: var(--space-2) var(--tv-pad);
+    border: 0;
+    border-block-start: 1px solid var(--line-1);
+    background: rgb(var(--ink-1-rgb) / 0.7);
+    font: 400 var(--fs-xs) / 1.3 var(--font-mono);
+    color: var(--text-3);
+  }
+
+  .completions button {
+    min-block-size: 28px;
+    padding-inline: var(--space-2);
+    font: inherit;
+    color: var(--text-2);
+    background: var(--ink-2);
+    box-shadow: inset 0 0 0 1px var(--line-2);
+    cursor: pointer;
+    overflow-wrap: anywhere;
+    text-align: start;
+  }
+
+  .completions button[aria-current="true"] {
+    color: var(--text-1);
+    box-shadow: inset 0 0 0 1px var(--accent);
+  }
+
+  .next {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2) var(--space-3);
+    padding: var(--space-3) var(--tv-pad);
+    border-block-start: 1px solid var(--line-1);
+    background: rgb(var(--ink-0-rgb) / 0.55);
+  }
+
+  .nextLabel {
+    flex: 0 0 auto;
+    font: 500 var(--fs-2xs) / 1 var(--font-mono);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+
+  .nextWhat {
+    max-inline-size: none;
+    flex: 1 1 12rem;
+    margin: 0;
+    font: 400 var(--fs-sm) / 1.4 var(--font-sans);
+    color: var(--text-2);
+  }
+
+  .chip {
+    display: inline-flex;
+    align-items: flex-start;
+    gap: var(--space-2);
+    max-inline-size: 100%;
+    min-block-size: 40px;
+    padding: var(--space-2) var(--space-3);
+    font: 500 var(--fs-xs) / 1.45 var(--font-mono);
+    letter-spacing: 0;
+    text-align: start;
+    color: var(--text-1);
+    background: rgb(var(--accent-rgb) / 0.14);
+    box-shadow: inset 0 0 0 1px var(--accent-line);
+    clip-path: polygon(0 8px, 8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%);
+    cursor: pointer;
+    overflow-wrap: anywhere;
+    transition:
+      background var(--dur-1) var(--ease-out),
+      box-shadow var(--dur-1) var(--ease-out);
+  }
+
+  .chip svg {
+    flex: none;
+    margin-block-start: 2px;
+    color: var(--accent-strong);
+  }
+
+  .chip:hover {
+    background: rgb(var(--accent-rgb) / 0.26);
+    box-shadow: inset 0 0 0 1px var(--accent);
+  }
+
+  .chip:disabled {
+    opacity: 0.55;
+    cursor: default;
+  }
+
+  .promptForm[data-active="true"] ~ .next .chip:not(:disabled) {
+    box-shadow:
+      inset 0 0 0 1px var(--accent),
+      0 0 18px -6px var(--accent-glow);
+  }
+
+  .doneNote {
+    max-inline-size: none;
+    margin: 0;
+    font: 400 var(--fs-sm) / 1.45 var(--font-sans);
+    color: var(--status-ok);
+  }
+
+  /* ---- goal strip ------------------------------------------------------------------------------ */
+
+  .goalsHost {
+    border-block-end: 1px solid var(--line-1);
+  }
+
+  /* ---- states ---------------------------------------------------------------------------------- */
+
+  .root[data-compact="true"] {
+    --tv-pad: var(--space-3);
+    --tv-font: 0.78125rem;
+  }
+
+  @container (max-inline-size: 34rem) {
+    .cwdHide {
+      display: none;
+    }
+
+    .where .who {
+      display: none;
+    }
+
+    .titleExtra {
+      display: none;
+    }
+
+    .notice {
+      font-size: var(--fs-2xs);
+    }
+
+    /* Embedded and narrow: the host frame already names the terminal and says Simulation, so the
+       title bar shrinks to the Reset control tucked into the corner of the notice row. */
+    .root[data-variant="embedded"] .bar {
+      position: absolute;
+      inset-block-start: 4px;
+      inset-inline-end: var(--space-2);
+      z-index: 2;
+      min-block-size: 0;
+      padding: 0;
+      border: 0;
+      background: none;
+    }
+
+    .root[data-variant="embedded"] .bar .bullet,
+    .root[data-variant="embedded"] .bar .where {
+      display: none;
+    }
+
+    .root[data-variant="embedded"] .notice {
+      align-items: center;
+      min-block-size: 44px;
+      padding-inline-end: 52px;
+    }
+  }
+
+  /* A container this narrow is a phone: the container itself cannot be styled by its own query, so the
+     padding lives on the frame that holds everything. */
+  @container (max-inline-size: 26rem) {
+    .window,
+    .plain {
+      --tv-pad: var(--space-3);
+    }
+  }
+
+  /* A lesson stage on a phone. The host caps its stage body at 42svh and scrolls anything taller, which
+     would push the prompt out of sight, so the terminal takes exactly that height and the log gives way. */
+  @media (max-width: 899.98px) {
+    .root[data-variant="embedded"] {
+      block-size: var(--tv-stage-h, 42svh);
+    }
+  }
+
+  /* Embedded: the log takes whatever the host leaves, down to a few lines. */
+  .root[data-variant="embedded"] .screenWrap {
+    flex: 1 1 0;
+    min-block-size: 5rem;
+  }
+
+  :root[data-motion="reduced"] .explain,
+  :root[data-motion="reduced"] .goalDone svg,
+  :root[data-motion="reduced"] .caret {
+    animation: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :root:not([data-motion="full"]) .explain,
+    :root:not([data-motion="full"]) .goalDone svg,
+    :root:not([data-motion="full"]) .caret {
+      animation: none;
+    }
+
+    :root:not([data-motion="full"]) .screenWrap::before {
+      transition: none;
+    }
+  }
+
+  /* Forced colours: show the real control and its native caret; the mirror only reserves height. */
+  @media (forced-colors: active) {
+    .mirror {
+      visibility: hidden;
+    }
+
+    /* The prompt (directory and symbol) is drawn by the mirror only, so it stays. */
+    .mirror .ps {
+      visibility: visible;
+      color: CanvasText;
+    }
+
+    .real {
+      color: CanvasText;
+      -webkit-text-fill-color: CanvasText;
+      caret-color: CanvasText;
+    }
+
+    .caret {
+      display: none;
+    }
+
+    .chip,
+    .jump,
+    .copy,
+    .run {
+      box-shadow: none;
+      border: 1px solid ButtonText;
+    }
+
+    /* A highlighted word keeps a frame and an underline when its tint is gone. */
+    .s[data-k="hi"] {
+      box-shadow: none;
+      outline: 1px solid CanvasText;
+      text-decoration: underline;
+    }
+
+    /* The completion that Tab is on: a heavier frame and an underline instead of a tint. */
+    .completions button {
+      box-shadow: none;
+      border: 1px solid ButtonText;
+    }
+
+    .completions button[aria-current="true"] {
+      border-width: 2px;
+      text-decoration: underline;
+    }
+
+    /* Where the prompt has focus, as an outline (a Highlight outline, never text on a Highlight fill). */
+    .promptForm:focus-within {
+      box-shadow: none;
+      outline: 2px solid Highlight;
+      outline-offset: -2px;
+    }
+  }
+}

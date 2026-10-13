@@ -1,0 +1,575 @@
+/*
+ * Ambient mode: the HUD and the caption tour over the field (docs/DESIGN.md section 6).
+ *
+ * Light by design: gradients, type and a canvas. Motion is opacity and translate on a few elements, so
+ * the page keeps its frame budget. No backdrop-filter anywhere (the picture behind is live).
+ *
+ *   top left     lockup                          top right     the wake hint
+ *   bottom left  clock, date, block, status      bottom right  the caption tour, one fact at a time
+ *
+ * Reduced motion (data-calm): no travel, no drift, no progress sweep. Captions change by opacity only and
+ * the whole HUD sits a little dimmer.
+ */
+@layer ui {
+  .root {
+    --pad: clamp(20px, 4.4vw, 92px);
+    --dim: 1;
+    position: fixed;
+    inset: 0;
+    display: block;
+    overflow: hidden;
+    color: var(--text-1);
+    background: #02040a;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity var(--dur-3) var(--ease-in-out);
+    outline: none;
+  }
+
+  .root[data-state="open"] {
+    opacity: 1;
+    transition: opacity var(--dur-5) var(--ease-out);
+  }
+
+  .root[data-state="exit"] {
+    transition-duration: 260ms;
+  }
+
+  .root[data-calm="true"] {
+    --dim: 0.78;
+  }
+
+  .root[data-calm="true"][data-state="open"] {
+    transition: opacity var(--dur-4) linear;
+  }
+
+  /* No cursor over a screensaver: it comes back the moment the pointer moves and wakes it. */
+  :global(html[data-ambient="true"]) {
+    cursor: none;
+  }
+
+  .backdrop {
+    position: absolute;
+    inset: 0;
+    opacity: 0.9;
+  }
+
+  .field {
+    position: absolute;
+    inset: 0;
+    inline-size: 100%;
+    block-size: 100%;
+  }
+
+  /* ---- legibility scrims: the type sits on a soft floor ----------------------------------- */
+
+  .scrim {
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(to top, rgb(0 0 0 / 0.78) 0%, rgb(0 0 0 / 0.46) 20%, rgb(0 0 0 / 0) 46%),
+      linear-gradient(to bottom, rgb(0 0 0 / 0.5) 0%, rgb(0 0 0 / 0) 20%),
+      radial-gradient(125% 105% at 50% 42%, rgb(0 0 0 / 0) 58%, rgb(0 0 0 / 0.46) 100%);
+  }
+
+  /* ---- the HUD: drifts a few pixels each minute so nothing burns in ------------------------ */
+
+  .hud {
+    position: absolute;
+    inset: 0;
+    translate: var(--dx, 0px) var(--dy, 0px);
+    transition: translate 6s var(--ease-in-out);
+  }
+
+  .root[data-calm="true"] .hud {
+    translate: 0 0;
+    transition: none;
+  }
+
+  .corner {
+    position: absolute;
+    display: grid;
+    gap: 10px;
+    opacity: var(--dim);
+    text-shadow:
+      0 1px 22px rgb(0 0 0 / 0.7),
+      0 0 2px rgb(0 0 0 / 0.55);
+  }
+
+  .topLeft {
+    inset-block-start: var(--pad);
+    inset-inline-start: var(--pad);
+    grid-auto-flow: column;
+    align-items: center;
+    justify-content: start;
+    gap: 12px;
+  }
+
+  .topRight {
+    inset-block-start: var(--pad);
+    inset-inline-end: var(--pad);
+    justify-items: end;
+    text-align: end;
+  }
+
+  .bottomLeft {
+    inset-block-end: var(--pad);
+    inset-inline-start: var(--pad);
+    gap: 6px;
+  }
+
+  .word {
+    color: var(--text-1);
+    font: 400 var(--fs-md) / 1 var(--font-display);
+    letter-spacing: -0.005em;
+  }
+
+  .word b {
+    font-weight: 700;
+  }
+
+  .hint {
+    margin: 0;
+    color: var(--text-3);
+    font: 400 var(--fs-sm) / 1.3 var(--font-sans);
+    letter-spacing: 0.02em;
+  }
+
+  .conn {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    color: var(--text-2);
+    font: 500 var(--fs-xs) / 1 var(--font-mono);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+  }
+
+  .connNote {
+    color: var(--text-3);
+    letter-spacing: 0.06em;
+    text-transform: none;
+  }
+
+  /* ---- clock ----------------------------------------------------------------------------- */
+
+  .time {
+    display: flex;
+    align-items: stretch;
+    gap: 0.16em;
+    margin: 0 0 0 -0.04em;
+    color: var(--text-1);
+    font: 300 clamp(4.25rem, 9.6vw, 11.5rem) / 0.88 var(--font-display);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.05em;
+  }
+
+  .digits {
+    display: block;
+  }
+
+  .small {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding-block: 0.1em 0.04em;
+    letter-spacing: 0;
+  }
+
+  .secs {
+    color: var(--text-3);
+    font-size: 0.27em;
+    font-weight: 300;
+    line-height: 1;
+  }
+
+  .period {
+    color: var(--text-2);
+    font-size: 0.2em;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    line-height: 1;
+    text-transform: uppercase;
+  }
+
+  .date {
+    margin: 0;
+    color: var(--text-2);
+    font: 400 clamp(1rem, 1.5vw, 1.625rem) / 1.2 var(--font-sans);
+  }
+
+  .chain {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 4px 14px;
+    margin: 14px 0 2px;
+    color: var(--text-2);
+    font: 400 clamp(0.8125rem, 1vw, 1.0625rem) / 1.3 var(--font-mono);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .chainLabel {
+    color: var(--text-3);
+    font-size: 0.78em;
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+  }
+
+  .height {
+    position: relative;
+    color: var(--text-1);
+    font-weight: 500;
+  }
+
+  /* The Beat: each real block lights a soft bloom behind the number and a hairline under the row. */
+  .flare {
+    position: absolute;
+    inset: -14px -26px;
+    background: radial-gradient(60% 90% at 28% 50%, rgb(var(--accent-hot-rgb) / 0.55), transparent 70%);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .sweep {
+    position: absolute;
+    inset-inline: 0;
+    inset-block-end: -8px;
+    block-size: 1px;
+    background: linear-gradient(90deg, #fff, var(--accent-strong) 40%, transparent);
+    transform: scaleX(0);
+    transform-origin: left;
+    opacity: 0;
+  }
+
+  .chain[data-beat="a"] .flare {
+    animation: flare-a 1500ms var(--ease-out) both;
+  }
+  .chain[data-beat="b"] .flare {
+    animation: flare-b 1500ms var(--ease-out) both;
+  }
+  .chain[data-beat="a"] .sweep {
+    animation: sweep-a 1500ms var(--ease-out) both;
+  }
+  .chain[data-beat="b"] .sweep {
+    animation: sweep-b 1500ms var(--ease-out) both;
+  }
+
+  @keyframes flare-a {
+    0% {
+      opacity: 0;
+    }
+    14% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+  @keyframes flare-b {
+    0% {
+      opacity: 0;
+    }
+    14% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+  @keyframes sweep-a {
+    0% {
+      opacity: 0.95;
+      transform: scaleX(0);
+    }
+    70% {
+      opacity: 0.7;
+      transform: scaleX(1);
+    }
+    100% {
+      opacity: 0;
+      transform: scaleX(1);
+    }
+  }
+  @keyframes sweep-b {
+    0% {
+      opacity: 0.95;
+      transform: scaleX(0);
+    }
+    70% {
+      opacity: 0.7;
+      transform: scaleX(1);
+    }
+    100% {
+      opacity: 0;
+      transform: scaleX(1);
+    }
+  }
+
+  .root[data-calm="true"] .chain[data-beat] .sweep {
+    animation: none;
+  }
+
+  /* ---- the tour -------------------------------------------------------------------------- */
+
+  .tour {
+    position: absolute;
+    inset: 0;
+    opacity: var(--dim);
+  }
+
+  .layer {
+    position: absolute;
+    inset: 0;
+  }
+
+  /*
+   * The outgoing caption clears quickly and the next one starts after it (a short gap, not a long
+   * overlap of two sets of type). The enter delay is also the base of the text stagger below.
+   */
+  .layer[data-role="enter"] {
+    --enter-delay: 340ms;
+    animation: cap-in 1500ms var(--ease-out) var(--enter-delay) both;
+  }
+
+  .layer[data-role="leave"] {
+    animation: cap-out 520ms var(--ease-out) both;
+  }
+
+  .root[data-calm="true"] .layer[data-role="enter"] {
+    animation: cap-fade-in 1500ms linear var(--enter-delay) both;
+  }
+
+  .root[data-calm="true"] .layer[data-role="leave"] {
+    animation: cap-fade-out 520ms linear both;
+  }
+
+  @keyframes cap-in {
+    from {
+      opacity: 0;
+      translate: 0 18px;
+    }
+    to {
+      opacity: 1;
+      translate: 0 0;
+    }
+  }
+
+  @keyframes cap-out {
+    from {
+      opacity: 1;
+      translate: 0 0;
+    }
+    to {
+      opacity: 0;
+      translate: 0 -14px;
+    }
+  }
+
+  @keyframes cap-fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes cap-fade-out {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
+  }
+
+  .cap {
+    position: absolute;
+    inset-block-end: var(--pad);
+    inset-inline-end: var(--pad);
+    display: grid;
+    gap: 12px;
+    inline-size: min(42vw, 700px);
+    text-shadow:
+      0 1px 26px rgb(0 0 0 / 0.75),
+      0 0 3px rgb(0 0 0 / 0.55);
+  }
+
+  .cap > * {
+    margin: 0;
+  }
+
+  .layer[data-role="enter"] .cap > * {
+    animation: rise 1300ms var(--ease-out) both;
+    animation-delay: calc(var(--enter-delay, 0ms) + var(--i, 0) * 90ms);
+  }
+
+  .root[data-calm="true"] .layer .cap > * {
+    animation: none;
+  }
+
+  @keyframes rise {
+    from {
+      opacity: 0;
+      translate: 0 14px;
+    }
+    to {
+      opacity: 1;
+      translate: 0 0;
+    }
+  }
+
+  .eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--accent-strong);
+    font: 500 var(--fs-xs) / 1 var(--font-mono);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  .eyebrow::before {
+    content: "";
+    inline-size: 9px;
+    block-size: 10px;
+    background: var(--accent-strong);
+    clip-path: var(--hex-clip);
+  }
+
+  .of {
+    color: var(--text-3);
+    letter-spacing: 0.1em;
+  }
+
+  .headline {
+    color: var(--text-1);
+    font: 600 clamp(2.25rem, 4.6vw, 5.25rem) / 1.02 var(--font-display);
+    letter-spacing: -0.03em;
+    text-wrap: balance;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .body {
+    max-inline-size: 42ch;
+    color: var(--text-2);
+    font: 400 clamp(1rem, 1.3vw, 1.5rem) / 1.45 var(--font-sans);
+    text-wrap: pretty;
+  }
+
+  .source {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 10px;
+    color: var(--text-2);
+    font: 500 var(--fs-xs) / 1 var(--font-mono);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+  }
+
+  .sourceNote {
+    color: var(--text-3);
+    letter-spacing: 0.06em;
+    text-transform: none;
+  }
+
+  /* The progress hairline: it fills over the 9 seconds the caption holds. */
+  .progress {
+    position: relative;
+    block-size: 1px;
+    margin-block-start: 8px;
+    background: var(--line-2);
+  }
+
+  .progress::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, var(--accent-strong), #fff);
+    transform: scaleX(0);
+    transform-origin: left;
+  }
+
+  .layer[data-role="enter"] .progress::after {
+    animation: fill var(--cap-ms, 9000ms) linear both;
+  }
+
+  .layer[data-role="leave"] .progress::after {
+    transform: scaleX(1);
+  }
+
+  .root[data-calm="true"] .progress::after {
+    animation: none;
+    transform: scaleX(1);
+    opacity: 0.3;
+  }
+
+  @keyframes fill {
+    from {
+      transform: scaleX(0);
+    }
+    to {
+      transform: scaleX(1);
+    }
+  }
+
+  /* ---- phones and portrait screens --------------------------------------------------------- */
+
+  @media (max-width: 760px), (max-aspect-ratio: 1 / 1) {
+    .root {
+      --pad: clamp(18px, 6vw, 40px);
+    }
+
+    .topRight {
+      max-inline-size: 46vw;
+    }
+
+    .bottomLeft {
+      inset-block-start: calc(var(--pad) + 52px);
+      inset-block-end: auto;
+    }
+
+    .time {
+      font-size: clamp(3.75rem, 20vw, 7rem);
+    }
+
+    .cap {
+      inset-inline: var(--pad);
+      inline-size: auto;
+      gap: 10px;
+    }
+
+    .headline {
+      font-size: clamp(2rem, 9.5vw, 3.5rem);
+    }
+
+    .body {
+      font-size: 1rem;
+    }
+
+    .scrim {
+      background:
+        linear-gradient(to top, rgb(0 0 0 / 0.82) 0%, rgb(0 0 0 / 0.5) 30%, rgb(0 0 0 / 0) 58%),
+        linear-gradient(to bottom, rgb(0 0 0 / 0.62) 0%, rgb(0 0 0 / 0.2) 30%, rgb(0 0 0 / 0) 44%),
+        radial-gradient(125% 105% at 50% 46%, rgb(0 0 0 / 0) 58%, rgb(0 0 0 / 0.46) 100%);
+    }
+  }
+
+  @media (forced-colors: active) {
+    .root {
+      background: Canvas;
+    }
+
+    .scrim,
+    .flare,
+    .sweep,
+    .field {
+      display: none;
+    }
+  }
+}

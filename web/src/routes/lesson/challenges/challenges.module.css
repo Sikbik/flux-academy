@@ -1,0 +1,708 @@
+/* The checkpoint widgets: option cards, the order list, the match board, the estimate field, feedback. */
+@layer route {
+  /* ---- feedback -------------------------------------------------------------------------------- */
+
+  .srOnly {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .feedback {
+    margin-block-start: var(--space-3);
+  }
+
+  .feedback:empty {
+    display: none;
+  }
+
+  .fb {
+    display: grid;
+    gap: var(--space-1);
+    margin: 0;
+    padding: var(--space-3) var(--space-4);
+    font-size: var(--fs-md);
+    line-height: var(--lh-normal, 1.45);
+    color: var(--text-2);
+    background: rgb(var(--status-warn-rgb) / 0.08);
+    box-shadow:
+      inset 0 0 0 1px rgb(var(--status-warn-rgb) / 0.4),
+      inset 3px 0 0 var(--status-warn);
+    animation: fb-in var(--dur-3) var(--ease-out) both;
+  }
+
+  .fb[data-tone="progress"] {
+    background: var(--accent-soft);
+    box-shadow:
+      inset 0 0 0 1px var(--accent-line),
+      inset 3px 0 0 var(--accent);
+  }
+
+  .fb p {
+    margin: 0;
+  }
+
+  .fbTitle {
+    font: 500 var(--fs-2xs) / 1 var(--font-mono);
+    letter-spacing: var(--tracking-label, 0.12em);
+    text-transform: uppercase;
+    color: var(--status-warn);
+  }
+
+  .fb[data-tone="progress"] .fbTitle {
+    color: var(--accent-strong);
+  }
+
+  @keyframes fb-in {
+    from {
+      opacity: 0;
+      transform: translateY(calc(6px * var(--motion-scale, 1)));
+    }
+  }
+
+  /* ---- option cards ---------------------------------------------------------------------------- */
+
+  .options {
+    display: grid;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    border: 0;
+    min-inline-size: 0;
+  }
+
+  .legend {
+    padding: 0;
+    margin-block-end: var(--space-2);
+    font: 500 var(--fs-xs) / 1.3 var(--font-mono);
+    letter-spacing: 0.04em;
+    color: var(--text-3);
+  }
+
+  .option {
+    position: relative;
+    display: block;
+    cursor: pointer;
+  }
+
+  .option[data-locked="true"] {
+    cursor: default;
+  }
+
+  .input {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .card {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: start;
+    gap: var(--space-3);
+    min-block-size: var(--touch-min, 44px);
+    padding: var(--space-3) var(--space-4);
+    color: var(--text-2);
+    background: rgb(var(--ink-0-rgb) / 0.78);
+    box-shadow: inset 0 0 0 1px var(--line-2);
+    clip-path: polygon(0 10px, 10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%);
+    transition:
+      box-shadow var(--dur-1) var(--ease-out),
+      background var(--dur-1) var(--ease-out),
+      color var(--dur-1) var(--ease-out);
+  }
+
+  .input:focus-visible + .card {
+    outline: 2px solid var(--focus-color);
+    outline-offset: -2px;
+  }
+
+  .input:checked + .card {
+    color: var(--text-1);
+    background: var(--accent-soft);
+    box-shadow:
+      inset 0 0 0 1px var(--accent-line),
+      inset 3px 0 0 var(--accent);
+  }
+
+  .input + .card[data-verdict="wrong"] {
+    color: var(--text-2);
+    background: rgb(var(--status-warn-rgb) / 0.07);
+    box-shadow:
+      inset 0 0 0 1px rgb(var(--status-warn-rgb) / 0.45),
+      inset 3px 0 0 var(--status-warn);
+  }
+
+  .input + .card[data-verdict="right"] {
+    color: var(--text-1);
+    background: rgb(var(--status-ok-rgb) / 0.09);
+    box-shadow:
+      inset 0 0 0 1px rgb(var(--status-ok-rgb) / 0.5),
+      inset 3px 0 0 var(--status-ok);
+  }
+
+  .input + .card[data-verdict="dim"] {
+    color: var(--text-3);
+    background: rgb(var(--ink-0-rgb) / 0.6);
+    box-shadow: inset 0 0 0 1px var(--line-1);
+  }
+
+  .input:not(:checked, :disabled) + .card:not([data-verdict]):hover {
+    color: var(--text-1);
+    box-shadow: inset 0 0 0 1px var(--accent-line);
+  }
+
+  .mark {
+    display: grid;
+    place-items: center;
+    inline-size: 22px;
+    block-size: 24px;
+    margin-block-start: 1px;
+    color: transparent;
+    background: var(--ink-3);
+    clip-path: var(--hex-clip);
+    box-shadow: inset 0 0 0 1px var(--line-3);
+    transition:
+      background var(--dur-1) var(--ease-out),
+      color var(--dur-1) var(--ease-out);
+  }
+
+  .mark[data-kind="multi"] {
+    clip-path: polygon(0 4px, 4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%);
+    inline-size: 22px;
+    block-size: 22px;
+  }
+
+  .input:checked + .card .mark {
+    color: var(--on-accent);
+    background: var(--accent-solid);
+  }
+
+  .input + .card[data-verdict="right"] .mark {
+    color: var(--on-accent);
+    background: var(--status-ok);
+  }
+
+  .input + .card[data-verdict="wrong"] .mark {
+    color: #000;
+    background: var(--status-warn);
+  }
+
+  .optionText {
+    display: grid;
+    gap: var(--space-1);
+    min-inline-size: 0;
+    font-size: var(--fs-md);
+    line-height: var(--lh-normal, 1.45);
+  }
+
+  .why {
+    font-size: var(--fs-sm);
+    color: var(--text-3);
+    animation: fb-in var(--dur-3) var(--ease-out) both;
+  }
+
+  .card[data-verdict="wrong"] .why {
+    color: var(--text-2);
+  }
+
+  .tag {
+    align-self: start;
+    font: 500 var(--fs-2xs) / 1 var(--font-mono);
+    letter-spacing: var(--tracking-label, 0.12em);
+    text-transform: uppercase;
+    color: var(--text-3);
+    padding-block-start: 5px;
+  }
+
+  .card[data-verdict="wrong"] .tag {
+    color: var(--status-warn);
+  }
+
+  .card[data-verdict="right"] .tag {
+    color: var(--status-ok);
+  }
+
+  /* ---- the tick: a hexagon and a check that draw themselves ------------------------------------ */
+
+  .tickHex {
+    stroke-dasharray: 80;
+    animation: tick-draw var(--dur-3) var(--ease-out) both;
+  }
+
+  .tickCheck {
+    stroke-dasharray: 20;
+    animation: tick-draw var(--dur-3) var(--ease-out) calc(var(--dur-2) * 0.8) both;
+  }
+
+  @keyframes tick-draw {
+    from {
+      stroke-dashoffset: 80;
+    }
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  /* ---- order ---------------------------------------------------------------------------------- */
+
+  .order {
+    display: grid;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .row {
+    position: relative;
+    display: grid;
+    grid-template-columns: auto auto 1fr auto;
+    align-items: center;
+    gap: var(--space-3);
+    min-block-size: var(--touch-min, 44px);
+    padding: var(--space-2) var(--space-2) var(--space-2) var(--space-3);
+    color: var(--text-1);
+    background: rgb(var(--ink-0-rgb) / 0.86);
+    box-shadow: inset 0 0 0 1px var(--line-2);
+    clip-path: polygon(0 10px, 10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%);
+    touch-action: pan-y;
+    user-select: none;
+  }
+
+  .row[data-draggable="true"] {
+    cursor: grab;
+  }
+
+  .row[data-verdict="right"] {
+    box-shadow:
+      inset 0 0 0 1px rgb(var(--status-ok-rgb) / 0.5),
+      inset 3px 0 0 var(--status-ok);
+  }
+
+  .row[data-verdict="wrong"] {
+    box-shadow:
+      inset 0 0 0 1px rgb(var(--status-warn-rgb) / 0.5),
+      inset 3px 0 0 var(--status-warn);
+  }
+
+  .grip {
+    display: grid;
+    grid-template-columns: repeat(2, 4px);
+    gap: 3px;
+    color: var(--text-3);
+  }
+
+  .grip span {
+    inline-size: 4px;
+    block-size: 4px;
+    background: currentColor;
+    clip-path: var(--hex-clip);
+  }
+
+  .num {
+    inline-size: 24px;
+    font: 500 var(--fs-sm) / 1 var(--font-mono);
+    color: var(--text-3);
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .rowLabel {
+    min-inline-size: 0;
+    font-size: var(--fs-md);
+    line-height: var(--lh-normal, 1.45);
+  }
+
+  .moves {
+    display: inline-flex;
+    gap: var(--space-1);
+  }
+
+  /* ---- match ---------------------------------------------------------------------------------- */
+
+  .board {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-2) var(--space-5);
+    align-items: start;
+  }
+
+  .col {
+    display: grid;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .colHead {
+    margin: 0 0 var(--space-1);
+    font: 500 var(--fs-2xs) / 1 var(--font-mono);
+    letter-spacing: var(--tracking-label, 0.12em);
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+
+  .pick {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: var(--space-2);
+    inline-size: 100%;
+    min-block-size: var(--touch-min, 44px);
+    padding: var(--space-2) var(--space-3);
+    font: inherit;
+    font-size: var(--fs-md);
+    line-height: var(--lh-normal, 1.45);
+    color: var(--text-2);
+    text-align: start;
+    background: rgb(var(--ink-0-rgb) / 0.78);
+    box-shadow: inset 0 0 0 1px var(--line-2);
+    clip-path: polygon(0 10px, 10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%);
+    cursor: pointer;
+    transition:
+      box-shadow var(--dur-1) var(--ease-out),
+      background var(--dur-1) var(--ease-out),
+      color var(--dur-1) var(--ease-out);
+  }
+
+  .pick:not(:disabled):hover {
+    color: var(--text-1);
+    box-shadow: inset 0 0 0 1px var(--accent-line);
+  }
+
+  .pick:focus-visible {
+    outline: 2px solid var(--focus-color);
+    outline-offset: -2px;
+  }
+
+  .pick[aria-pressed="true"] {
+    color: var(--text-1);
+    background: var(--accent-soft);
+    box-shadow:
+      inset 0 0 0 1px var(--accent-strong),
+      inset 3px 0 0 var(--accent);
+  }
+
+  .pick[data-paired="true"] {
+    color: var(--text-1);
+    box-shadow: inset 0 0 0 1px var(--accent-line);
+  }
+
+  .pick[data-verdict="right"] {
+    background: rgb(var(--status-ok-rgb) / 0.09);
+    box-shadow:
+      inset 0 0 0 1px rgb(var(--status-ok-rgb) / 0.5),
+      inset 3px 0 0 var(--status-ok);
+  }
+
+  .pick:disabled {
+    cursor: default;
+  }
+
+  .badge {
+    display: grid;
+    place-items: center;
+    inline-size: 24px;
+    block-size: 26px;
+    font: 600 var(--fs-xs) / 1 var(--font-mono);
+    color: var(--on-accent);
+    background: var(--accent-solid);
+    clip-path: var(--hex-clip);
+    animation: tick-in var(--dur-2) var(--ease-snap) both;
+  }
+
+  .pick[data-verdict="right"] .badge {
+    background: var(--status-ok);
+  }
+
+  .empty {
+    inline-size: 24px;
+    block-size: 26px;
+    background: var(--ink-3);
+    clip-path: var(--hex-clip);
+    box-shadow: inset 0 0 0 1px var(--line-3);
+  }
+
+  @keyframes tick-in {
+    from {
+      opacity: 0;
+      transform: scale(calc(1 - 0.4 * var(--motion-scale, 1)));
+    }
+  }
+
+  /* ---- estimate ------------------------------------------------------------------------------- */
+
+  .estimate {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-2);
+  }
+
+  .fieldLabel {
+    font: 500 var(--fs-xs) / 1.3 var(--font-mono);
+    letter-spacing: 0.04em;
+    color: var(--text-3);
+  }
+
+  .field {
+    display: flex;
+    align-items: stretch;
+    inline-size: min(100%, 26rem);
+    background: rgb(var(--ink-0-rgb) / 0.86);
+    box-shadow: inset 0 0 0 1px var(--line-3);
+    clip-path: polygon(0 10px, 10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%);
+    transition: box-shadow var(--dur-1) var(--ease-out);
+  }
+
+  .field:focus-within {
+    box-shadow:
+      inset 0 0 0 1px var(--accent-strong),
+      0 0 0 1px var(--accent-line);
+  }
+
+  .field[data-verdict="right"] {
+    box-shadow: inset 0 0 0 1px rgb(var(--status-ok-rgb) / 0.6);
+  }
+
+  .field input {
+    /* Basis 0, not auto: an input's own width (about 20 characters) must not set the form's minimum. */
+    flex: 1 1 0;
+    min-inline-size: 0;
+    min-block-size: 52px;
+    padding: 0 var(--space-4);
+    font: 500 var(--fs-h3) / 1 var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    color: var(--text-1);
+    background: transparent;
+    border: 0;
+    outline: none;
+  }
+
+  .field input::placeholder {
+    color: var(--text-4, var(--text-3));
+  }
+
+  .unit {
+    display: grid;
+    place-items: center;
+    padding: 0 var(--space-4);
+    white-space: nowrap;
+    font: 500 var(--fs-xs) / 1 var(--font-mono);
+    letter-spacing: var(--tracking-label, 0.12em);
+    text-transform: uppercase;
+    color: var(--accent-text);
+    border-inline-start: 1px solid var(--line-2);
+  }
+
+  .truth {
+    margin: 0;
+    font: 500 var(--fs-sm) / 1.4 var(--font-mono);
+    color: var(--text-2);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .truth strong {
+    color: var(--status-ok);
+  }
+
+  /* ---- requirements and goals ------------------------------------------------------------------ */
+
+  .reqs {
+    display: grid;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .req {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: start;
+    gap: var(--space-3);
+    font-size: var(--fs-md);
+    line-height: var(--lh-normal, 1.45);
+    color: var(--text-2);
+  }
+
+  .req[data-pass="true"] {
+    color: var(--text-1);
+  }
+
+  .reqMark {
+    display: grid;
+    place-items: center;
+    inline-size: 22px;
+    block-size: 24px;
+    margin-block-start: 1px;
+    color: transparent;
+    background: var(--ink-3);
+    clip-path: var(--hex-clip);
+    box-shadow: inset 0 0 0 1px var(--line-3);
+    transition:
+      background var(--dur-2) var(--ease-out),
+      color var(--dur-2) var(--ease-out);
+  }
+
+  .req[data-pass="true"] .reqMark {
+    color: var(--on-accent);
+    background: var(--status-ok);
+    animation: tick-in var(--dur-2) var(--ease-snap) both;
+  }
+
+  .reqNote {
+    display: block;
+    font-size: var(--fs-sm);
+    color: var(--status-warn);
+  }
+
+  .reqHead {
+    margin: 0;
+    font: 500 var(--fs-xs) / 1 var(--font-mono);
+    letter-spacing: var(--tracking-label, 0.12em);
+    text-transform: uppercase;
+    color: var(--text-3);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ---- the check button row ------------------------------------------------------------------- */
+
+  .checkRow {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-3);
+  }
+
+  .hintNote {
+    font-size: var(--fs-sm);
+    color: var(--text-3);
+  }
+
+  @media (max-width: 560px) {
+    .board {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* Forced colours (Windows high contrast). Shadows are removed, so every boxed control is drawn with an
+     outline, and state that colour used to carry is drawn with line weight, line style and the system
+     highlight. The check glyphs are hidden until their state is true, because forced colours would
+     otherwise paint the "transparent" ones. */
+  @media (forced-colors: active) {
+    .fb,
+    .card,
+    .row,
+    .pick,
+    .field,
+    .empty {
+      box-shadow: none;
+      outline: 1px solid CanvasText;
+      outline-offset: -1px;
+      clip-path: none;
+    }
+
+    .fb {
+      background: Canvas;
+    }
+
+    .input:checked + .card,
+    .input + .card[data-verdict="right"] {
+      outline: 2px solid Highlight;
+    }
+
+    .input + .card[data-verdict="wrong"] {
+      outline: 2px dashed CanvasText;
+    }
+
+    .input + .card[data-verdict="dim"],
+    .option[data-locked="true"] .card:not([data-verdict]) {
+      outline-color: GrayText;
+    }
+
+    .input:focus-visible + .card,
+    .pick:focus-visible {
+      outline: 3px solid Highlight;
+    }
+
+    .mark,
+    .reqMark,
+    .badge {
+      forced-color-adjust: none;
+      color: ButtonText;
+      background: Canvas;
+      box-shadow: none;
+      outline: 1px solid ButtonBorder;
+      outline-offset: -1px;
+      clip-path: none;
+    }
+
+    .mark svg,
+    .reqMark svg {
+      visibility: hidden;
+    }
+
+    .input:checked + .card .mark,
+    .input + .card[data-verdict="right"] .mark,
+    .req[data-pass="true"] .reqMark {
+      color: HighlightText;
+      background: Highlight;
+    }
+
+    .input + .card[data-verdict="wrong"] .mark {
+      color: ButtonText;
+      background: Canvas;
+      outline-style: dashed;
+    }
+
+    .req[data-pass="true"] .reqMark svg {
+      visibility: visible;
+    }
+
+    .input:checked + .card .mark svg,
+    .input + .card[data-verdict="right"] .mark svg,
+    .input + .card[data-verdict="wrong"] .mark svg {
+      visibility: visible;
+    }
+
+    .row[data-verdict="right"] {
+      outline: 2px solid Highlight;
+    }
+
+    .row[data-verdict="wrong"] {
+      outline: 2px dashed CanvasText;
+    }
+
+    .pick[aria-pressed="true"] {
+      outline: 3px solid Highlight;
+    }
+
+    .pick[data-paired="true"] {
+      outline: 2px solid CanvasText;
+    }
+
+    .pick[data-verdict="right"] {
+      outline: 2px solid Highlight;
+    }
+
+    .pick:disabled:not([data-verdict]) {
+      outline-color: GrayText;
+    }
+
+    .field:focus-within {
+      outline: 2px solid Highlight;
+    }
+
+    .field[data-verdict="right"] {
+      outline: 2px solid Highlight;
+    }
+  }
+}

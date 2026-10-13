@@ -1,0 +1,46 @@
+@layer route {
+  .close {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    padding-block: calc(var(--section-y) * 1.1) calc(var(--section-y) * 0.7);
+    scroll-margin-block-start: var(--header-offset, 72px);
+  }
+
+  .inner {
+    inline-size: min(100% - 2 * var(--gutter), 60rem);
+    display: grid;
+    justify-items: center;
+    gap: var(--space-8);
+    text-align: center;
+  }
+
+  .line {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: var(--fw-light);
+    font-size: clamp(2rem, 1rem + 3.4vw, 3.75rem);
+    line-height: 1.05;
+    letter-spacing: var(--tracking-display);
+    color: var(--text-1);
+    text-wrap: balance;
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-3);
+  }
+
+  @media (max-width: 559.98px) {
+    .actions {
+      inline-size: 100%;
+    }
+
+    .actions > * {
+      flex: 1 1 100%;
+    }
+  }
+}

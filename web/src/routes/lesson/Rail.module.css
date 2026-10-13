@@ -1,0 +1,201 @@
+@layer route {
+  .rail {
+    position: sticky;
+    inset-block-start: var(--bar-h, 64px);
+    z-index: var(--z-raised, 10);
+    block-size: var(--rail-h, 56px);
+    background: rgb(var(--ink-0-rgb) / 0.82);
+    backdrop-filter: var(--glass-filter);
+    -webkit-backdrop-filter: var(--glass-filter);
+    box-shadow: inset 0 -1px 0 var(--line-1);
+    transition: inset-block-start var(--dur-3) var(--ease-out);
+  }
+
+  .inner {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) minmax(12rem, 34rem) auto;
+    align-items: center;
+    gap: var(--space-5);
+    inline-size: min(100% - 2 * var(--gutter), var(--container-wide));
+    block-size: 100%;
+    margin-inline: auto;
+  }
+
+  .back {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-block-size: 36px;
+    padding-inline: var(--space-2);
+    font: 500 var(--fs-xs) / 1 var(--font-mono);
+    letter-spacing: var(--tracking-label, 0.12em);
+    text-transform: uppercase;
+    color: var(--text-3);
+    transition: color var(--dur-1) var(--ease-out);
+  }
+
+  .back:hover {
+    color: var(--hot);
+  }
+
+  .title {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    min-inline-size: 0;
+  }
+
+  .h1 {
+    margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font: 600 var(--fs-md) / 1.2 var(--font-display);
+    letter-spacing: var(--tracking-heading, -0.012em);
+    color: var(--text-1);
+    min-inline-size: 0;
+  }
+
+  .meta {
+    max-inline-size: none;
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    gap: var(--space-3);
+    margin: 0;
+    font: 500 var(--fs-xs) / 1 var(--font-mono);
+    color: var(--text-3);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .steps {
+    min-inline-size: 0;
+  }
+
+  .tools {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+  }
+
+  /* The stacked layout's caption under the rail: index, step name, state. */
+  .caption {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: var(--space-1) var(--space-3);
+    margin: var(--space-2) 0 0;
+    max-inline-size: none;
+    font: 500 var(--fs-2xs) / 1.3 var(--font-mono);
+    letter-spacing: var(--tracking-label, 0.12em);
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+
+  .captionCount {
+    color: var(--accent-text);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .captionName {
+    min-inline-size: 0;
+    color: var(--text-1);
+    overflow-wrap: anywhere;
+  }
+
+  .captionState {
+    margin-inline-start: auto;
+  }
+
+  .tool {
+    display: inline-grid;
+    place-items: center;
+    inline-size: 36px;
+    block-size: 36px;
+    color: var(--text-2);
+    clip-path: polygon(0 6px, 6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%);
+    transition:
+      color var(--dur-1) var(--ease-out),
+      background var(--dur-1) var(--ease-out);
+  }
+
+  .tool:hover {
+    color: var(--hot);
+    background: rgb(255 255 255 / 0.06);
+  }
+
+  @media (max-width: 1099.98px) {
+    .backText {
+      display: none;
+    }
+
+    .meta {
+      display: none;
+    }
+
+    .inner {
+      grid-template-columns: auto minmax(0, 1fr) minmax(10rem, 22rem) auto;
+      gap: var(--space-4);
+    }
+  }
+
+  /* The stacked layout (the three queries are the list in useStacked.ts): two rows (title and tools, then
+     the progress rail). The rail scrolls away; the stage is what stays. */
+  @media (max-width: 899.98px) and (orientation: portrait), (max-width: 899.98px) and (min-height: 500.02px),
+    (max-width: 639.98px) {
+    .rail {
+      position: static;
+      block-size: auto;
+      padding-block: var(--space-2) var(--space-1);
+    }
+
+    .inner {
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      grid-template-areas:
+        "back title tools"
+        "steps steps steps";
+      gap: var(--space-2);
+    }
+
+    .back {
+      grid-area: back;
+      min-inline-size: 44px;
+      min-block-size: 44px;
+      justify-content: center;
+    }
+
+    .title {
+      grid-area: title;
+    }
+
+    .tools {
+      grid-area: tools;
+    }
+
+    .steps {
+      grid-area: steps;
+      padding-block-end: var(--space-1);
+    }
+
+    .tool {
+      inline-size: 44px;
+      block-size: 44px;
+    }
+  }
+
+  /* A short landscape viewport (a phone on its side): the rail keeps its one row but scrolls away with
+     the page, so the header is the only thing pinned above the lesson. */
+  @media (orientation: landscape) and (max-height: 500px) and (min-width: 640px) {
+    .rail {
+      position: static;
+    }
+  }
+
+  @media (forced-colors: active) {
+    .rail {
+      box-shadow: none;
+      border-block-end: 1px solid CanvasText;
+      background: Canvas;
+    }
+  }
+}

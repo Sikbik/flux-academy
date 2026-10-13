@@ -1,0 +1,23 @@
+{
+  "status": "success",
+  "data": [
+    {
+      "collateral": "COutPoint(72dc25bd297c9af594c2ce2f69bd282da3df4cbc50f0c2f4202b8b8761cc36c6, 0)",
+      "txhash": "72dc25bd297c9af594c2ce2f69bd282da3df4cbc50f0c2f4202b8b8761cc36c6",
+      "outidx": "0",
+      "ip": "198.58.241.193:16147",
+      "network": "ipv4",
+      "added_height": 3010486,
+      "confirmed_height": 3010491,
+      "last_confirmed_height": 3031168,
+      "last_paid_height": 3027868,
+      "tier": "CUMULUS",
+      "payment_address": "t1YEbcPvaw9AvMXJTWbx7BpKeq1DvEQ5GPh",
+      "pubkey": "04ddd3488f2e474b11c1aa09810ee7e52e1dec37010ba3b923f0bb6f490117182eae6ca9633df...",
+      "activesince": "1791205084",
+      "lastpaid": "1791728074",
+      "amount": "1000.00",
+      "rank": 0
+    }
+  ]
+}

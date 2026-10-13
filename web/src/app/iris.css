@@ -1,0 +1,44 @@
+/*
+ * The hex iris: global rules for the View Transitions API. Scoped to `html[data-nav="iris"]`, which
+ * `prepareIris()` sets for the duration of a route change, so any other view transition in the app
+ * keeps the browser defaults.
+ *
+ * The old page stays put; the new page is revealed through a growing hexagon (docs/DESIGN.md section 4).
+ * `--iris-from` and `--iris-to` are two six-point polygons in px, set from the activating element.
+ */
+
+@layer ui {
+  :root[data-nav="iris"]::view-transition-group(root) {
+    animation-duration: 0s;
+  }
+
+  :root[data-nav="iris"]::view-transition-image-pair(root) {
+    isolation: auto;
+  }
+
+  :root[data-nav="iris"]::view-transition-old(root) {
+    animation: none;
+    mix-blend-mode: normal;
+  }
+
+  :root[data-nav="iris"]::view-transition-new(root) {
+    mix-blend-mode: normal;
+    animation: iris-reveal 420ms var(--ease-out, cubic-bezier(0.16, 1, 0.3, 1)) both;
+  }
+
+  @keyframes iris-reveal {
+    from {
+      clip-path: var(--iris-from);
+    }
+    to {
+      clip-path: var(--iris-to);
+    }
+  }
+
+  /* Reduced motion never starts a transition, but guard the rule anyway. */
+  @media (prefers-reduced-motion: reduce) {
+    :root:not([data-motion="full"])[data-nav="iris"]::view-transition-new(root) {
+      animation: none;
+    }
+  }
+}

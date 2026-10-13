@@ -1,0 +1,26 @@
+@layer route {
+  .root {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    min-inline-size: 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: var(--space-3) var(--space-4);
+  }
+
+  .region {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: var(--space-2);
+    flex: 1 1 18rem;
+    min-inline-size: 0;
+  }
+
+  .region > :first-child {
+    flex: 1 1 13rem;
+    min-inline-size: 0;
+  }
+}

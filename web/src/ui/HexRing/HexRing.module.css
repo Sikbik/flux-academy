@@ -1,0 +1,113 @@
+/*
+ * HexRing: a gauge drawn as a hexagonal ring of cells. Segments fill clockwise from the top;
+ * the head is white-hot. Colour comes from the accent roles, so a data-tier ancestor (or the
+ * `tier` prop) re-tints it. Reduced motion: no stagger, no transition.
+ */
+@layer reset, tokens, base, ui, route, utility;
+
+@layer ui {
+  .ring {
+    position: relative;
+    display: inline-grid;
+    place-items: center;
+    flex: none;
+    inline-size: var(--ring-size, 96px);
+    block-size: var(--ring-size, 96px);
+    color: var(--accent);
+    transition: opacity var(--dur-3) var(--ease-out);
+  }
+
+  .ring[data-dim="true"] {
+    opacity: 0.38;
+  }
+
+  .svg {
+    position: absolute;
+    inset: 0;
+    inline-size: 100%;
+    block-size: 100%;
+    overflow: visible;
+  }
+
+  .tracks path,
+  .fills path {
+    fill: none;
+    stroke-width: var(--ring-stroke, 5px);
+    stroke-linecap: butt;
+    stroke-linejoin: miter;
+    stroke-miterlimit: 4;
+  }
+
+  .tracks path {
+    stroke: rgb(255 255 255 / 0.1);
+  }
+
+  .ticks path {
+    fill: none;
+    stroke: var(--blueprint-strong);
+    stroke-width: 1px;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .fills {
+    filter: drop-shadow(0 0 3px rgb(var(--accent-deep-rgb) / 0.55));
+  }
+
+  .fills path {
+    stroke: var(--accent);
+    transition:
+      stroke-dasharray var(--dur-3) var(--ease-out),
+      stroke var(--dur-2) var(--ease-out);
+    transition-delay: calc(var(--k, 0) * 40ms), 0ms;
+  }
+
+  /* One step behind the head is a step brighter; the head itself is white-hot. */
+  .fills path[data-near="true"] {
+    stroke: var(--accent-strong);
+  }
+
+  .fills path[data-head="true"] {
+    stroke: var(--hot);
+    filter: drop-shadow(0 0 3px rgb(var(--accent-hot-rgb) / 0.95));
+  }
+
+  .center {
+    position: relative;
+    display: grid;
+    place-items: center;
+    text-align: center;
+    line-height: 1.1;
+    font-variant-numeric: tabular-nums;
+  }
+
+  :global(html[data-motion="reduced"]) .fills path {
+    transition: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :global(html:not([data-motion="full"])) .fills path {
+      transition: none;
+    }
+  }
+
+  @media (forced-colors: active) {
+    .tracks path {
+      stroke: GrayText;
+    }
+
+    .fills {
+      filter: none;
+    }
+
+    .fills path,
+    .fills path[data-near="true"],
+    .fills path[data-head="true"] {
+      stroke: Highlight;
+      filter: none;
+    }
+
+    .ticks path {
+      stroke: CanvasText;
+    }
+  }
+}

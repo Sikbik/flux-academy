@@ -1,0 +1,275 @@
+/*
+ * The hero: copy on the left, the free frame the scene is framed in on the right with its caption under
+ * it, the live strip along the bottom. The scene itself is the sticky stage behind the page
+ * (stage.module.css). On narrow screens the copy stacks above the frame. Wrappers pass pointer events
+ * through to the canvas; the copy, caption and strip take them back.
+ */
+@layer route {
+  .hero {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    min-block-size: 100svh;
+    padding-block-start: var(--header-h, 64px);
+    pointer-events: none;
+  }
+
+  .grid {
+    inline-size: min(100% - 2 * var(--gutter), var(--container-wide));
+    margin-inline: auto;
+    display: grid;
+    grid-template-columns: minmax(0, 5.3fr) minmax(0, 6.7fr);
+    grid-template-rows: minmax(0, 1fr) auto auto;
+    grid-template-areas:
+      "copy stage"
+      "copy caption"
+      "strip strip";
+    column-gap: clamp(1.5rem, 4vw, 4.5rem);
+    row-gap: var(--space-4);
+    padding-block: var(--space-8) var(--space-6);
+  }
+
+  /* ---- copy ------------------------------------------------------------------------------ */
+
+  .copy {
+    grid-area: copy;
+    align-self: center;
+    display: grid;
+    gap: var(--space-6);
+    justify-items: start;
+    pointer-events: auto;
+    padding-block-end: var(--space-8);
+  }
+
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin: 0;
+    font: 500 var(--fs-2xs) / 1.5 var(--font-mono);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-2);
+  }
+
+  .bullet {
+    flex: none;
+    inline-size: 8px;
+    block-size: 9px;
+    background: var(--accent);
+    clip-path: var(--hex-clip);
+    box-shadow: 0 0 10px var(--accent-glow);
+  }
+
+  .eyebrowLong,
+  .eyebrowShort {
+    white-space: nowrap;
+  }
+
+  .eyebrowShort {
+    display: none;
+  }
+
+  /* The long line needs about 470 px: at the narrow end of the two-column layout the short one is used. */
+  @media (min-width: 1100px) and (max-width: 1279.98px) {
+    .eyebrowLong {
+      display: none;
+    }
+
+    .eyebrowShort {
+      display: inline;
+    }
+  }
+
+  .title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: var(--fw-light);
+    font-size: clamp(2.5rem, 0.9rem + 3.1vw, 4.6rem);
+    line-height: 0.98;
+    letter-spacing: var(--tracking-display);
+    color: var(--text-1);
+    text-wrap: balance;
+  }
+
+  .light {
+    font-weight: var(--fw-light);
+  }
+
+  .count {
+    display: inline-block;
+    font-weight: var(--fw-bold);
+    letter-spacing: -0.035em;
+    white-space: nowrap;
+  }
+
+  .countStatic {
+    display: inline-block;
+    font-variant-numeric: tabular-nums;
+    background: linear-gradient(90deg, #fff 0%, var(--accent-strong) 42%, var(--accent-text) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+
+  .sub {
+    margin: 0;
+    max-inline-size: 46ch;
+    font: var(--type-lead);
+    color: var(--text-2);
+    text-wrap: pretty;
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+  }
+
+  .detail {
+    margin-inline-start: var(--space-2);
+    padding-inline-start: var(--space-3);
+    border-inline-start: 1px solid rgb(255 255 255 / 0.35);
+    font-weight: 400;
+    opacity: 0.9;
+    max-inline-size: 18ch;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .hint {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin: 0;
+    font: 500 var(--fs-xs) / 1.5 var(--font-mono);
+    letter-spacing: 0.04em;
+    color: var(--text-3);
+  }
+
+  /* ---- the entrance: soft, then resolved. The text is opaque from the first frame. ------------ */
+
+  .eyebrow,
+  .title,
+  .sub,
+  .rise,
+  .hint {
+    animation: resolve 760ms var(--ease-out) both;
+    animation-delay: calc(var(--i, 0) * 70ms + var(--intro-delay, 0ms));
+  }
+
+  .hero[data-intro="true"] {
+    --intro-delay: 1050ms;
+  }
+
+  @keyframes resolve {
+    from {
+      filter: blur(7px);
+      translate: 0 14px;
+    }
+    to {
+      filter: blur(0);
+      translate: 0 0;
+    }
+  }
+
+  /* ---- stage frame, caption, strip ---------------------------------------------------------- */
+
+  .stage {
+    grid-area: stage;
+    position: relative;
+    margin: 0;
+    min-inline-size: 0;
+    min-block-size: clamp(280px, 38svh, 560px);
+    pointer-events: none;
+  }
+
+  .captionBox {
+    grid-area: caption;
+    min-inline-size: 0;
+    pointer-events: auto;
+  }
+
+  .caption {
+    margin: 0;
+    font: 400 var(--fs-xs) / 1.7 var(--font-sans);
+    color: var(--text-3);
+    text-wrap: pretty;
+  }
+
+  .captionChips {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin-inline-start: var(--space-2);
+    vertical-align: middle;
+  }
+
+  .strip {
+    grid-area: strip;
+    pointer-events: auto;
+  }
+
+  /* ---- tablet and phone: one column, the frame between copy and caption ---------------------- */
+
+  @media (max-width: 1099.98px) {
+    .grid {
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-rows: auto minmax(0, 1fr) auto auto;
+      grid-template-areas:
+        "copy"
+        "stage"
+        "caption"
+        "strip";
+      row-gap: var(--space-5);
+      padding-block-start: var(--space-6);
+    }
+
+    .copy {
+      gap: var(--space-5);
+      padding-block-end: 0;
+    }
+
+    .stage {
+      min-block-size: clamp(220px, 34svh, 420px);
+    }
+  }
+
+  @media (max-width: 719.98px) {
+    .eyebrowLong {
+      display: none;
+    }
+
+    .eyebrowShort {
+      display: inline;
+    }
+
+    .actions {
+      inline-size: 100%;
+    }
+
+    .actions > * {
+      flex: 1 1 100%;
+    }
+
+    .title {
+      font-size: clamp(2.375rem, 9.6vw, 3.25rem);
+    }
+
+    .sub {
+      font-size: var(--fs-md);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :root:not([data-motion="full"]) :is(.eyebrow, .title, .sub, .rise, .hint) {
+      animation: none;
+    }
+  }
+
+  :root[data-motion="reduced"] :is(.eyebrow, .title, .sub, .rise, .hint) {
+    animation: none;
+  }
+}

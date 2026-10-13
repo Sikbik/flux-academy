@@ -1,0 +1,48 @@
+@layer reset, tokens, base, ui, route, utility;
+
+@layer ui {
+  .tip {
+    position: fixed;
+    inset: 0 auto auto 0;
+    max-inline-size: min(300px, calc(100vw - 16px));
+    pointer-events: none;
+    opacity: 0;
+    translate: var(--tx, 0px) calc(var(--ty, 0px) + var(--shift, 4px));
+    transition:
+      opacity var(--dur-1) var(--ease-out),
+      translate var(--dur-2) var(--ease-out);
+  }
+
+  .tip[data-side="bottom"] {
+    --shift: -4px;
+  }
+
+  .tip[data-open="true"] {
+    opacity: 1;
+    --shift: 0px;
+  }
+
+  .surface {
+    padding: 6px 10px;
+    font: 500 var(--fs-xs) / 1.4 var(--font-sans);
+    text-wrap: balance;
+  }
+
+  .row {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  :global(html[data-motion="reduced"]) .tip {
+    --shift: 0px;
+    transition: opacity var(--dur-1) linear;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :global(html:not([data-motion="full"])) .tip {
+      --shift: 0px;
+      transition: opacity var(--dur-1) linear;
+    }
+  }
+}

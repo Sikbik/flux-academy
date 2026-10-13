@@ -1,0 +1,180 @@
+@layer ui {
+  .footer {
+    position: relative;
+    z-index: var(--z-page, 1);
+    margin-block-start: var(--section-y, 6rem);
+    padding-inline: var(--gutter);
+    padding-block: var(--space-12) var(--space-8);
+    background: linear-gradient(to bottom, transparent, rgb(var(--ink-0-rgb) / 0.72) 40%);
+    border-block-start: 1px solid var(--line-1);
+  }
+
+  .ticks {
+    position: absolute;
+    inset-inline: var(--gutter);
+    inset-block-start: 0;
+    block-size: 5px;
+    background: repeating-linear-gradient(90deg, rgb(var(--accent-rgb) / 0.45) 0 1px, transparent 1px 8px);
+    opacity: calc(0.1 + var(--flash, 0) * 0.5);
+    mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+    pointer-events: none;
+  }
+
+  .inner {
+    max-inline-size: var(--container-wide, 1520px);
+    margin-inline: auto;
+    display: grid;
+    gap: var(--space-8) var(--space-10);
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+    align-items: start;
+  }
+
+  .brand {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    align-items: flex-start;
+  }
+
+  .lockup {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3);
+    font-family: var(--font-display);
+    font-size: 1.125rem;
+    letter-spacing: -0.02em;
+    color: var(--text-1);
+  }
+
+  .lockup b {
+    font-weight: var(--fw-bold);
+  }
+
+  .lockup span span {
+    font-weight: var(--fw-light);
+    color: var(--text-2);
+  }
+
+  .tagline {
+    margin: 0;
+    color: var(--text-3);
+    font-size: var(--fs-sm);
+    max-inline-size: 30ch;
+  }
+
+  .badge {
+    display: inline-block;
+    opacity: 0.92;
+    transition: opacity var(--dur-2) var(--ease-out);
+  }
+
+  .badge:hover {
+    opacity: 1;
+  }
+
+  .badge img {
+    inline-size: 190px;
+    block-size: auto;
+  }
+
+  .col {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .heading {
+    margin: 0;
+    font: 500 var(--fs-xs) / 1 var(--font-mono);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+
+  .list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-block-size: 28px;
+    color: var(--text-2);
+    font-size: var(--fs-sm);
+    text-decoration: none;
+    transition: color var(--dur-1) var(--ease-out);
+  }
+
+  .link:hover {
+    color: var(--text-1);
+    text-decoration: underline;
+    text-decoration-color: var(--accent-line);
+    text-underline-offset: 0.25em;
+  }
+
+  .ext {
+    color: var(--text-3);
+  }
+
+  .note {
+    margin: 0;
+    color: var(--text-3);
+    font-size: var(--fs-sm);
+    line-height: var(--lh-normal);
+    max-inline-size: 36ch;
+  }
+
+  .base {
+    max-inline-size: var(--container-wide, 1520px);
+    margin: var(--space-10) auto 0;
+    padding-block-start: var(--space-5);
+    border-block-start: 1px solid var(--line-1);
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--space-4);
+  }
+
+  .top {
+    inline-size: 40px;
+    block-size: 44px;
+    flex: none;
+    display: grid;
+    place-items: center;
+    color: var(--text-2);
+    background: rgb(var(--ink-1-rgb) / 0.7);
+    clip-path: var(--hex-clip);
+    transition:
+      color var(--dur-1) var(--ease-out),
+      background var(--dur-1) var(--ease-out);
+  }
+
+  .top:hover {
+    color: var(--text-1);
+    background: var(--accent-soft-2);
+  }
+
+  .footer :is(a, button):focus-visible {
+    outline: 2px solid var(--focus-color);
+    outline-offset: 3px;
+  }
+
+  /* The hex clip would cut an outline drawn outside the box, so this one is drawn inside it. */
+  .footer .top:focus-visible {
+    outline-offset: -5px;
+    color: var(--text-1);
+    background: var(--accent-soft-2);
+  }
+
+  @media (max-width: 719.98px) {
+    .footer {
+      padding-block-end: calc(var(--space-8) + var(--safe-bottom, 0px));
+    }
+  }
+}

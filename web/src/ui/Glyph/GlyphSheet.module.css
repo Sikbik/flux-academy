@@ -1,0 +1,139 @@
+/* The glyph sheet: a dev and documentation surface. */
+@layer reset, tokens, base, ui, route, utility;
+
+@layer ui {
+  .sheet {
+    display: grid;
+    gap: var(--space-10);
+  }
+
+  .count {
+    color: var(--text-3);
+    font: 500 var(--fs-xs) / 1.4 var(--font-mono);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+  }
+
+  .group {
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  .title {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-3);
+    font: 600 var(--fs-xs) / 1 var(--font-mono);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--accent-text);
+    padding-block-end: var(--space-2);
+    border-block-end: 1px solid var(--line-1);
+  }
+
+  .n {
+    color: var(--text-3);
+    font-weight: 400;
+  }
+
+  .list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(168px, 1fr));
+    gap: var(--space-3);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .largeList {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(132px, 1fr));
+    gap: var(--space-3);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .largeCell {
+    display: grid;
+    justify-items: center;
+    gap: var(--space-3);
+    padding: var(--space-4) var(--space-2) var(--space-3);
+    background: var(--ink-1);
+    border: 1px solid var(--line-1);
+    color: var(--text-1);
+  }
+
+  .cell {
+    display: grid;
+    gap: var(--space-3);
+    padding: var(--space-3);
+    background: var(--ink-1);
+    border: 1px solid var(--line-1);
+    color: var(--text-1);
+  }
+
+  .sizes {
+    display: flex;
+    align-items: flex-end;
+    gap: var(--space-4);
+  }
+
+  .big,
+  .mid,
+  .small {
+    display: inline-grid;
+    place-items: center;
+    color: var(--text-1);
+  }
+
+  .mid {
+    color: var(--accent-text);
+  }
+
+  .small {
+    color: var(--text-2);
+  }
+
+  .name {
+    font: 500 0.6875rem / 1.2 var(--font-mono);
+    color: var(--text-3);
+    overflow-wrap: anywhere;
+  }
+
+  /* Construction: the 24 unit grid at 10 px per unit, live area 3..21 outlined. */
+  .construct {
+    position: relative;
+    inline-size: calc(var(--u) * 24);
+    block-size: calc(var(--u) * 24);
+    background: var(--ink-0);
+    border: 1px solid var(--line-2);
+  }
+
+  .grid,
+  .live {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  .grid {
+    background-image:
+      linear-gradient(to right, rgb(var(--accent-rgb) / 0.2) 1px, transparent 1px),
+      linear-gradient(to bottom, rgb(var(--accent-rgb) / 0.2) 1px, transparent 1px);
+    background-size: var(--u) var(--u);
+  }
+
+  .live {
+    inset: calc(var(--u) * 3);
+    border: 1px dashed rgb(var(--accent-hot-rgb) / 0.5);
+  }
+
+  .constructGlyph {
+    position: absolute;
+    inset: 0;
+    inline-size: 100%;
+    block-size: 100%;
+    color: var(--text-1);
+  }
+}

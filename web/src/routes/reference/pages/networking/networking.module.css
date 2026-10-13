@@ -1,0 +1,365 @@
+@layer route {
+  .dim {
+    color: var(--text-3);
+    font-weight: 400;
+  }
+
+  .sectionNote {
+    font-size: var(--fs-sm);
+  }
+
+  .rowLink {
+    display: inline-flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0 var(--space-2);
+  }
+
+  .rangeCount {
+    font: 400 var(--fs-xs) / 1.4 var(--font-sans);
+    color: var(--text-3);
+  }
+
+  .stack {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2px;
+    overflow-wrap: anywhere;
+  }
+
+  .snippet {
+    margin: 0;
+    overflow-x: auto;
+    font: var(--type-code);
+    font-size: var(--fs-sm);
+    color: var(--text-2);
+  }
+
+  /* ---- the request path figure ---------------------------------------------------------- */
+
+  .figureWrap {
+    min-inline-size: 0;
+  }
+
+  .figure {
+    margin: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-4);
+  }
+
+  .svg {
+    inline-size: 100%;
+    block-size: auto;
+    max-block-size: 36rem;
+    overflow: visible;
+  }
+
+  .node path {
+    fill: rgb(var(--ink-1-rgb) / 0.92);
+    stroke: var(--line-3);
+    stroke-width: 1;
+  }
+
+  .node[data-hot="true"] path {
+    stroke: var(--accent-solid);
+    fill: rgb(var(--accent-rgb) / 0.1);
+  }
+
+  .node[data-dashed="true"] path {
+    stroke-dasharray: 4 4;
+    stroke: var(--blueprint-strong);
+  }
+
+  .nodeTitle {
+    font: 600 14px var(--font-display);
+    fill: var(--text-1);
+  }
+
+  .nodeLine {
+    font: 400 11.5px var(--font-mono);
+    fill: var(--text-2);
+  }
+
+  .edge {
+    fill: none;
+    stroke: var(--blueprint-strong);
+    stroke-width: 1.5;
+  }
+
+  .edge[data-dashed="true"] {
+    stroke-dasharray: 5 5;
+    stroke: var(--blueprint);
+  }
+
+  .arrowHead {
+    fill: var(--blueprint-strong);
+  }
+
+  .edgeLabel {
+    font: 500 11px var(--font-mono);
+    letter-spacing: 0.04em;
+    fill: var(--text-3);
+  }
+
+  .marker circle {
+    fill: var(--ink-0);
+    stroke: var(--accent-solid);
+    stroke-width: 1.25;
+  }
+
+  .marker text {
+    font: 600 11px var(--font-mono);
+    fill: var(--accent-text);
+  }
+
+  .pathSteps {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .pathStep {
+    display: grid;
+    grid-template-columns: 2.25rem minmax(0, 1fr);
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+    border-block-end: 1px solid var(--line-1);
+  }
+
+  .pathStep:last-child {
+    border-block-end: 0;
+  }
+
+  .pathNum {
+    display: inline-grid;
+    place-items: center;
+    inline-size: 1.75rem;
+    block-size: 1.75rem;
+    margin-block-start: 2px;
+    font: 600 var(--fs-xs) / 1 var(--font-mono);
+    color: var(--accent-text);
+    box-shadow: inset 0 0 0 1px var(--accent-solid);
+    border-radius: 50%;
+  }
+
+  .pathBody {
+    display: grid;
+    gap: var(--space-1);
+    min-inline-size: 0;
+    justify-items: start;
+  }
+
+  .pathTitle {
+    margin: 0;
+    display: flex;
+    align-items: flex-start;
+    gap: 0 var(--space-1);
+    font: 600 var(--fs-md) / 1.4 var(--font-sans);
+    color: var(--text-1);
+  }
+
+  /* The link sits beside the first line of a title that wraps, at the height of that line. */
+  .pathTitle .pathLink {
+    align-self: flex-start;
+    margin-block: -3px;
+  }
+
+  @media (pointer: coarse) {
+    .pathTitle .pathLink {
+      margin-block: -11px;
+    }
+  }
+
+  .pathText {
+    margin: 0;
+    max-inline-size: 72ch;
+    font: 400 var(--fs-sm) / 1.65 var(--font-sans);
+    color: var(--text-2);
+  }
+
+  .pathText code {
+    font-family: var(--font-mono);
+    font-size: 0.92em;
+    color: var(--text-1);
+    overflow-wrap: anywhere;
+  }
+
+  /* ---- ports ---------------------------------------------------------------------------- */
+
+  .portTriad {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-3);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  @media (min-width: 760px) {
+    .portTriad {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  .triad {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 2px var(--space-2);
+    align-items: baseline;
+    padding: var(--space-3) var(--space-4);
+    background: rgb(var(--ink-1-rgb) / 0.6);
+    box-shadow: inset 0 0 0 1px var(--line-2);
+  }
+
+  .triad[data-kind="free"] {
+    box-shadow:
+      inset 0 0 0 1px var(--line-2),
+      inset 3px 0 0 var(--status-ok);
+  }
+
+  .triad[data-kind="fee"] {
+    box-shadow:
+      inset 0 0 0 1px var(--line-2),
+      inset 3px 0 0 var(--status-warn);
+  }
+
+  .triad[data-kind="banned"] {
+    box-shadow:
+      inset 0 0 0 1px var(--line-2),
+      inset 3px 0 0 var(--status-crit);
+  }
+
+  .triadTitle {
+    font: 600 var(--fs-md) / 1.3 var(--font-display);
+    color: var(--text-1);
+  }
+
+  .triadText {
+    grid-column: 2;
+    font: 400 var(--fs-sm) / 1.55 var(--font-sans);
+    color: var(--text-2);
+  }
+
+  .triadText code {
+    font-family: var(--font-mono);
+    color: var(--text-1);
+  }
+
+  /* ---- tools ---------------------------------------------------------------------------- */
+
+  .tool {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-4);
+    min-inline-size: 0;
+  }
+
+  .toolRow {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2) var(--space-3);
+  }
+
+  /* Filter chips are 22px tall in the kit; in a tool row they are the main control, so give them a target. */
+  .toolRow > button {
+    min-block-size: 32px;
+  }
+
+  @media (pointer: coarse) {
+    .toolRow > button {
+      min-block-size: 44px;
+    }
+  }
+
+  /* A text field's label does not wrap, so two fields side by side need the room of two labels. */
+  .toolGrid {
+    display: grid;
+    gap: var(--space-4);
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  @media (min-width: 480px) {
+    .toolGrid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  .verdictBox {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-3);
+  }
+
+  .verdictLine {
+    margin: 0;
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-2);
+    font: 400 var(--fs-sm) / 1.6 var(--font-sans);
+    color: var(--text-2);
+  }
+
+  .verdictLine > :first-child {
+    flex: none;
+    margin-block-start: 0.45em;
+  }
+
+  .verdictLine strong {
+    color: var(--text-1);
+    font-weight: 600;
+  }
+
+  .twoUp {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-4);
+    align-items: start;
+  }
+
+  @media (min-width: 760px) {
+    .twoUp {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (forced-colors: active) {
+    .node path {
+      fill: Canvas;
+      stroke: CanvasText;
+    }
+
+    .node[data-hot="true"] path {
+      stroke: Highlight;
+    }
+
+    .nodeTitle,
+    .nodeLine,
+    .edgeLabel,
+    .marker text {
+      fill: CanvasText;
+    }
+
+    .edge {
+      stroke: CanvasText;
+    }
+
+    .arrowHead {
+      fill: CanvasText;
+    }
+
+    .marker circle {
+      fill: Canvas;
+      stroke: Highlight;
+    }
+
+    .triad {
+      box-shadow: none;
+      border: 1px solid CanvasText;
+      background: none;
+    }
+  }
+}

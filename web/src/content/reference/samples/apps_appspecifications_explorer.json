@@ -1,0 +1,36 @@
+{
+  "status": "success",
+  "data": {
+    "version": 7,
+    "name": "explorer",
+    "description": "Official Flux Explorer explorer.runonflux.io",
+    "owner": "196GJWyLxzAw3MirTT7Bqs2iGpUQio29GH",
+    "compose": [
+      {
+        "name": "mongodb",
+        "description": "db component",
+        "repotag": "mvertes/alpine-mongo:latest",
+        "ports": [],
+        "domains": [],
+        "environmentParameters": [],
+        "commands": [],
+        "containerPorts": [],
+        "containerData": "/db",
+        "cpu": 1,
+        "ram": 2000,
+        "hdd": 45,
+        "tiered": false,
+        "repoauth": "",
+        "secrets": ""
+      }
+    ],
+    "instances": 40,
+    "contacts": [],
+    "geolocation": [],
+    "expire": 88000,
+    "nodes": [],
+    "staticip": false,
+    "hash": "cfe8a3158c58a0b7438f81d5f314182f177ae68198bcfabcddc1ecfb635345a7",
+    "height": 3004517
+  }
+}

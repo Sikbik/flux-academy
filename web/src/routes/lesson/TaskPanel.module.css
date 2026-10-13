@@ -1,0 +1,268 @@
+@layer route {
+  .task {
+    position: relative;
+    display: grid;
+    gap: var(--space-3);
+    margin-block-start: var(--space-6);
+    padding: var(--space-4) var(--space-5);
+    background: rgb(var(--ink-0-rgb) / 0.78);
+    box-shadow: inset 0 0 0 1px var(--line-2);
+    clip-path: polygon(0 12px, 12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%);
+    transition:
+      box-shadow var(--dur-3) var(--ease-out),
+      background var(--dur-3) var(--ease-out);
+  }
+
+  .task[data-status="open"] {
+    box-shadow:
+      inset 0 0 0 1px var(--accent-line),
+      inset 3px 0 0 var(--accent);
+  }
+
+  .task[data-status="done"],
+  .task[data-status="shown"] {
+    --tone: var(--status-ok);
+    box-shadow:
+      inset 0 0 0 1px rgb(var(--status-ok-rgb) / 0.45),
+      inset 3px 0 0 var(--status-ok);
+    background: linear-gradient(90deg, rgb(var(--status-ok-rgb) / 0.08), rgb(var(--ink-0-rgb) / 0.78) 60%);
+  }
+
+  .task[data-status="skipped"] {
+    box-shadow:
+      inset 0 0 0 1px var(--line-2),
+      inset 3px 0 0 var(--status-off);
+  }
+
+  .head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+  }
+
+  .label {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    font: 500 var(--fs-xs) / 1 var(--font-mono);
+    letter-spacing: var(--tracking-label, 0.12em);
+    text-transform: uppercase;
+    color: var(--accent-text);
+  }
+
+  .task[data-status="done"] .label,
+  .task[data-status="shown"] .label {
+    color: var(--status-ok);
+  }
+
+  .task[data-status="skipped"] .label {
+    color: var(--text-3);
+  }
+
+  .bullet {
+    inline-size: 8px;
+    block-size: 8px;
+    background: currentColor;
+    clip-path: var(--hex-clip);
+  }
+
+  .state {
+    color: var(--status-ok);
+    animation: tick var(--dur-3) var(--ease-snap) both;
+  }
+
+  .task[data-status="skipped"] .state {
+    color: var(--text-3);
+  }
+
+  @keyframes tick {
+    from {
+      opacity: 0;
+      transform: scale(calc(1 - 0.4 * var(--motion-scale, 1)));
+    }
+  }
+
+  .prompt {
+    margin: 0;
+    font: 600 var(--fs-body) / 1.4 var(--font-sans);
+    color: var(--text-1);
+    max-inline-size: var(--measure, 62ch);
+  }
+
+  .confirm {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    min-block-size: var(--touch-min, 44px);
+    cursor: pointer;
+    color: var(--text-2);
+  }
+
+  .confirm input {
+    position: absolute;
+    opacity: 0;
+    inline-size: 1px;
+    block-size: 1px;
+  }
+
+  .box {
+    display: inline-grid;
+    place-items: center;
+    inline-size: 26px;
+    block-size: 26px;
+    flex: none;
+    color: transparent;
+    background: var(--ink-2);
+    clip-path: var(--hex-clip);
+    box-shadow: inset 0 0 0 1px var(--line-3);
+    transition:
+      color var(--dur-1) var(--ease-out),
+      background var(--dur-1) var(--ease-out);
+  }
+
+  .confirm input:checked + .box {
+    color: var(--on-accent);
+    background: var(--accent-solid);
+  }
+
+  .confirm input:focus-visible + .box {
+    outline: 2px solid var(--focus-color);
+    outline-offset: 3px;
+  }
+
+  .feedback:empty {
+    display: none;
+  }
+
+  .lines {
+    display: grid;
+    gap: var(--space-1);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: var(--fs-md);
+    line-height: var(--lh-normal, 1.45);
+    color: var(--text-2);
+  }
+
+  .lines li {
+    position: relative;
+    padding-inline-start: var(--space-5);
+  }
+
+  .lines li::before {
+    content: "";
+    position: absolute;
+    inset-inline-start: 0;
+    inset-block-start: 0.45em;
+    inline-size: 8px;
+    block-size: 8px;
+    background: var(--status-warn);
+    clip-path: var(--hex-clip);
+  }
+
+  .lines[data-tone="progress"] li::before {
+    background: var(--accent);
+  }
+
+  .note {
+    font-size: var(--fs-sm);
+    color: var(--text-3);
+  }
+
+  .hint {
+    display: grid;
+    gap: var(--space-1);
+    padding: var(--space-3) var(--space-4);
+    font-size: var(--fs-md);
+    line-height: var(--lh-body);
+    color: var(--text-2);
+    background: var(--accent-soft);
+    box-shadow: inset 0 0 0 1px var(--accent-line);
+    animation: hint-in var(--dur-3) var(--ease-out) both;
+  }
+
+  /* An author `display` would otherwise win over the browser's rule for `hidden`. */
+  .hint[hidden] {
+    display: none;
+  }
+
+  .hint:focus-visible {
+    outline: 2px solid var(--focus-color);
+    outline-offset: 2px;
+  }
+
+  @keyframes hint-in {
+    from {
+      opacity: 0;
+      transform: translateY(calc(6px * var(--motion-scale, 1)));
+    }
+  }
+
+  .hintLabel {
+    font: 500 var(--fs-2xs) / 1 var(--font-mono);
+    letter-spacing: var(--tracking-label, 0.12em);
+    text-transform: uppercase;
+    color: var(--accent-strong);
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2) var(--space-3);
+  }
+
+  .xp {
+    font-size: var(--fs-xs);
+    color: var(--text-3);
+  }
+
+  /* Forced colours: shadows are removed, so the task block and the hint are outlined, and the confirm box
+     shows its state with the system highlight. */
+  @media (forced-colors: active) {
+    .task,
+    .hint {
+      background: Canvas;
+      box-shadow: none;
+      outline: 1px solid CanvasText;
+      outline-offset: -1px;
+      clip-path: none;
+    }
+
+    .task[data-status="open"] {
+      outline: 2px solid Highlight;
+    }
+
+    .task[data-status="skipped"] {
+      outline-color: GrayText;
+    }
+
+    .box {
+      box-shadow: none;
+      outline: 1px solid ButtonBorder;
+      outline-offset: -1px;
+      clip-path: none;
+    }
+
+    .box svg {
+      visibility: hidden;
+    }
+
+    .confirm input:checked + .box {
+      forced-color-adjust: none;
+      color: HighlightText;
+      background: Highlight;
+    }
+
+    .confirm input:checked + .box svg {
+      visibility: visible;
+    }
+
+    .lines li::before {
+      forced-color-adjust: none;
+      background: CanvasText;
+    }
+  }
+}

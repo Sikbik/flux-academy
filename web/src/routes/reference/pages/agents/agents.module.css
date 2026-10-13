@@ -1,0 +1,382 @@
+@layer route {
+  .dim {
+    color: var(--text-3);
+    font-weight: 400;
+  }
+
+  .price {
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .stack {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-1);
+    min-inline-size: 0;
+  }
+
+  .block {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-3);
+    min-inline-size: 0;
+  }
+
+  .blockTitle {
+    margin: 0;
+    font: 500 var(--fs-xs) / 1.2 var(--font-mono);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+
+  .rows {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* ---- a risk, as a chip: the glyph and the words ------------------------------------------ */
+
+  .riskLine {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-1) var(--space-2);
+    min-inline-size: 0;
+  }
+
+  .spendNote {
+    font: 400 var(--fs-xs) / 1.4 var(--font-sans);
+    color: var(--text-3);
+  }
+
+  /* ---- the filter ---------------------------------------------------------------------------- */
+
+  .filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  /* Filter chips are small in the kit; here they are the main control, so give them a target. */
+  .filters > button {
+    min-block-size: 32px;
+  }
+
+  @media (pointer: coarse) {
+    .filters > button {
+      min-block-size: 44px;
+    }
+  }
+
+  .filterStatus {
+    margin: 0;
+    font: 400 var(--fs-sm) / 1.5 var(--font-sans);
+    color: var(--text-2);
+  }
+
+  .legend {
+    margin: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-2);
+  }
+
+  .legendRow {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-1) var(--space-3);
+    align-items: center;
+  }
+
+  @media (min-width: 640px) {
+    .legendRow {
+      grid-template-columns: 12.5rem minmax(0, 1fr);
+    }
+  }
+
+  .legendRow dt,
+  .legendRow dd {
+    margin: 0;
+  }
+
+  .legendRow dd {
+    font: 400 var(--fs-sm) / 1.5 var(--font-sans);
+    color: var(--text-2);
+  }
+
+  /* ---- one tool ----------------------------------------------------------------------------- */
+
+  .toolName {
+    font: 600 var(--fs-md) / 1.4 var(--font-mono);
+    color: var(--text-1);
+    overflow-wrap: anywhere;
+  }
+
+  .toolSummary {
+    margin: 0;
+    max-inline-size: 72ch;
+    font: 400 var(--fs-sm) / 1.6 var(--font-sans);
+    color: var(--text-2);
+  }
+
+  .label {
+    margin: 0 0 var(--space-1);
+    font: 500 var(--fs-2xs) / 1.4 var(--font-mono);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+
+  .approval {
+    margin: 0;
+    padding: var(--space-3) var(--space-4);
+    max-inline-size: 76ch;
+    font: 400 var(--fs-md) / 1.55 var(--font-sans);
+    color: var(--text-1);
+    background: rgb(var(--ink-1-rgb) / 0.55);
+    box-shadow: inset 2px 0 0 var(--accent-solid);
+  }
+
+  .facts {
+    margin: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-2);
+  }
+
+  @media (min-width: 640px) {
+    .facts {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--space-2) var(--space-5);
+    }
+  }
+
+  .facts div {
+    display: grid;
+    gap: 2px;
+    min-inline-size: 0;
+  }
+
+  .facts dt {
+    font: 500 var(--fs-2xs) / 1.4 var(--font-mono);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+
+  .facts dd {
+    margin: 0;
+    font: 400 var(--fs-sm) / 1.5 var(--font-sans);
+    color: var(--text-2);
+  }
+
+  .args {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-2);
+  }
+
+  .arg {
+    display: grid;
+    gap: 2px var(--space-3);
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  @media (min-width: 640px) {
+    .arg {
+      grid-template-columns: 11rem 8rem minmax(0, 1fr);
+      align-items: baseline;
+    }
+  }
+
+  .argName {
+    font: 600 var(--fs-sm) / 1.5 var(--font-mono);
+    color: var(--text-1);
+    overflow-wrap: anywhere;
+  }
+
+  .argMeta {
+    font: 500 var(--fs-xs) / 1.5 var(--font-mono);
+    color: var(--text-3);
+  }
+
+  .argText {
+    font: 400 var(--fs-sm) / 1.6 var(--font-sans);
+    color: var(--text-2);
+  }
+
+  .noArgs {
+    margin: 0;
+    font: 400 var(--fs-sm) / 1.5 var(--font-sans);
+    color: var(--text-3);
+  }
+
+  .watch {
+    margin: 0;
+    max-inline-size: 76ch;
+    font: 400 var(--fs-sm) / 1.6 var(--font-sans);
+    color: var(--text-2);
+  }
+
+  /* ---- tables that hold lists of names ---------------------------------------------------- */
+
+  .names {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .names li {
+    margin: 0;
+  }
+
+  .names code {
+    display: inline-block;
+    padding: 1px 6px;
+    font: 500 var(--fs-xs) / 1.5 var(--font-mono);
+    color: var(--text-1);
+    box-shadow: inset 0 0 0 1px var(--line-2);
+    background: rgb(var(--ink-1-rgb) / 0.5);
+  }
+
+  .serverLine {
+    display: grid;
+    gap: var(--space-1);
+    min-inline-size: 0;
+  }
+
+  .serverName {
+    font: 500 var(--fs-2xs) / 1.3 var(--font-mono);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+
+  .check {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    color: var(--text-1);
+  }
+
+  /* ---- connection snippets ------------------------------------------------------------------ */
+
+  .snippets {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-5);
+  }
+
+  @media (min-width: 1100px) {
+    .snippets {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  .snippet {
+    display: grid;
+    gap: var(--space-2);
+    align-content: start;
+    min-inline-size: 0;
+  }
+
+  .snippetNote {
+    margin: 0;
+    font: 400 var(--fs-sm) / 1.55 var(--font-sans);
+    color: var(--text-3);
+    max-inline-size: 64ch;
+  }
+
+  /* ---- the console assistant ---------------------------------------------------------------- */
+
+  .never {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  .neverItem {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-2);
+    font: 400 var(--fs-md) / 1.5 var(--font-sans);
+    color: var(--text-2);
+  }
+
+  .neverItem svg {
+    flex: none;
+    margin-block-start: 3px;
+    color: var(--text-3);
+  }
+
+  /* ---- related links ------------------------------------------------------------------------ */
+
+  .related {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+    gap: var(--space-3);
+  }
+
+  .relatedLink {
+    display: grid;
+    gap: var(--space-1);
+    padding: var(--space-3) var(--space-4);
+    text-decoration: none;
+    background: rgb(var(--ink-1-rgb) / 0.6);
+    box-shadow: inset 0 0 0 1px var(--line-2);
+    min-inline-size: 0;
+  }
+
+  .relatedKind {
+    font: 500 var(--fs-2xs) / 1.3 var(--font-mono);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+
+  .relatedTitle {
+    font: 600 var(--fs-md) / 1.35 var(--font-sans);
+    color: var(--text-1);
+  }
+
+  .relatedText {
+    font: 400 var(--fs-xs) / 1.5 var(--font-sans);
+    color: var(--text-3);
+  }
+
+  @media (hover: hover) {
+    .relatedLink:hover {
+      box-shadow: inset 0 0 0 1px var(--blueprint-strong);
+    }
+
+    .relatedLink:hover .relatedTitle {
+      color: var(--accent-strong);
+    }
+  }
+
+  @media (forced-colors: active) {
+    .approval {
+      border-inline-start: 3px solid Highlight;
+      box-shadow: none;
+    }
+
+    .names code,
+    .relatedLink {
+      box-shadow: none;
+      border: 1px solid CanvasText;
+    }
+  }
+}

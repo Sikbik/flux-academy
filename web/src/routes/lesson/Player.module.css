@@ -1,0 +1,135 @@
+@layer route {
+  .player {
+    --rail-h: 56px;
+    /* How much of the rail is pinned under the header: all of it, unless the rail scrolls away. */
+    --rail-pin: var(--rail-h);
+    --bar-h: var(--header-h, 64px);
+    position: relative;
+    min-block-size: calc(100svh - var(--bar-h));
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+    gap: var(--space-10);
+    align-items: start;
+    inline-size: min(100% - 2 * var(--gutter), var(--container-wide));
+    margin-inline: auto;
+    padding-block: var(--space-8) var(--space-12);
+  }
+
+  .grid[data-phase="complete"] {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .narrative {
+    display: flex;
+    flex-direction: column;
+    min-inline-size: 0;
+    min-block-size: calc(100svh - var(--bar-h) - var(--rail-pin) - var(--space-12));
+  }
+
+  .content {
+    flex: 1 1 auto;
+    min-inline-size: 0;
+  }
+
+  /* The end of the step's content, which the bar's "more below" cue looks for (see NavBar). */
+  .end {
+    block-size: 0;
+    inline-size: 100%;
+    pointer-events: none;
+  }
+
+  /* A Continue pressed too early: the task block says "here" with a short shake of its edge. */
+  .narrative :global([data-task-region][data-nudge="true"]) {
+    animation: nudge 480ms var(--ease-out) both;
+  }
+
+  @keyframes nudge {
+    0%,
+    100% {
+      transform: translateX(0);
+    }
+    20% {
+      transform: translateX(-6px);
+    }
+    45% {
+      transform: translateX(5px);
+    }
+    70% {
+      transform: translateX(-3px);
+    }
+  }
+
+  :root[data-motion="reduced"] .narrative :global([data-task-region][data-nudge="true"]) {
+    animation: none;
+    box-shadow: inset 0 0 0 2px var(--accent-strong);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :root:not([data-motion="full"]) .narrative :global([data-task-region][data-nudge="true"]) {
+      animation: none;
+      box-shadow: inset 0 0 0 2px var(--accent-strong);
+    }
+  }
+
+  /* The stacked layout (a phone, a tablet in portrait, a narrow window; the three queries are the list in
+     useStacked.ts): one column, the stage first (its own CSS orders it) and a fixed bottom bar. The rail
+     scrolls away, so nothing but the header is pinned above the stage. */
+  @media (max-width: 899.98px) and (orientation: portrait), (max-width: 899.98px) and (min-height: 500.02px),
+    (max-width: 639.98px) {
+    .player {
+      --rail-pin: 0px;
+    }
+
+    .grid {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--space-5);
+      padding-block: 0 var(--space-8);
+    }
+
+    /* The bar is fixed, so the narrative reserves its height at the end (the player measures it, and
+       publishes `--lesson-nav-h`; 88 px is the bar with one line of text and a safe-area inset). */
+    .narrative {
+      min-block-size: 0;
+      padding-block: var(--space-5) calc(var(--lesson-nav-h, 88px) + var(--space-4));
+    }
+
+    .grid[data-phase="complete"] .narrative {
+      padding-block-end: var(--space-8);
+    }
+  }
+
+  /* A short landscape viewport (a phone on its side, 844x390). Height is the scarce thing: the rail scrolls
+     away like it does on a phone, and the grid wastes none of it. Wide enough for two columns (640 px or
+     more), the two columns are even, because the narrative is the one that needs the width. (A short
+     viewport narrower than 640 px is stacked, above.) */
+  @media (orientation: landscape) and (max-height: 500px) and (min-width: 640px) {
+    .player {
+      --rail-pin: 0px;
+    }
+
+    .grid {
+      gap: var(--space-5);
+      padding-block: var(--space-4) var(--space-6);
+    }
+
+    .narrative {
+      min-block-size: 0;
+    }
+  }
+
+  @media (orientation: landscape) and (max-height: 500px) and (min-width: 640px) and (max-width: 899.98px) {
+    .grid:not([data-phase="complete"]) {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    }
+  }
+
+  @media (forced-colors: active) {
+    .narrative :global([data-task-region][data-nudge="true"]) {
+      outline: 3px solid Highlight;
+      outline-offset: -3px;
+    }
+  }
+}

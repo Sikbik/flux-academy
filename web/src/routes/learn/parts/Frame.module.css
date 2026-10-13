@@ -1,0 +1,56 @@
+@layer route {
+  .frame {
+    --c: 22px;
+    --cm: 5px;
+    --bw: 1px;
+    position: relative;
+    inline-size: 100%;
+  }
+
+  .edge,
+  .fill,
+  .marks {
+    position: absolute;
+    pointer-events: none;
+  }
+
+  .edge {
+    inset: 0;
+    clip-path: var(--clip-outer);
+    background: linear-gradient(
+      135deg,
+      rgb(var(--accent-hot-rgb) / 0.55),
+      rgb(var(--accent-rgb) / 0.28) 28%,
+      rgb(var(--accent-rgb) / 0.16) 70%,
+      rgb(var(--accent-hot-rgb) / 0.4)
+    );
+  }
+
+  .fill {
+    inset: var(--bw);
+    clip-path: var(--clip-inner);
+    background:
+      radial-gradient(120% 80% at 50% 0%, rgb(var(--accent-deep-rgb) / 0.1), transparent 70%), var(--ink-0);
+  }
+
+  /* The "+" crosshairs of the blueprint slab, at the four corners. */
+  .marks {
+    inset: 10px;
+    background:
+      var(--mask-plus) left top / 11px 11px no-repeat,
+      var(--mask-plus) right top / 11px 11px no-repeat,
+      var(--mask-plus) left bottom / 11px 11px no-repeat,
+      var(--mask-plus) right bottom / 11px 11px no-repeat;
+    opacity: 0.5;
+  }
+
+  @media (forced-colors: active) {
+    .edge {
+      background: CanvasText;
+    }
+
+    .fill {
+      background: Canvas;
+    }
+  }
+}

@@ -1,0 +1,280 @@
+/*
+ * Backdrop: a calm hex lattice behind content. Four canvases (the hairlines, three layers of
+ * sparse lit cells) are painted once from JS; everything that moves is a compositor
+ * animation of transform or opacity, so the main thread is idle while it runs.
+ *
+ * The translate distances below are one period of each layer (see lattice.ts, and the test
+ * that keeps the two in step): the loop jumps back by exactly one period, which is invisible.
+ * Every layer drifts at the same 1.5 px/s, so the lit cells stay registered to the lines.
+ */
+@layer reset, tokens, base, ui, route, utility;
+
+@layer ui {
+  .root {
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-backdrop);
+    overflow: hidden;
+    contain: strict;
+    pointer-events: none;
+    user-select: none;
+  }
+
+  .root[data-contained="true"] {
+    position: absolute;
+    z-index: 0;
+  }
+
+  .field {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: block;
+    max-inline-size: none;
+    max-block-size: none;
+    will-change: transform;
+  }
+
+  .lines {
+    animation: drift-0 var(--dur-0, 256s) var(--tf-0, linear) infinite;
+  }
+
+  .lit0 {
+    animation:
+      drift-1 var(--dur-1, 768s) var(--tf-1, linear) infinite,
+      breathe 8s var(--tf-b0, linear) -2s infinite;
+  }
+
+  .lit1 {
+    animation:
+      drift-2 var(--dur-2, 1024s) var(--tf-2, linear) infinite,
+      breathe 12s var(--tf-b1, linear) -5s infinite;
+  }
+
+  .lit2 {
+    animation:
+      drift-3 var(--dur-3, 1280s) var(--tf-3, linear) infinite,
+      breathe 16s var(--tf-b2, linear) -9s infinite;
+  }
+
+  @keyframes drift-0 {
+    to {
+      transform: translate3d(-384px, -252px, 0);
+    }
+  }
+
+  @keyframes drift-1 {
+    to {
+      transform: translate3d(-1152px, -756px, 0);
+    }
+  }
+
+  @keyframes drift-2 {
+    to {
+      transform: translate3d(-1536px, -1008px, 0);
+    }
+  }
+
+  @keyframes drift-3 {
+    to {
+      transform: translate3d(-1920px, -1260px, 0);
+    }
+  }
+
+  /* A sine, in eight linear segments (the stepped timing function gets one per segment). */
+  @keyframes breathe {
+    0%,
+    100% {
+      opacity: 0.08;
+    }
+    12.5%,
+    87.5% {
+      opacity: 0.215;
+    }
+    25%,
+    75% {
+      opacity: 0.54;
+    }
+    37.5%,
+    62.5% {
+      opacity: 0.865;
+    }
+    50% {
+      opacity: 1;
+    }
+  }
+
+  /* drift={0}: the lattice holds still, the lit cells still breathe. */
+  .root[data-still="true"] .lines {
+    animation: none;
+  }
+
+  .root[data-still="true"] .lit0 {
+    animation: breathe 8s var(--tf-b0, linear) -2s infinite;
+  }
+
+  .root[data-still="true"] .lit1 {
+    animation: breathe 12s var(--tf-b1, linear) -5s infinite;
+  }
+
+  .root[data-still="true"] .lit2 {
+    animation: breathe 16s var(--tf-b2, linear) -9s infinite;
+  }
+
+  /* Frozen by the prop, a hidden tab or (contained) scrolling out of view. */
+  .root:is([data-paused="true"], [data-hidden="true"], [data-offscreen="true"]) :is(.field, .ring polygon) {
+    animation-play-state: paused;
+  }
+
+  /*
+   * The dim: a veil of the page's own black over the field, with a vignette that firms up
+   * toward the edges. Black over the lines lowers their contrast by exactly the veil's alpha,
+   * and costs one extra quad instead of a group opacity.
+   */
+  .veil {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+      ellipse 92% 82% at 50% 40%,
+      rgb(0 0 0 / var(--veil, 0.25)) 0%,
+      rgb(0 0 0 / var(--veil, 0.25)) 42%,
+      rgb(0 0 0 / var(--veil-edge, 0.6)) 100%
+    );
+  }
+
+  /*
+   * The Beat: when html[data-beat] flips a/b (a real block), one hex ring leaves the centre.
+   * Two identically named animations alternate so the flip restarts it, as in base.css. The
+   * polygon animates (not the svg) so non-scaling-stroke keeps the line at one pixel; this is
+   * main-thread, once per block.
+   */
+  .ring {
+    position: absolute;
+    inset: 0;
+    inline-size: 100%;
+    block-size: 100%;
+    overflow: visible;
+  }
+
+  .ring polygon {
+    fill: none;
+    stroke: rgb(var(--accent-hot-rgb));
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+    opacity: 0;
+    transform-origin: 0 0;
+  }
+
+  :global(html[data-beat="a"]) .ring polygon {
+    animation: ring-a 1400ms var(--ease-out) both;
+  }
+
+  :global(html[data-beat="b"]) .ring polygon {
+    animation: ring-b 1400ms var(--ease-out) both;
+  }
+
+  @keyframes ring-a {
+    0% {
+      transform: scale(0.1);
+      opacity: 0;
+    }
+    14% {
+      opacity: 0.5;
+    }
+    100% {
+      transform: scale(1.9);
+      opacity: 0;
+    }
+  }
+
+  @keyframes ring-b {
+    0% {
+      transform: scale(0.1);
+      opacity: 0;
+    }
+    14% {
+      opacity: 0.5;
+    }
+    100% {
+      transform: scale(1.9);
+      opacity: 0;
+    }
+  }
+
+  /* Calm: no travel, the ring only fades in and out at its resting size. */
+  @keyframes ring-calm-a {
+    0% {
+      opacity: 0;
+    }
+    30% {
+      opacity: 0.4;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+
+  @keyframes ring-calm-b {
+    0% {
+      opacity: 0;
+    }
+    30% {
+      opacity: 0.4;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+
+  /* Lite glass (Save-Data, a low quality tier): hairlines only. */
+  :global(html[data-glass="lite"]) .lit {
+    display: none;
+  }
+
+  /* ---- modes -------------------------------------------------------------------------- */
+
+  :global(html[data-motion="reduced"]) .root .field {
+    animation: none;
+  }
+
+  :global(html[data-motion="reduced"]) .root .lit {
+    opacity: 0.55;
+  }
+
+  :global(html[data-motion="reduced"][data-beat="a"]) .root .ring polygon {
+    animation: ring-calm-a 1400ms var(--ease-out) both;
+    transform: scale(1);
+  }
+
+  :global(html[data-motion="reduced"][data-beat="b"]) .root .ring polygon {
+    animation: ring-calm-b 1400ms var(--ease-out) both;
+    transform: scale(1);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :global(html:not([data-motion="full"])) .root .field {
+      animation: none;
+    }
+
+    :global(html:not([data-motion="full"])) .root .lit {
+      opacity: 0.55;
+    }
+
+    :global(html:not([data-motion="full"])[data-beat="a"]) .root .ring polygon {
+      animation: ring-calm-a 1400ms var(--ease-out) both;
+      transform: scale(1);
+    }
+
+    :global(html:not([data-motion="full"])[data-beat="b"]) .root .ring polygon {
+      animation: ring-calm-b 1400ms var(--ease-out) both;
+      transform: scale(1);
+    }
+  }
+
+  /* Decoration: gone for forced colors and print. */
+  @media (forced-colors: active), print {
+    .root {
+      display: none;
+    }
+  }
+}

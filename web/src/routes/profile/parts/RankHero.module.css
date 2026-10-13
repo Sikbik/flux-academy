@@ -1,0 +1,194 @@
+@layer route {
+  .hero {
+    inline-size: 100%;
+  }
+
+  .body {
+    display: grid;
+    gap: var(--space-6) var(--space-8);
+    align-items: center;
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+    text-align: center;
+    padding-inline-start: var(--space-6);
+  }
+
+  @media (min-width: 720px) {
+    .body {
+      grid-template-columns: auto minmax(0, 1fr);
+      justify-items: start;
+      text-align: start;
+      padding-inline-start: var(--space-8);
+    }
+  }
+
+  @media (min-width: 1180px) {
+    .body {
+      grid-template-columns: auto minmax(0, 1fr) auto;
+    }
+  }
+
+  .emblem {
+    display: grid;
+    place-items: center;
+    padding: var(--space-2);
+  }
+
+  .text {
+    display: grid;
+    gap: var(--space-3);
+    min-inline-size: 0;
+    justify-items: inherit;
+  }
+
+  .kicker {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1) var(--space-3);
+    margin: 0;
+    font: 500 var(--fs-xs) / 1 var(--font-mono);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+
+  .who {
+    color: var(--text-2);
+  }
+
+  .who::before {
+    content: "/";
+    margin-inline-end: var(--space-3);
+    color: var(--text-3);
+  }
+
+  .rankName {
+    margin: 0;
+    font: 700 clamp(2rem, 1.4rem + 2.2vw, 3rem) / 1.04 var(--font-display);
+    letter-spacing: var(--tracking-display);
+    color: var(--text-1);
+    text-wrap: balance;
+  }
+
+  [data-tier] .rankName {
+    color: var(--tier);
+  }
+
+  .since {
+    margin: 0;
+    font: 500 var(--fs-xs) / 1.3 var(--font-mono);
+    letter-spacing: 0.04em;
+    color: var(--text-3);
+  }
+
+  .xpRow {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--space-2) var(--space-3);
+    margin-block-start: var(--space-2);
+  }
+
+  .xp {
+    font: 300 clamp(2.25rem, 1.6rem + 2.4vw, 3.25rem) / 1 var(--font-display);
+    letter-spacing: -0.02em;
+    color: var(--text-1);
+  }
+
+  .xpLabel {
+    font: 500 var(--fs-xs) / 1 var(--font-mono);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+
+  .next {
+    display: grid;
+    gap: var(--space-2);
+    inline-size: min(100%, 30rem);
+  }
+
+  .note {
+    margin: 0;
+    font-size: var(--fs-sm);
+    line-height: 1.5;
+    color: var(--text-2);
+  }
+
+  /* ---- the three tracks --------------------------------------------------------------------- */
+
+  .tracks {
+    display: grid;
+    gap: var(--space-4);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    inline-size: 100%;
+  }
+
+  @media (min-width: 560px) {
+    .tracks {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 720px) {
+    .tracks {
+      grid-column: 1 / -1;
+    }
+  }
+
+  @media (min-width: 1180px) {
+    .tracks {
+      grid-column: auto;
+      grid-template-columns: minmax(0, 1fr);
+      inline-size: auto;
+      padding-inline-start: var(--space-8);
+      border-inline-start: 1px solid var(--line-1);
+    }
+  }
+
+  .track {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    min-inline-size: 0;
+  }
+
+  .trackText {
+    display: grid;
+    gap: 3px;
+    min-inline-size: 0;
+    text-align: start;
+  }
+
+  .trackName {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    font: 700 var(--fs-md) / 1.2 var(--font-display);
+    letter-spacing: var(--tracking-heading);
+    color: var(--tier);
+  }
+
+  .trackState {
+    font: 500 var(--fs-xs) / 1.3 var(--font-mono);
+    letter-spacing: 0.04em;
+    color: var(--text-3);
+  }
+
+  .track[data-complete="true"] .trackState {
+    color: var(--text-2);
+  }
+
+  .ringNum {
+    font: 700 1.125rem / 1 var(--font-display);
+    color: var(--text-1);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .ringNum small {
+    font: 500 0.625rem / 1 var(--font-mono);
+    color: var(--text-3);
+  }
+}

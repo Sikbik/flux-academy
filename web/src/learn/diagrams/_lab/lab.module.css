@@ -1,0 +1,80 @@
+.lab {
+  padding: 16px;
+  color: var(--text-2);
+}
+.bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 20px;
+  align-items: center;
+  padding-block-end: 12px;
+  font: var(--type-label);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.widths {
+  display: inline-flex;
+  gap: 4px;
+}
+.widths button {
+  padding: 4px 8px;
+  border: 1px solid var(--line-2);
+  color: var(--text-2);
+  font: inherit;
+}
+.widths button[data-on] {
+  border-color: var(--accent);
+  color: var(--text-1);
+}
+.nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+}
+.nav a {
+  color: var(--accent-text);
+}
+.grid {
+  display: grid;
+  gap: 28px;
+  align-items: start;
+}
+.item h2 {
+  margin: 0 0 8px;
+  font: var(--type-label);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+.slot {
+  max-width: 100%;
+}
+.sheet {
+  display: grid;
+  gap: 18px;
+}
+
+.log {
+  margin: 8px 0 0;
+  font: var(--type-label);
+  letter-spacing: 0.06em;
+  color: var(--text-3);
+}
+.log button {
+  padding: 4px 8px;
+  margin-inline-end: 8px;
+  border: 1px solid var(--line-2);
+  color: var(--text-1);
+  font: inherit;
+}
+.log button:disabled {
+  opacity: 0.5;
+}
+
+/* A lesson stage's body, as the player sets it up: a scrolling area of a given height. */
+.stageSim {
+  overflow: auto;
+  box-sizing: border-box;
+  border: 1px solid var(--line-2);
+  background: rgb(var(--ink-0-rgb) / 0.66);
+}

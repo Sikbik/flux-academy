@@ -1,0 +1,111 @@
+@layer reset, tokens, base, ui, route, utility;
+
+@layer ui {
+  .hb {
+    --bw: 1.25px;
+    --hb-color: var(--accent);
+    position: relative;
+    display: inline-block;
+    flex: none;
+    inline-size: var(--hb, 9px);
+    block-size: calc(var(--hb, 9px) * 1.1547);
+    vertical-align: middle;
+    color: var(--hb-color);
+  }
+
+  .hb[data-tone="hot"] {
+    --hb-color: var(--hot);
+  }
+
+  .hb[data-tone="muted"] {
+    --hb-color: var(--text-3);
+  }
+
+  .hb[data-tone="ok"] {
+    --hb-color: var(--status-ok);
+  }
+
+  .hb[data-tone="warn"] {
+    --hb-color: var(--status-warn);
+  }
+
+  .hb[data-tone="crit"] {
+    --hb-color: var(--status-crit);
+  }
+
+  .hb::before,
+  .hb::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: currentColor;
+    clip-path: var(--hex-clip);
+  }
+
+  /* An outline: the same hexagon with its inset twin cut out (even-odd). */
+  .hb[data-filled="false"]::before {
+    clip-path: polygon(
+      evenodd,
+      50% 0,
+      100% 25%,
+      100% 75%,
+      50% 100%,
+      0 75%,
+      0 25%,
+      50% 0,
+      50% calc(1.1547 * var(--bw)),
+      calc(100% - var(--bw)) calc(25% + 0.5774 * var(--bw)),
+      calc(100% - var(--bw)) calc(75% - 0.5774 * var(--bw)),
+      50% calc(100% - 1.1547 * var(--bw)),
+      var(--bw) calc(75% - 0.5774 * var(--bw)),
+      var(--bw) calc(25% + 0.5774 * var(--bw)),
+      50% calc(1.1547 * var(--bw))
+    );
+  }
+
+  .hb[data-filled="true"][data-tone="accent"],
+  .hb[data-filled="true"][data-tone="hot"] {
+    filter: drop-shadow(0 0 4px rgb(var(--accent-deep-rgb) / 0.7));
+  }
+
+  /* The ring: a hexagon that grows and fades. Only the ::after, so the bullet stays put. */
+  .hb::after {
+    display: none;
+  }
+
+  .hb[data-pulse="true"]::after {
+    display: block;
+    animation: ring 2.4s var(--ease-out) infinite;
+  }
+
+  @keyframes ring {
+    0% {
+      scale: 1;
+      opacity: 0.5;
+    }
+    70%,
+    100% {
+      scale: 2.3;
+      opacity: 0;
+    }
+  }
+
+  :global(html[data-motion="reduced"]) .hb[data-pulse="true"]::after {
+    animation: none;
+    display: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :global(html:not([data-motion="full"])) .hb[data-pulse="true"]::after {
+      animation: none;
+      display: none;
+    }
+  }
+
+  @media (forced-colors: active) {
+    .hb {
+      color: CanvasText;
+      filter: none;
+    }
+  }
+}

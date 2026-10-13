@@ -1,0 +1,392 @@
+@layer route {
+  .page {
+    inline-size: min(100% - 2 * var(--gutter), var(--container));
+    margin: clamp(var(--space-8), 5vw, var(--space-12)) auto var(--space-16);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-10);
+    min-inline-size: 0;
+  }
+
+  .page :where([id]) {
+    scroll-margin-block-start: calc(var(--header-offset) + var(--space-2));
+  }
+
+  .head {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-3);
+  }
+
+  .eyebrow {
+    margin: 0;
+    font: 500 var(--fs-xs) / 1 var(--font-mono);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent-text);
+  }
+
+  .h1 {
+    margin: 0;
+    font: 700 clamp(2rem, 1.4rem + 2vw, 3rem) / 1.05 var(--font-display);
+    letter-spacing: var(--tracking-h2);
+    color: var(--text-1);
+    outline: none;
+  }
+
+  .lead {
+    margin: 0;
+    max-inline-size: 64ch;
+    font: var(--type-lead);
+    color: var(--text-2);
+    text-wrap: pretty;
+  }
+
+  .searchSection {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-3);
+    max-inline-size: 46rem;
+  }
+
+  .searchNote {
+    margin: 0;
+    font: 400 var(--fs-sm) / 1.5 var(--font-sans);
+    color: var(--text-3);
+  }
+
+  .block {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-4);
+    align-content: start;
+    min-inline-size: 0;
+  }
+
+  .blockTitle {
+    margin: 0;
+    font: 500 var(--fs-xs) / 1 var(--font-mono);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--text-3);
+    padding-block-end: var(--space-2);
+    border-block-end: 1px solid var(--line-2);
+  }
+
+  .blockText {
+    margin: 0;
+    max-inline-size: 60ch;
+    font: 400 var(--fs-md) / 1.65 var(--font-sans);
+    color: var(--text-2);
+  }
+
+  /* ---- cards ---------------------------------------------------------------------------- */
+
+  .cards {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-5);
+  }
+
+  @media (min-width: 860px) {
+    .cards {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  .cardItem {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    min-inline-size: 0;
+  }
+
+  .card {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    min-inline-size: 0;
+  }
+
+  /* The art is light on black: screened as one group onto the glass, the black costs nothing. */
+  .cardInner {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    mix-blend-mode: screen;
+    min-inline-size: 0;
+  }
+
+  .cardInner > * {
+    min-inline-size: 0;
+  }
+
+  .cardArt {
+    position: absolute;
+    inset-block-start: var(--space-3);
+    inset-inline-end: var(--space-3);
+    inline-size: 132px;
+    block-size: 132px;
+    opacity: 0.9;
+    pointer-events: none;
+  }
+
+  /* The picture keeps its box and is scaled from the corner, so it never reaches past the card. */
+  @media (max-width: 520px) {
+    .cardArt {
+      transform: scale(0.72);
+      transform-origin: top right;
+    }
+  }
+
+  .cardBody {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-3);
+    align-content: start;
+    padding-inline-end: 0;
+    min-block-size: 13rem;
+  }
+
+  .cardKind {
+    margin: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    font: 500 var(--fs-2xs) / 1 var(--font-mono);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--accent-text);
+  }
+
+  .cardTitle {
+    margin: 0;
+    max-inline-size: 18ch;
+    font: 700 clamp(1.375rem, 1.15rem + 0.8vw, 1.75rem) / 1.15 var(--font-display);
+    letter-spacing: var(--tracking-heading);
+    color: var(--text-1);
+    text-wrap: balance;
+  }
+
+  /* One link covers the whole card; the jump links sit above it. */
+  .cardLink {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .cardLink::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+  }
+
+  .cardLink:focus-visible {
+    outline: none;
+  }
+
+  .cardLink:focus-visible::after {
+    outline: 2px solid var(--focus-color);
+    outline-offset: -2px;
+  }
+
+  .cardPromise {
+    margin: 0;
+    max-inline-size: 36ch;
+    font: 400 var(--fs-md) / 1.55 var(--font-sans);
+    color: var(--text-2);
+  }
+
+  .cardJumps {
+    margin: var(--space-2) 0 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 var(--space-4);
+    position: relative;
+    z-index: 1;
+  }
+
+  .jump {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: 32px;
+    font: 500 var(--fs-sm) / 1.3 var(--font-sans);
+    color: var(--accent-text);
+    text-decoration: underline;
+    text-decoration-color: rgb(var(--accent-rgb) / 0.4);
+    text-underline-offset: 0.2em;
+  }
+
+  @media (pointer: coarse) {
+    .jump {
+      min-block-size: 44px;
+    }
+  }
+
+  @media (hover: hover) {
+    .jump:hover {
+      color: var(--accent-strong);
+      text-decoration-color: currentColor;
+    }
+  }
+
+  .cardCount {
+    margin: 0;
+    font: 500 var(--fs-2xs) / 1 var(--font-mono);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+
+  /* ---- lists ---------------------------------------------------------------------------- */
+
+  .twoCol {
+    display: grid;
+    gap: var(--space-10) var(--space-12);
+    grid-template-columns: minmax(0, 1fr);
+    align-items: start;
+  }
+
+  @media (min-width: 960px) {
+    .twoCol {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  .quick {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .quickLink {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    min-block-size: 3rem;
+    padding: var(--space-2) var(--space-1);
+    border-block-end: 1px solid var(--line-1);
+    font: 500 var(--fs-md) / 1.4 var(--font-sans);
+    color: var(--text-1);
+    text-decoration: none;
+  }
+
+  .quickLink svg {
+    flex: none;
+    color: var(--text-3);
+    transition: transform var(--dur-2) var(--ease-out);
+  }
+
+  @media (hover: hover) {
+    .quickLink:hover {
+      background: rgb(var(--accent-rgb) / 0.06);
+      color: var(--accent-strong);
+    }
+
+    .quickLink:hover svg {
+      color: var(--accent-text);
+      transform: translateX(3px);
+    }
+  }
+
+  .legend {
+    margin: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-3);
+  }
+
+  .legendRow {
+    display: grid;
+    grid-template-columns: 7.5rem minmax(0, 1fr);
+    gap: var(--space-3);
+    align-items: start;
+  }
+
+  .legendRow dt,
+  .legendRow dd {
+    margin: 0;
+  }
+
+  .legendRow dd {
+    font: 400 var(--fs-sm) / 1.5 var(--font-sans);
+    color: var(--text-2);
+  }
+
+  .elsewhere {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-3);
+  }
+
+  @media (min-width: 720px) {
+    .elsewhere {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 1100px) {
+    .elsewhere {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+
+  .elseLink {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-1);
+    padding: var(--space-4);
+    min-block-size: 100%;
+    box-shadow: inset 0 0 0 1px var(--line-2);
+    background: rgb(var(--ink-1-rgb) / 0.6);
+    text-decoration: none;
+  }
+
+  .elseLabel {
+    font: 600 var(--fs-md) / 1.3 var(--font-display);
+    color: var(--text-1);
+  }
+
+  .elseText {
+    font: 400 var(--fs-sm) / 1.5 var(--font-sans);
+    color: var(--text-3);
+  }
+
+  @media (hover: hover) {
+    .elseLink:hover {
+      box-shadow: inset 0 0 0 1px var(--blueprint-strong);
+    }
+  }
+
+  :root[data-motion="reduced"] .quickLink svg {
+    transition: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :root:not([data-motion="full"]) .quickLink svg {
+      transition: none;
+    }
+  }
+
+  @media (forced-colors: active) {
+    .elseLink {
+      box-shadow: none;
+      border: 1px solid CanvasText;
+      background: none;
+    }
+
+    .cardLink:focus-visible::after {
+      outline-color: Highlight;
+    }
+  }
+}

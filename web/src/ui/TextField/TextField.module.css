@@ -1,0 +1,66 @@
+@layer reset, tokens, base, ui, route, utility;
+
+@layer ui {
+  .input {
+    flex: 1;
+    align-self: stretch;
+    inline-size: 100%;
+    min-inline-size: 0;
+    padding: 0;
+    margin: 0;
+    background: transparent;
+    border: 0;
+    outline: none;
+    color: var(--text-1);
+    font: 400 var(--fs-md) / 1.4 var(--font-sans);
+    caret-color: var(--hot);
+  }
+
+  .input::placeholder {
+    color: var(--text-3);
+    opacity: 1;
+  }
+
+  .input:disabled {
+    cursor: not-allowed;
+  }
+
+  .mono {
+    font-family: var(--font-mono);
+    font-size: var(--fs-sm);
+    letter-spacing: 0;
+  }
+
+  .area {
+    resize: vertical;
+    min-block-size: 3rem;
+    line-height: 1.55;
+    overflow-y: auto;
+  }
+
+  /* Search inputs: kill the native clear and decoration (we draw our own). */
+  .input[type="search"]::-webkit-search-decoration,
+  .input[type="search"]::-webkit-search-cancel-button {
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  .prompt {
+    font: 600 var(--fs-md) / 1 var(--font-mono);
+    color: var(--accent-text);
+  }
+
+  .counter {
+    font-variant-numeric: tabular-nums;
+  }
+
+  .counter[data-over="true"] {
+    color: var(--status-crit);
+  }
+
+  @media (forced-colors: active) {
+    .input {
+      color: FieldText;
+    }
+  }
+}
