@@ -1,0 +1,121 @@
+@layer route {
+  .root {
+    container-type: inline-size;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .cards {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: var(--space-3);
+    grid-template-columns: repeat(auto-fit, minmax(15.5rem, 1fr));
+    align-items: start;
+  }
+
+  .item {
+    margin: 0;
+    min-inline-size: 0;
+  }
+
+  .card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+    min-block-size: 100%;
+    background: rgb(var(--ink-0-rgb) / 0.78);
+    box-shadow: inset 0 0 0 1px var(--line-2);
+    clip-path: polygon(0 10px, 10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%);
+    transition:
+      box-shadow var(--dur-2) var(--ease-out),
+      background var(--dur-2) var(--ease-out);
+  }
+
+  .card[data-active] {
+    background: rgb(var(--accent-deep-rgb) / 0.12);
+    box-shadow: inset 0 0 0 1px rgb(var(--accent-rgb) / 0.65);
+  }
+
+  .name {
+    margin: 0;
+    font: 600 var(--fs-md) / 1.25 var(--font-display);
+    color: var(--text-1);
+  }
+
+  .teaches {
+    margin: 0;
+    font-size: var(--fs-sm);
+    line-height: 1.5;
+    color: var(--text-2);
+  }
+
+  .more {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    padding-block-start: var(--space-3);
+    border-block-start: 1px solid var(--line-1);
+  }
+
+  .steps {
+    margin: 0;
+    padding-inline-start: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    font-size: var(--fs-sm);
+    line-height: 1.45;
+    color: var(--text-1);
+  }
+
+  .tally,
+  .evidence {
+    margin: 0;
+    font-size: var(--fs-xs);
+    line-height: 1.5;
+    color: var(--text-3);
+  }
+
+  .tally strong {
+    color: var(--text-1);
+    font-weight: var(--fw-semibold);
+  }
+
+  .foot {
+    margin-block-start: auto;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2) var(--space-3);
+  }
+
+  /* A phone: the four cards become a strip you swipe, so the bench is on the first screen. */
+  @container (max-width: 40rem) {
+    .cards {
+      display: flex;
+      overflow-x: auto;
+      scroll-snap-type: x proximity;
+      scroll-padding-inline: var(--gutter);
+      padding-block-end: var(--space-2);
+      margin-inline: calc(-1 * var(--gutter));
+      padding-inline: var(--gutter);
+      scrollbar-width: thin;
+    }
+
+    .item {
+      flex: 0 0 min(84%, 19rem);
+      scroll-snap-align: start;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .card {
+      transition: none;
+    }
+  }
+}

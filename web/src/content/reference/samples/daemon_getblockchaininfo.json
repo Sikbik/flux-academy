@@ -1,0 +1,42 @@
+{
+  "status": "success",
+  "data": {
+    "chain": "main",
+    "blocks": 3031426,
+    "headers": 3031426,
+    "bestblockhash": "4bcf30897ff61a7ccd9ea18b182d94139de004336c5800d0ee5faa9a57725d74",
+    "difficulty": 0.05212247006388069,
+    "verificationprogress": 0.9999997623123246,
+    "chainwork": "0000000000000000000000000000000000000000000000000f704aefdead3c2f",
+    "pruned": false,
+    "size_on_disk": 35564066739,
+    "commitments": 815736,
+    "valuePools": [
+      { "id": "sprout", "monitored": true, "chainValue": 19291.17735041, "chainValueZat": 1929117735041 },
+      { "id": "sapling", "monitored": true, "chainValue": 77188.75921324, "chainValueZat": 7718875921324 }
+    ],
+    "softforks": [
+      {
+        "id": "bip34",
+        "version": 2,
+        "enforce": { "status": true, "found": 4000, "required": 750, "window": 4000 },
+        "reject": { "status": true, "found": 4000, "required": 950, "window": 4000 }
+      },
+      {
+        "id": "bip66",
+        "version": 3,
+        "enforce": { "status": true, "found": 4000, "required": 750, "window": 4000 },
+        "reject": { "status": true, "found": 4000, "required": 950, "window": 4000 }
+      }
+    ],
+    "upgrades": {
+      "76b809bb": {
+        "name": "PON",
+        "activationheight": 2020000,
+        "status": "active",
+        "info": "Proof of Node activation"
+      }
+    },
+    "consensus": { "chaintip": "76b809bb", "nextblock": "76b809bb" }
+  }
+}

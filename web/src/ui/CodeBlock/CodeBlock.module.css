@@ -1,0 +1,512 @@
+/*
+ * CodeBlock: a slab Panel with a header (file, language, copy) over an inset code screen.
+ * Mono 0.875rem / 1.6, tab size 2, a tabular gutter that stays put while the code scrolls
+ * sideways, an accent band and marker on emphasised lines. Token colours are the shared
+ * --code-* tokens (AA on ink-0 to ink-2); only the band follows the accent.
+ *
+ * The code is real text with real newlines between inline-block lines. The gutter numbers are
+ * generated content (counter), so a selection copies exactly the source, blank lines and all.
+ */
+@layer reset, tokens, base, ui, route, utility;
+
+@layer ui {
+  .figure {
+    --gutter-w: calc(var(--digits, 1) * 1ch + 30px);
+    margin: 0;
+    min-inline-size: 0;
+  }
+
+  .panel {
+    display: block;
+  }
+
+  /* flow-root keeps .body's margin (the edge hairline) inside the slab. */
+  .inner {
+    display: flow-root;
+  }
+
+  /* Inset by the hairline and clipped to the inner chamfer, so the screen never paints
+     over the edge ring and its corners follow the cuts. */
+  .body {
+    display: flex;
+    flex-direction: column;
+    margin: var(--bw, 1px);
+    min-inline-size: 0;
+    clip-path: var(--clip-inner);
+  }
+
+  /* ---- header -------------------------------------------------------------------- */
+
+  .head {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 4px 12px;
+    min-block-size: 44px;
+    padding: 4px 8px 4px 14px;
+    border-block-end: 1px solid var(--line-1);
+  }
+
+  /* A short ruler under the name: blueprint furniture, very quiet. */
+  .head::after {
+    content: "";
+    position: absolute;
+    inset-inline-start: 14px;
+    inset-block-end: -1px;
+    inline-size: 64px;
+    block-size: 5px;
+    background:
+      repeating-linear-gradient(90deg, rgb(255 255 255 / 0.34) 0 1px, transparent 1px 8px) left bottom / 100%
+      5px no-repeat,
+      repeating-linear-gradient(90deg, rgb(255 255 255 / 0.2) 0 1px, transparent 1px 4px) left bottom / 100%
+      3px no-repeat;
+    pointer-events: none;
+  }
+
+  .name {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    min-inline-size: 0;
+  }
+
+  .bullet {
+    flex: none;
+    inline-size: 8px;
+    block-size: 9px;
+    background: var(--accent);
+    clip-path: var(--hex-clip);
+    box-shadow: 0 0 10px rgb(var(--accent-deep-rgb) / 0.8);
+  }
+
+  .file {
+    min-inline-size: 0;
+    font: 500 var(--fs-xs) / 1.2 var(--font-mono);
+    letter-spacing: 0.02em;
+    color: var(--text-1);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .title {
+    min-inline-size: 0;
+    font: var(--type-label);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--text-2);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .tools {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    gap: 6px;
+    margin-inline-start: auto;
+  }
+
+  .copyText {
+    font: 500 var(--fs-2xs) / 1 var(--font-mono);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+  }
+
+  /* On a narrow block the copy button keeps its name but loses its visible word, and the
+     language tag gives way to the file name. */
+  @container (max-width: 24rem) {
+    .copyText {
+      position: absolute;
+      inline-size: 1px;
+      block-size: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+  }
+
+  @container (max-width: 17rem) {
+    .lang {
+      display: none;
+    }
+  }
+
+  /* ---- the code screen -------------------------------------------------------------- */
+
+  .screen {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-block-size: 0;
+    background: var(--code-bg);
+  }
+
+  .scroller {
+    position: relative;
+    min-block-size: 0;
+    overflow: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: thin;
+    scrollbar-color: var(--ink-5) transparent;
+  }
+
+  .scroller[data-max="true"] {
+    max-block-size: var(--max);
+  }
+
+  /* Keyboard focus: a ring on the screen's edge with the one-shot beam; the steady state is
+     the bright rim. The plain outline stays as the floor where :has is missing. */
+  .scroller:focus-visible {
+    outline: 2px solid var(--focus-color);
+    outline-offset: -2px;
+  }
+
+  .screen::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    padding: 2px;
+    background: conic-gradient(
+      from var(--beam-angle),
+      #fff,
+      rgb(var(--accent-hot-rgb) / 0.95) 16%,
+      rgb(var(--accent-rgb) / 0.9) 50%,
+      rgb(var(--accent-hot-rgb) / 0.95) 84%,
+      #fff
+    );
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask:
+      linear-gradient(#000 0 0) content-box exclude,
+      linear-gradient(#000 0 0);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 3;
+  }
+
+  @supports selector(:has(*)) {
+    .figure[data-force="focus"] .scroller {
+      outline: none;
+    }
+
+    .screen:has(.scroller:is(:focus-visible, [data-force="focus"])) .scroller {
+      outline: none;
+    }
+
+    .screen:has(.scroller:is(:focus-visible, [data-force="focus"]))::after {
+      opacity: 1;
+      animation: beam 900ms var(--ease-out) both;
+    }
+
+    .figure[data-force="focus"] .screen::after {
+      opacity: 1;
+      animation: beam 900ms var(--ease-out) both;
+    }
+  }
+
+  @keyframes beam {
+    to {
+      --beam-angle: 360deg;
+    }
+  }
+
+  .pre {
+    margin: 0;
+    padding-block: 12px;
+    padding-inline: 0;
+    inline-size: max-content;
+    min-inline-size: 100%;
+    font: var(--type-code);
+    color: var(--code-fg);
+    tab-size: 2;
+    white-space: pre;
+    font-variant-ligatures: none;
+  }
+
+  .pre[data-wrap="true"] {
+    inline-size: auto;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+
+  .code {
+    font: inherit;
+  }
+
+  .line {
+    display: inline-block;
+    box-sizing: border-box;
+    inline-size: 100%;
+    padding-inline: 16px;
+    vertical-align: top;
+    counter-increment: line;
+  }
+
+  .pre[data-numbers="true"] .line {
+    padding-inline-start: 0;
+  }
+
+  /* The gutter. Sticky, so it stays while long lines scroll under it. */
+  .pre[data-numbers="true"] .line::before {
+    content: counter(line);
+    /* biome-ignore lint/suspicious/noDuplicateProperties: the alt-text form is a progressive enhancement */
+    content: counter(line) / "";
+    display: inline-block;
+    position: sticky;
+    inset-inline-start: 0;
+    z-index: 1;
+    box-sizing: border-box;
+    inline-size: var(--gutter-w);
+    padding-inline: 12px 18px;
+    text-align: end;
+    color: var(--code-punct);
+    background: var(--code-bg);
+    box-shadow: inset -1px 0 0 var(--line-1);
+    font-variant-numeric: tabular-nums;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  /* Wrapped lines hang under the code, not under the numbers. */
+  .pre[data-wrap="true"][data-numbers="true"] .line {
+    padding-inline-start: var(--gutter-w);
+    text-indent: calc(-1 * var(--gutter-w));
+  }
+
+  .pre[data-wrap="true"][data-numbers="true"] .line::before {
+    position: static;
+    text-indent: 0;
+  }
+
+  /* The emphasised line: an accent band across the full width and a marker on the gutter. */
+  .line[data-hl="true"] {
+    background: linear-gradient(
+      90deg,
+      rgb(var(--accent-rgb) / 0.22),
+      rgb(var(--accent-rgb) / 0.1) 40%,
+      rgb(var(--accent-rgb) / 0.1)
+    );
+  }
+
+  .pre[data-numbers="true"] .line[data-hl="true"]::before {
+    color: var(--accent-strong);
+    background-image: linear-gradient(rgb(var(--accent-rgb) / 0.22), rgb(var(--accent-rgb) / 0.22));
+    box-shadow:
+      inset 2px 0 0 var(--accent-strong),
+      inset -1px 0 0 var(--line-1);
+  }
+
+  .pre:not([data-numbers="true"]) .line[data-hl="true"] {
+    box-shadow: inset 2px 0 0 var(--accent-strong);
+  }
+
+  /* Read by screen readers, never shown and never copied. */
+  .hlLabel {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  /* ---- tokens ------------------------------------------------------------------------- */
+
+  .keyword {
+    color: var(--code-keyword);
+    font-weight: 500;
+  }
+
+  .string {
+    color: var(--code-string);
+  }
+
+  .number {
+    color: var(--code-number);
+  }
+
+  .comment {
+    color: var(--code-comment);
+  }
+
+  .key {
+    color: var(--code-key);
+  }
+
+  .fn {
+    color: var(--code-fn);
+  }
+
+  .flag {
+    color: var(--code-flag);
+  }
+
+  .variable {
+    color: var(--code-key);
+  }
+
+  .type {
+    color: var(--code-type);
+  }
+
+  .operator {
+    color: var(--code-fg);
+    font-weight: 500;
+  }
+
+  .punct {
+    color: var(--code-punct);
+  }
+
+  /* ---- skeleton ------------------------------------------------------------------------ */
+
+  .skeleton {
+    display: grid;
+    padding-block: 12px;
+  }
+
+  .bar {
+    display: block;
+    block-size: calc(var(--fs-code) * var(--lh-code));
+    padding-inline: 16px;
+  }
+
+  .skeleton[data-numbers="true"] .bar {
+    padding-inline-start: calc(var(--gutter-w) + 4px);
+  }
+
+  .bar::before {
+    content: "";
+    display: block;
+    inline-size: var(--w, 50%);
+    block-size: 0.5rem;
+    margin-block: calc((var(--fs-code) * var(--lh-code) - 0.5rem) / 2);
+    background: linear-gradient(
+      90deg,
+      rgb(var(--accent-rgb) / 0.1),
+      rgb(var(--accent-rgb) / 0.26),
+      rgb(var(--accent-rgb) / 0.1)
+    );
+    background-size: 220% 100%;
+    clip-path: polygon(3px 0, 100% 0, calc(100% - 3px) 100%, 0 100%);
+    animation: shimmer 1.6s var(--ease-in-out) infinite;
+  }
+
+  @keyframes shimmer {
+    from {
+      background-position: 120% 0;
+    }
+    to {
+      background-position: -120% 0;
+    }
+  }
+
+  /* ---- caption --------------------------------------------------------------------------- */
+
+  .caption {
+    margin-block-start: 10px;
+    padding-inline: 2px;
+    color: var(--text-3);
+    font-size: var(--fs-sm);
+    line-height: var(--lh-normal);
+    max-inline-size: var(--measure);
+  }
+
+  /* ---- reduced motion, contrast, forced colours ----------------------------------------- */
+
+  :global(html[data-motion="reduced"]) .bar::before {
+    animation: none;
+  }
+
+  :global(html[data-motion="reduced"]) .screen::after {
+    animation: none;
+    background: rgb(255 255 255 / 0.92);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :global(html:not([data-motion="full"])) .bar::before {
+      animation: none;
+    }
+
+    :global(html:not([data-motion="full"])) .screen::after {
+      animation: none;
+      background: rgb(255 255 255 / 0.92);
+    }
+  }
+
+  @media (prefers-contrast: more) {
+    .screen,
+    .pre[data-numbers="true"] .line::before {
+      background-color: var(--void);
+    }
+
+    .line[data-hl="true"] {
+      background: rgb(255 255 255 / 0.16);
+    }
+  }
+
+  @media (forced-colors: active) {
+    .screen,
+    .pre[data-numbers="true"] .line::before {
+      background: Canvas;
+    }
+
+    .screen::after {
+      display: none;
+    }
+
+    .scroller:focus-visible {
+      outline: 2px solid Highlight;
+    }
+
+    .pre,
+    .keyword,
+    .string,
+    .number,
+    .key,
+    .fn,
+    .flag,
+    .variable,
+    .type,
+    .operator {
+      color: CanvasText;
+    }
+
+    .pre[data-numbers="true"] .line::before,
+    .punct {
+      color: CanvasText;
+    }
+
+    .comment {
+      color: CanvasText;
+      font-style: italic;
+    }
+
+    .pre[data-numbers="true"] .line::before {
+      box-shadow: inset -1px 0 0 CanvasText;
+    }
+
+    .line[data-hl="true"] {
+      background: Canvas;
+      outline: 1px solid Highlight;
+      outline-offset: -1px;
+    }
+
+    .pre[data-numbers="true"] .line[data-hl="true"]::before {
+      color: Highlight;
+      box-shadow: inset 3px 0 0 Highlight;
+    }
+
+    .bullet {
+      background: CanvasText;
+      box-shadow: none;
+    }
+  }
+}

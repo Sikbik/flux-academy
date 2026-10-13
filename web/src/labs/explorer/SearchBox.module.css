@@ -1,0 +1,120 @@
+@layer route {
+  .root {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .form {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: var(--space-3);
+  }
+
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2) var(--space-5);
+  }
+
+  .field {
+    position: relative;
+    flex: 1 1 18rem;
+    min-inline-size: 0;
+  }
+
+  .list {
+    position: absolute;
+    inset-inline-start: 0;
+    inline-size: min(100%, 38rem);
+    inset-block-start: calc(100% + 4px);
+    z-index: var(--z-raised);
+    padding: var(--space-1);
+    max-block-size: 20rem;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    background: var(--glass-bg-solid);
+    box-shadow:
+      inset 0 0 0 1px rgb(var(--accent-rgb) / 0.5),
+      0 18px 40px -14px rgb(0 0 0 / 0.75);
+  }
+
+  .options {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .option {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-4);
+    padding: 9px var(--space-3);
+    min-block-size: 40px;
+    color: var(--text-2);
+    cursor: pointer;
+  }
+
+  .option[data-active],
+  .option:hover {
+    background: rgb(var(--accent-rgb) / 0.18);
+    color: var(--text-1);
+  }
+
+  .optName {
+    min-inline-size: 0;
+    overflow-wrap: anywhere;
+    font: 500 var(--fs-sm) / 1.3 var(--font-mono);
+  }
+
+  .optMeta {
+    flex: none;
+    font-size: var(--fs-xs);
+    color: var(--text-3);
+  }
+
+  .status {
+    padding: var(--space-2) var(--space-3);
+    font-size: var(--fs-xs);
+    color: var(--text-3);
+  }
+
+  .hint {
+    margin: 0;
+    font-size: var(--fs-xs);
+    color: var(--text-3);
+  }
+
+  .suggestions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2) var(--space-3);
+  }
+
+  .suggestLabel {
+    font: 500 var(--fs-2xs) / 1.2 var(--font-mono);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+
+  .chips {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  /* On a phone the button sits under the field: let it use the whole row. */
+  @container explorer (max-width: 34rem) {
+    .form > button {
+      flex: 1 1 100%;
+    }
+  }
+}

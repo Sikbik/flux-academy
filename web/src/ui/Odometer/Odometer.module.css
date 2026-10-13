@@ -1,0 +1,122 @@
+/*
+ * Odometer: digits are strips of 30 lines in one text node, rolled with translateY in em
+ * (Web Animations, in Odometer.tsx). The cell clips; a vertical mask softens the entering
+ * and leaving digits. A wash glows behind the number on change and on every Beat.
+ */
+@layer reset, tokens, base, ui, route, utility;
+
+@layer ui {
+  .odo {
+    position: relative;
+    display: inline-flex;
+    align-items: baseline;
+    isolation: isolate;
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum" 1;
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  .visual {
+    display: inline-flex;
+    align-items: baseline;
+    /* The strips hold every digit; selecting or copying the headline must give the spoken value only. */
+    user-select: none;
+  }
+
+  .cells {
+    display: inline-flex;
+    align-items: baseline;
+    -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 12%, #000 88%, transparent 100%);
+    mask-image: linear-gradient(180deg, transparent 0, #000 12%, #000 88%, transparent 100%);
+  }
+
+  /* overflow: clip keeps the natural baseline (hidden would move it to the bottom edge). */
+  .cell {
+    display: inline-block;
+    block-size: 1em;
+    overflow: clip;
+    text-align: center;
+  }
+
+  .strip {
+    display: block;
+    white-space: pre;
+    line-height: 1;
+    will-change: transform;
+  }
+
+  /* One digit of a gradient strip: a short box of its own, so the text clip has a short element to sit on. */
+  .row {
+    display: block;
+    block-size: 1em;
+    line-height: 1;
+  }
+
+  .sep {
+    display: inline-block;
+    line-height: 1;
+  }
+
+  .affix {
+    display: inline-block;
+    line-height: 1;
+    white-space: pre;
+    opacity: 0.8;
+  }
+
+  /* The wash: a soft accent-hot glow behind the number. Opacity rides the Beat; a change
+     animates it from the component. */
+  .glow {
+    position: absolute;
+    inset: -0.18em -0.34em;
+    z-index: -1;
+    pointer-events: none;
+    background: radial-gradient(closest-side, rgb(var(--accent-hot-rgb) / 0.5), transparent);
+    opacity: calc(var(--flash, 0) * 0.55);
+  }
+
+  /* The hero count: one gradient across the whole number, each piece painting its slice. The text clip sits
+     on the one-line row, never on the strip or on the cell around it:
+       - on the 30-line strip, Firefox skips text-clipped glyphs far down a tall element (the leading digit
+         went missing);
+       - on the cell, the strip is a transformed descendant, and Chromium paints the clip without that
+         transform, so every digit read as the first row, "0".
+     A row is short and has nothing transformed beneath it; the transform sits on the strip above it. */
+  .odo[data-gradient="true"] :is(.row, .sep, .affix) {
+    background-image: linear-gradient(90deg, #fff 0%, var(--accent-strong) 42%, var(--accent-text) 100%);
+    background-size: var(--odo-w, 100%) 100%;
+    background-position: calc(var(--ox, 0px) * -1) 0;
+    background-repeat: no-repeat;
+    -webkit-background-clip: text;
+    background-clip: text;
+  }
+
+  .odo[data-gradient="true"] :is(.strip, .sep, .affix) {
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+
+  .odo[data-gradient="true"] .affix {
+    opacity: 1;
+  }
+
+  :global(html[data-motion="reduced"]) .strip {
+    will-change: auto;
+  }
+
+  @media (forced-colors: active) {
+    .odo[data-gradient="true"] :is(.row, .sep, .affix) {
+      background: none;
+    }
+
+    .odo[data-gradient="true"] :is(.strip, .sep, .affix) {
+      -webkit-text-fill-color: currentColor;
+      color: CanvasText;
+    }
+
+    .glow {
+      display: none;
+    }
+  }
+}

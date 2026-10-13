@@ -1,31 +1,22 @@
 {
-  "name": "flux-deployment-academy",
-  "version": "1.0.0",
+  "name": "flux-academy",
   "private": true,
+  "version": "2.0.0",
+  "type": "module",
+  "description": "Flux Academy: an interactive school for deploying on the Flux decentralized cloud. A web app and a small API server.",
+  "license": "MIT",
+  "engines": {
+    "node": ">=24"
+  },
   "scripts": {
-    "dev": "next dev -p 42069",
-    "build": "next build",
-    "start": "next start -p 42069",
-    "lint": "next lint"
-  },
-  "dependencies": {
-    "class-variance-authority": "^0.7.0",
-    "clsx": "^2.0.0",
-    "lucide-react": "^0.556.0",
-    "next": "^16.0.7",
-    "react": "^19.2.1",
-    "react-dom": "^19.2.1",
-    "tailwind-merge": "^2.0.0"
-  },
-  "devDependencies": {
-    "@types/node": "^20.0.0",
-    "@types/react": "^19.0.0",
-    "@types/react-dom": "^19.0.0",
-    "autoprefixer": "^10.4.16",
-    "eslint": "^9.39.1",
-    "eslint-config-next": "^16.0.7",
-    "postcss": "^8.4.31",
-    "tailwindcss": "^3.3.5",
-    "typescript": "^5.3.2"
+    "install:all": "npm --prefix web ci && npm --prefix server ci",
+    "dev": "node scripts/dev.mjs",
+    "dev:web": "npm --prefix web run dev",
+    "dev:server": "npm --prefix server run dev",
+    "build": "npm --prefix web run build",
+    "start": "npm --prefix server start",
+    "typecheck": "npm --prefix web run typecheck && npm --prefix server run typecheck",
+    "lint": "npm --prefix web run lint && npm --prefix server run lint",
+    "test": "npm --prefix web test && npm --prefix server test"
   }
 }

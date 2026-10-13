@@ -1,0 +1,225 @@
+/*
+ * Pick your path: three glass slabs, bottom aligned, each only as tall as its tower, so the row reads
+ * Cumulus short, Nimbus mid, Stratus tall. Hovering or focusing a card isolates that tier on the bench
+ * behind the page (the bus `tierFocus`); the card itself only brightens and lifts the emblem.
+ */
+@layer route {
+  .towers {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-5);
+    align-items: end;
+  }
+
+  .item {
+    display: block;
+    min-inline-size: 0;
+  }
+
+  .card {
+    display: block;
+    color: inherit;
+    text-decoration: none;
+  }
+
+  /* The emblems are light on black: screened as one group onto the slab, the black costs nothing. */
+  .inner {
+    display: grid;
+    gap: var(--space-5);
+    mix-blend-mode: screen;
+  }
+
+  /* ---- the emblem ---------------------------------------------------------------------------- */
+
+  /*
+   * The box is cropped to the lit part, but the picture is a square on opaque black and reaches well above
+   * it. Inside the card the screen blend hides that black; above the card it paints over whatever sits
+   * there (stacked on a phone, the last line of the note under the heading). So the top is clipped just
+   * above the box: far enough up for the hover scale to grow the lit part (a few percent of the picture),
+   * not so far that the black leaves the card's top padding. The glow keeps room to the sides and below.
+   */
+  .art {
+    --s: min(58cqi, 15rem);
+    position: relative;
+    display: block;
+    inline-size: var(--s);
+    block-size: calc(var(--s) * (var(--lit) + 0.04));
+    margin-inline: auto;
+    pointer-events: none;
+    clip-path: inset(calc(var(--s) * -0.05) -25% -25% -25%);
+  }
+
+  .art img {
+    position: absolute;
+    inset-inline-start: 0;
+    inset-block-start: calc(var(--s) * (var(--top) - 0.02) * -1);
+    inline-size: var(--s);
+    block-size: var(--s);
+    max-inline-size: none;
+    transform-origin: 50% 92%;
+    transition:
+      transform var(--dur-4) var(--ease-out),
+      filter var(--dur-3) var(--ease-out);
+  }
+
+  .card:is(:hover, :focus-visible) .art img {
+    transform: scale(1.045);
+    filter: brightness(1.18);
+  }
+
+  /* ---- the words ---------------------------------------------------------------------------- */
+
+  .body {
+    display: grid;
+    gap: var(--space-3);
+    justify-items: start;
+  }
+
+  .name {
+    display: grid;
+    gap: var(--space-1);
+  }
+
+  .tierName {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    font: 500 var(--fs-xs) / 1.2 var(--font-mono);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--accent-text);
+  }
+
+  .title {
+    font: 600 clamp(1.5rem, 1.1rem + 1vw, 2rem) / 1.05 var(--font-display);
+    letter-spacing: var(--tracking-heading);
+    color: var(--text-1);
+  }
+
+  .desc {
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  .summary {
+    font: var(--type-body);
+    color: var(--text-2);
+    text-wrap: pretty;
+  }
+
+  .meta {
+    font: 500 var(--fs-xs) / 1.4 var(--font-mono);
+    letter-spacing: 0.04em;
+    color: var(--text-3);
+  }
+
+  .live {
+    display: inline-flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-3);
+    padding-block-start: var(--space-3);
+    border-block-start: 1px solid var(--line-1);
+    inline-size: 100%;
+  }
+
+  .liveNum {
+    font: 600 var(--fs-stat) / 1 var(--font-display);
+    font-variant-numeric: tabular-nums;
+    color: var(--accent-text);
+  }
+
+  .liveText {
+    display: grid;
+    font: 500 var(--fs-xs) / 1.4 var(--font-mono);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text-2);
+  }
+
+  .asOf {
+    text-transform: none;
+    letter-spacing: 0.02em;
+    color: var(--text-3);
+  }
+
+  .foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+  }
+
+  .ringText {
+    font: 600 var(--fs-xs) / 1 var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    color: var(--text-1);
+  }
+
+  .cta {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    font: 600 var(--fs-md) / 1 var(--font-sans);
+    color: var(--accent-text);
+    transition: gap var(--dur-3) var(--ease-out);
+  }
+
+  .card:is(:hover, :focus-visible) .cta {
+    gap: var(--space-3);
+  }
+
+  .asideText {
+    font: 500 var(--fs-xs) / 1.4 var(--font-mono);
+    letter-spacing: 0.04em;
+    color: var(--text-3);
+  }
+
+  /* ---- narrower: stack, with the emblem beside the words on phones ------------------------- */
+
+  @media (max-width: 1023.98px) {
+    .towers {
+      grid-template-columns: minmax(0, 1fr);
+      align-items: stretch;
+    }
+
+    .inner {
+      grid-template-columns: minmax(7rem, 32%) minmax(0, 1fr);
+      align-items: center;
+      column-gap: var(--space-5);
+    }
+
+    .art {
+      --s: min(34cqi, 12rem);
+      margin: 0;
+    }
+
+    .foot {
+      grid-column: 1 / -1;
+    }
+  }
+
+  @media (max-width: 559.98px) {
+    .inner {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .art {
+      --s: min(60cqi, 13rem);
+      margin-inline: auto;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :root:not([data-motion="full"]) .art img {
+      transition: none;
+    }
+  }
+
+  :root[data-motion="reduced"] .art img {
+    transition: none;
+  }
+}

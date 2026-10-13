@@ -1,0 +1,195 @@
+/*
+ * The Spec Forge editor layout. Three regions on a desktop column (form, JSON over issues, price), two
+ * columns when the editor is narrower, tabs on a phone. The mode is decided by the width of the editor
+ * itself (not the window), so a lesson stage and the lab both get the right one.
+ */
+@layer reset, tokens, base, ui, route, utility;
+
+@layer ui {
+  .editor {
+    position: relative;
+    inline-size: 100%;
+    block-size: 100%;
+    min-block-size: 26rem;
+    min-inline-size: 0;
+  }
+
+  .single,
+  .columns,
+  .split {
+    block-size: 100%;
+    min-block-size: inherit;
+  }
+
+  .columns {
+    display: grid;
+    gap: var(--space-4);
+    grid-template-columns: repeat(var(--cols, 3), minmax(0, 1fr));
+  }
+
+  .columns[data-count="1"] {
+    --cols: 1;
+  }
+
+  .columns[data-count="2"] {
+    --cols: 2;
+  }
+
+  .columns[data-count="3"] {
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 1.15fr) minmax(0, 1fr);
+  }
+
+  .split {
+    display: grid;
+    gap: var(--space-4);
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+
+  .slot {
+    display: grid;
+    gap: var(--space-4);
+    min-block-size: 0;
+    min-inline-size: 0;
+    grid-template-rows: minmax(0, 1fr);
+  }
+
+  .slot[data-stacked="true"] {
+    grid-template-rows: minmax(0, 1.55fr) minmax(0, 1fr);
+  }
+
+  /* Nothing to report: the JSON gets the room the issues would have used. */
+  .editor[data-issues="clean"] .slot[data-stacked="true"] {
+    grid-template-rows: minmax(0, 1fr) minmax(0, 11.5rem);
+  }
+
+  .cell {
+    min-block-size: 0;
+    min-inline-size: 0;
+  }
+
+  .tabs {
+    display: grid;
+    gap: var(--space-3);
+    min-block-size: inherit;
+  }
+
+  .tabPanel {
+    min-block-size: 0;
+    outline-offset: -2px;
+  }
+
+  /* ---- regions ---------------------------------------------------------------------- */
+
+  .region {
+    block-size: 100%;
+    min-block-size: 0;
+  }
+
+  .regionContent {
+    display: flex;
+    flex-direction: column;
+    block-size: 100%;
+    min-block-size: 0;
+  }
+
+  .regionHead {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-4);
+    border-block-end: 1px solid var(--line-1);
+    color: var(--accent-text);
+  }
+
+  .regionTitle {
+    margin: 0;
+    font: 600 var(--fs-xs) / 1 var(--font-mono);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--text-1);
+  }
+
+  .regionMeta {
+    margin-inline-start: auto;
+    font: 500 var(--fs-2xs) / 1 var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    color: var(--text-3);
+    text-align: end;
+  }
+
+  .regionBody,
+  .regionBodyBare {
+    flex: 1 1 auto;
+    min-block-size: 0;
+    padding: var(--space-4);
+    overflow: auto;
+    overscroll-behavior: contain;
+    scrollbar-color: var(--ink-4) transparent;
+    scrollbar-width: thin;
+  }
+
+  .regionBodyBare {
+    display: flex;
+    flex-direction: column;
+    min-block-size: 18rem;
+  }
+
+  .editor[data-compact="true"] .regionBody,
+  .editor[data-compact="true"] .regionBodyBare {
+    padding: var(--space-3);
+  }
+
+  .editor[data-compact="true"] .regionHead {
+    padding: var(--space-2) var(--space-3);
+  }
+
+  .priceStack {
+    display: grid;
+    gap: var(--space-6);
+    align-content: start;
+  }
+
+  /* ---- status line ------------------------------------------------------------------- */
+
+  .status {
+    position: absolute;
+    inset-inline-start: var(--space-4);
+    inset-block-end: var(--space-3);
+    z-index: 5;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    max-inline-size: calc(100% - var(--space-8));
+    margin: 0;
+    padding: var(--space-2) var(--space-3);
+    font: 500 var(--fs-xs) / 1.3 var(--font-sans);
+    color: var(--text-1);
+    background: var(--ink-2);
+    box-shadow:
+      inset 0 0 0 1px rgb(var(--accent-rgb) / 0.5),
+      0 12px 28px -10px rgb(0 0 0 / 0.7);
+    clip-path: polygon(0 6px, 6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%);
+    animation: statusIn var(--dur-3) var(--ease-out) both;
+  }
+
+  @keyframes statusIn {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :global(html:not([data-motion="full"])) .status {
+      animation: none;
+    }
+  }
+
+  :global(html[data-motion="reduced"]) .status {
+    animation: none;
+  }
+}

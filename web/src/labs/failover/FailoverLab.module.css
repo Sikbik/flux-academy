@@ -1,0 +1,72 @@
+@layer route {
+  .lab {
+    container-type: inline-size;
+    container-name: failover;
+    padding-block-end: var(--space-4);
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-5);
+  }
+
+  .scenarios,
+  .bench,
+  .verbs,
+  .uptime,
+  .config,
+  .instances,
+  .log {
+    min-inline-size: 0;
+  }
+
+  .bench {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  /* Wide: scenarios across the top; the bench with its verbs and your instances on the left; the meter and
+     the set-up on the right; the log along the bottom. */
+  @container failover (min-width: 68rem) {
+    .grid {
+      grid-template-columns: minmax(0, 1fr) 24rem;
+      grid-template-areas:
+        "scenarios scenarios"
+        "bench uptime"
+        "verbs config"
+        "instances config"
+        "log log";
+      align-items: start;
+    }
+
+    .scenarios {
+      grid-area: scenarios;
+    }
+
+    .bench {
+      grid-area: bench;
+    }
+
+    .verbs {
+      grid-area: verbs;
+    }
+
+    .uptime {
+      grid-area: uptime;
+    }
+
+    .config {
+      grid-area: config;
+    }
+
+    .instances {
+      grid-area: instances;
+    }
+
+    .log {
+      grid-area: log;
+    }
+  }
+}

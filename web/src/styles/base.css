@@ -1,0 +1,404 @@
+/* ==========================================================================
+   Base: modern reset, document defaults, typography, focus, selection,
+   scrollbars, the Beat, and the reduced-motion, contrast and forced-colors
+   handling. The layer order is declared in tokens.css (and index.css).
+   ========================================================================== */
+
+@layer reset, tokens, base, ui, route, utility;
+
+@layer reset {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  * {
+    margin: 0;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    tab-size: 2;
+    hanging-punctuation: first last;
+  }
+
+  img,
+  picture,
+  video,
+  canvas,
+  svg {
+    display: block;
+    max-inline-size: 100%;
+  }
+
+  input,
+  button,
+  textarea,
+  select {
+    font: inherit;
+    color: inherit;
+    letter-spacing: inherit;
+  }
+
+  button {
+    padding: 0;
+    background: none;
+    border: 0;
+    cursor: pointer;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  :where(h1, h2, h3, h4, h5, h6) {
+    font-size: inherit;
+    font-weight: inherit;
+  }
+
+  :where(ul, ol)[role="list"] {
+    padding: 0;
+    list-style: none;
+  }
+
+  table {
+    border-collapse: collapse;
+  }
+
+  :where([hidden]:not([hidden="until-found"])) {
+    display: none;
+  }
+}
+
+@layer base {
+  html {
+    background: var(--void);
+    color: var(--text-2);
+    font-family: var(--font-sans);
+    font-size: 100%;
+    scroll-padding-block-start: var(--header-offset);
+    scrollbar-gutter: stable;
+    scrollbar-width: thin;
+    scrollbar-color: var(--ink-4) transparent;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    min-block-size: 100svh;
+    background: transparent;
+    color: var(--text-2);
+    font: var(--type-body);
+    font-synthesis: none;
+    overflow-wrap: break-word;
+  }
+
+  /* The app root is its own stacking context: the backdrop sits at z 0 inside it. */
+  #root {
+    position: relative;
+    isolation: isolate;
+    min-block-size: 100svh;
+  }
+
+  /*
+   * The chamfered silhouette (DESIGN 3.3). Put the class `chamfer` on an element and have
+   * its module set --c (the big cut) and --cm (the micro bevel), optionally --bw (edge
+   * width, default 1px) and data-cut (default `tr-bl`: big cuts top-right and bottom-left,
+   * a bevel on the other two; `tl-br`, `all`, `tl`, `tr`, `bl`, `br`, `none`). Then
+   *
+   *   clip-path: var(--clip-outer)   the full shape
+   *   clip-path: var(--clip-inner)   the shape inset by --bw (put it on an inset: var(--bw) box)
+   *   clip-path: var(--clip-ring)    only the --bw wide edge, as one even-odd polygon
+   *
+   * Pseudo-elements and children inherit the resolved polygons. Corner sizes: --c-tl,
+   * --c-tr, --c-br, --c-bl (never set these in a module; set --c, --cm and data-cut).
+   */
+  .chamfer {
+    --c-tl: var(--cm, var(--bevel));
+    --c-tr: var(--c, var(--chamfer));
+    --c-br: var(--cm, var(--bevel));
+    --c-bl: var(--c, var(--chamfer));
+    --i-tl: max(0px, calc(var(--c-tl) - 0.586 * var(--bw, 1px)));
+    --i-tr: max(0px, calc(var(--c-tr) - 0.586 * var(--bw, 1px)));
+    --i-br: max(0px, calc(var(--c-br) - 0.586 * var(--bw, 1px)));
+    --i-bl: max(0px, calc(var(--c-bl) - 0.586 * var(--bw, 1px)));
+    --clip-outer: polygon(
+      0 var(--c-tl),
+      var(--c-tl) 0,
+      calc(100% - var(--c-tr)) 0,
+      100% var(--c-tr),
+      100% calc(100% - var(--c-br)),
+      calc(100% - var(--c-br)) 100%,
+      var(--c-bl) 100%,
+      0 calc(100% - var(--c-bl))
+    );
+    --clip-inner: polygon(
+      0 var(--i-tl),
+      var(--i-tl) 0,
+      calc(100% - var(--i-tr)) 0,
+      100% var(--i-tr),
+      100% calc(100% - var(--i-br)),
+      calc(100% - var(--i-br)) 100%,
+      var(--i-bl) 100%,
+      0 calc(100% - var(--i-bl))
+    );
+    --clip-ring: polygon(
+      evenodd,
+      0 var(--c-tl),
+      var(--c-tl) 0,
+      calc(100% - var(--c-tr)) 0,
+      100% var(--c-tr),
+      100% calc(100% - var(--c-br)),
+      calc(100% - var(--c-br)) 100%,
+      var(--c-bl) 100%,
+      0 calc(100% - var(--c-bl)),
+      0 var(--c-tl),
+      var(--bw, 1px) calc(var(--bw, 1px) + var(--i-tl)),
+      calc(var(--bw, 1px) + var(--i-tl)) var(--bw, 1px),
+      calc(100% - var(--bw, 1px) - var(--i-tr)) var(--bw, 1px),
+      calc(100% - var(--bw, 1px)) calc(var(--bw, 1px) + var(--i-tr)),
+      calc(100% - var(--bw, 1px)) calc(100% - var(--bw, 1px) - var(--i-br)),
+      calc(100% - var(--bw, 1px) - var(--i-br)) calc(100% - var(--bw, 1px)),
+      calc(var(--bw, 1px) + var(--i-bl)) calc(100% - var(--bw, 1px)),
+      var(--bw, 1px) calc(100% - var(--bw, 1px) - var(--i-bl)),
+      var(--bw, 1px) calc(var(--bw, 1px) + var(--i-tl))
+    );
+  }
+
+  .chamfer[data-cut="tl-br"] {
+    --c-tl: var(--c, var(--chamfer));
+    --c-tr: var(--cm, var(--bevel));
+    --c-br: var(--c, var(--chamfer));
+    --c-bl: var(--cm, var(--bevel));
+  }
+
+  .chamfer[data-cut="all"] {
+    --c-tl: var(--c, var(--chamfer));
+    --c-tr: var(--c, var(--chamfer));
+    --c-br: var(--c, var(--chamfer));
+    --c-bl: var(--c, var(--chamfer));
+  }
+
+  .chamfer[data-cut="tl"] {
+    --c-tl: var(--c, var(--chamfer));
+    --c-tr: var(--cm, var(--bevel));
+    --c-br: var(--cm, var(--bevel));
+    --c-bl: var(--cm, var(--bevel));
+  }
+
+  .chamfer[data-cut="tr"] {
+    --c-tl: var(--cm, var(--bevel));
+    --c-tr: var(--c, var(--chamfer));
+    --c-br: var(--cm, var(--bevel));
+    --c-bl: var(--cm, var(--bevel));
+  }
+
+  .chamfer[data-cut="br"] {
+    --c-tl: var(--cm, var(--bevel));
+    --c-tr: var(--cm, var(--bevel));
+    --c-br: var(--c, var(--chamfer));
+    --c-bl: var(--cm, var(--bevel));
+  }
+
+  .chamfer[data-cut="bl"] {
+    --c-tl: var(--cm, var(--bevel));
+    --c-tr: var(--cm, var(--bevel));
+    --c-br: var(--cm, var(--bevel));
+    --c-bl: var(--c, var(--chamfer));
+  }
+
+  .chamfer[data-cut="none"] {
+    --c-tl: var(--cm, var(--bevel));
+    --c-tr: var(--cm, var(--bevel));
+    --c-br: var(--cm, var(--bevel));
+    --c-bl: var(--cm, var(--bevel));
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    color: var(--text-1);
+    font-family: var(--font-display);
+    font-weight: var(--fw-semibold);
+    line-height: var(--lh-snug);
+    letter-spacing: var(--tracking-heading);
+    text-wrap: balance;
+  }
+
+  p {
+    max-inline-size: var(--measure);
+    text-wrap: pretty;
+  }
+
+  strong,
+  b {
+    color: var(--text-1);
+    font-weight: var(--fw-semibold);
+  }
+
+  code,
+  kbd,
+  samp,
+  pre {
+    font-family: var(--font-mono);
+    font-size: 0.92em;
+  }
+
+  small {
+    font-size: var(--fs-sm);
+  }
+
+  hr {
+    block-size: 1px;
+    border: 0;
+    background: var(--line-2);
+  }
+
+  /* Numbers that tick or sit in columns are tabular everywhere. */
+  :where(time, output, [data-num]) {
+    font-variant-numeric: tabular-nums;
+  }
+
+  ::selection {
+    background: var(--selection-bg);
+    color: var(--text-1);
+  }
+
+  /* Focus: visible on every control. Primitives layer a white-hot beam sweeping the
+     chamfer on top of this; the outline below is the floor (and what forced-colors
+     users get). */
+  :where(a, button, input, select, textarea, summary, [tabindex]:not([tabindex="-1"])):focus-visible {
+    outline: 2px solid var(--focus-color);
+    outline-offset: var(--focus-offset);
+  }
+
+  :where([tabindex="-1"]):focus {
+    outline: none;
+  }
+
+  /* Anchored targets keep clear of the sticky header. */
+  :target {
+    scroll-margin-block-start: var(--header-offset);
+  }
+
+  img {
+    height: auto;
+  }
+
+  /* Locked while a modal is open (set by the modal stack in ui/internal). */
+  html[data-scroll-locked="true"] {
+    overflow: hidden;
+  }
+
+  /* Inert regions do not take pointer or focus. */
+  [inert] {
+    pointer-events: none;
+    user-select: none;
+  }
+
+  /* Thin, dark scrollbars on WebKit and Blink. */
+  ::-webkit-scrollbar {
+    inline-size: 10px;
+    block-size: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--ink-4);
+    border: 2px solid var(--void);
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--ink-5);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html:not([data-motion="full"]) {
+      scroll-behavior: auto;
+    }
+  }
+
+  /*
+   * The Beat: every real block restarts one of two identical animations on <html> (the
+   * shell alternates data-beat a and b), which pulses --flash from 1 to 0. Tick marks,
+   * hairlines and counters in the primitives read it. No block, no beat: there is no
+   * simulated one.
+   */
+  html[data-beat="a"] {
+    animation: beat-a 1400ms var(--ease-out) both;
+  }
+
+  html[data-beat="b"] {
+    animation: beat-b 1400ms var(--ease-out) both;
+  }
+
+  @keyframes beat-a {
+    from {
+      --flash: 1;
+    }
+    to {
+      --flash: 0;
+    }
+  }
+
+  @keyframes beat-b {
+    from {
+      --flash: 1;
+    }
+    to {
+      --flash: 0;
+    }
+  }
+
+  html[data-motion="reduced"][data-beat] {
+    animation: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html:not([data-motion="full"])[data-beat] {
+      animation: none;
+    }
+  }
+
+  /* More contrast: borders and text step up (tokens do most of it). */
+  @media (prefers-contrast: more) {
+    :where(a:not([class])) {
+      text-decoration: underline;
+    }
+  }
+
+  @media (forced-colors: active) {
+    :root {
+      --focus-color: Highlight;
+    }
+
+    :where(a, button, input, select, textarea, summary, [tabindex]:not([tabindex="-1"])):focus-visible {
+      outline: 2px solid Highlight;
+    }
+
+    ::selection {
+      background: Highlight;
+      color: HighlightText;
+    }
+  }
+
+  @media print {
+    html {
+      background: #fff;
+    }
+
+    body {
+      color: #000;
+    }
+  }
+}

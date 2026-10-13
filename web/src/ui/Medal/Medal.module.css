@@ -1,0 +1,396 @@
+/*
+ * Medal: a hex badge. Layers, bottom to top: aura (the glow), window (the plate, the art
+ * screen-blended onto it, the shine), ring (the hex edge, even-odd clip like Panel), the six
+ * vertex ticks, the one-shot burst, the lock badge. The badge is a regular pointy-top hexagon
+ * (width = height * 0.866), so the percentage polygons below are exact.
+ */
+@layer reset, tokens, base, ui, route, utility;
+
+@layer ui {
+  .medal {
+    --s: 96px;
+    --bw: 2px;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    margin: 0;
+    color: var(--text-2);
+    text-align: center;
+  }
+
+  .badge {
+    position: relative;
+    flex: none;
+    isolation: isolate;
+    /* Room for the aura and the ticks without growing the layout box. */
+  }
+
+  .badge > * {
+    pointer-events: none;
+  }
+
+  .aura {
+    position: absolute;
+    inset: -24% -34%;
+    z-index: -1;
+    background: radial-gradient(closest-side, rgb(var(--accent-deep-rgb) / 0.6), transparent 72%);
+    opacity: 0.6;
+  }
+
+  .window {
+    position: absolute;
+    inset: 0;
+    display: block;
+    clip-path: var(--hex-clip);
+    background:
+      radial-gradient(120% 90% at 70% 10%, rgb(var(--accent-rgb) / 0.22), transparent 62%),
+      linear-gradient(180deg, rgb(var(--ink-1-rgb)), rgb(var(--ink-0-rgb)));
+    overflow: hidden;
+  }
+
+  .art {
+    position: absolute;
+    inset-inline-start: calc(var(--s) * var(--art-x, 0));
+    inset-block-start: calc(var(--s) * var(--art-y, 0));
+    inline-size: calc(var(--s) * var(--art-k, 1));
+    block-size: calc(var(--s) * var(--art-k, 1));
+    max-inline-size: none;
+    mix-blend-mode: screen;
+    user-select: none;
+  }
+
+  /* The glyph medal: a thin inner hex under the glyph. */
+  .inner {
+    position: absolute;
+    inset: 13%;
+    --bw: 1px;
+    clip-path: polygon(
+      evenodd,
+      50% 0,
+      100% 25%,
+      100% 75%,
+      50% 100%,
+      0 75%,
+      0 25%,
+      50% 0,
+      50% calc(1.1547 * var(--bw)),
+      calc(100% - var(--bw)) calc(25% + 0.5774 * var(--bw)),
+      calc(100% - var(--bw)) calc(75% - 0.5774 * var(--bw)),
+      50% calc(100% - 1.1547 * var(--bw)),
+      var(--bw) calc(75% - 0.5774 * var(--bw)),
+      var(--bw) calc(25% + 0.5774 * var(--bw)),
+      50% calc(1.1547 * var(--bw))
+    );
+    background: rgb(var(--accent-hot-rgb) / 0.4);
+  }
+
+  .glyph {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    color: var(--accent-strong);
+    filter: drop-shadow(0 0 6px rgb(var(--accent-rgb) / 0.8));
+  }
+
+  /* The hex edge: outer hexagon minus its inset twin, so the line is an even width. */
+  .ring {
+    position: absolute;
+    inset: 0;
+    clip-path: polygon(
+      evenodd,
+      50% 0,
+      100% 25%,
+      100% 75%,
+      50% 100%,
+      0 75%,
+      0 25%,
+      50% 0,
+      50% calc(1.1547 * var(--bw)),
+      calc(100% - var(--bw)) calc(25% + 0.5774 * var(--bw)),
+      calc(100% - var(--bw)) calc(75% - 0.5774 * var(--bw)),
+      50% calc(100% - 1.1547 * var(--bw)),
+      var(--bw) calc(75% - 0.5774 * var(--bw)),
+      var(--bw) calc(25% + 0.5774 * var(--bw)),
+      50% calc(1.1547 * var(--bw))
+    );
+    background: conic-gradient(
+      from 200deg,
+      rgb(var(--accent-rgb)),
+      #fff 9%,
+      rgb(var(--accent-rgb)) 24%,
+      rgb(var(--accent-deep-rgb)) 52%,
+      rgb(var(--accent-rgb)) 74%,
+      rgb(var(--accent-hot-rgb)) 88%,
+      rgb(var(--accent-rgb))
+    );
+  }
+
+  .ticks {
+    position: absolute;
+    inset: 0;
+    inline-size: 100%;
+    block-size: 100%;
+    overflow: visible;
+  }
+
+  .ticks path {
+    fill: none;
+    stroke: var(--blueprint-strong);
+    stroke-width: 1px;
+    vector-effect: non-scaling-stroke;
+  }
+
+  /* The shine: a diagonal band that crosses the plate once (state new only). The clip lives on
+     the static window, so only the inner band moves and stays on the compositor. */
+  .shine {
+    position: absolute;
+    inset: 0;
+    display: none;
+    overflow: hidden;
+  }
+
+  .shine > span {
+    position: absolute;
+    inset: -10% 0;
+    background: linear-gradient(105deg, transparent 38%, rgb(255 255 255 / 0.5) 50%, transparent 62%);
+    translate: -120% 0;
+  }
+
+  .medal[data-state="new"] .shine {
+    display: block;
+  }
+
+  .medal[data-state="new"] .shine > span {
+    animation: shine 1300ms var(--ease-out) 160ms both;
+  }
+
+  @keyframes shine {
+    to {
+      translate: 120% 0;
+    }
+  }
+
+  /* The burst: the ring leaves the badge once. */
+  .burst {
+    position: absolute;
+    inset: 0;
+    --bw: 2px;
+    clip-path: polygon(
+      evenodd,
+      50% 0,
+      100% 25%,
+      100% 75%,
+      50% 100%,
+      0 75%,
+      0 25%,
+      50% 0,
+      50% calc(1.1547 * var(--bw)),
+      calc(100% - var(--bw)) calc(25% + 0.5774 * var(--bw)),
+      calc(100% - var(--bw)) calc(75% - 0.5774 * var(--bw)),
+      50% calc(100% - 1.1547 * var(--bw)),
+      var(--bw) calc(75% - 0.5774 * var(--bw)),
+      var(--bw) calc(25% + 0.5774 * var(--bw)),
+      50% calc(1.1547 * var(--bw))
+    );
+    background: rgb(var(--accent-hot-rgb));
+    opacity: 0;
+    animation: burst 1000ms var(--ease-out) 60ms both;
+  }
+
+  @keyframes burst {
+    0% {
+      scale: 1;
+      opacity: 0.95;
+    }
+    100% {
+      scale: 1.75;
+      opacity: 0;
+    }
+  }
+
+  .medal[data-state="new"] .aura {
+    animation: flare 1400ms var(--ease-out) both;
+  }
+
+  @keyframes flare {
+    0% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0.6;
+    }
+  }
+
+  /* ---- locked: dim, desaturated, a lock badge ----------------------------------------------- */
+
+  .medal[data-state="locked"] .aura {
+    opacity: 0;
+  }
+
+  .medal[data-state="locked"] .art {
+    filter: grayscale(1) brightness(0.5) contrast(0.95);
+    opacity: 0.8;
+  }
+
+  .medal[data-state="locked"] .glyph {
+    color: var(--text-3);
+    filter: none;
+    opacity: 0.55;
+  }
+
+  .medal[data-state="locked"] .inner {
+    background: rgb(255 255 255 / 0.16);
+  }
+
+  .medal[data-state="locked"] .ring {
+    background: rgb(255 255 255 / 0.22);
+  }
+
+  .medal[data-state="locked"] .ticks path {
+    stroke: rgb(255 255 255 / 0.2);
+  }
+
+  .medal[data-state="locked"] .window {
+    background: linear-gradient(180deg, rgb(var(--ink-1-rgb)), rgb(var(--ink-0-rgb)));
+  }
+
+  .lock {
+    position: absolute;
+    inset-inline-end: -8%;
+    inset-block-end: 4%;
+    inline-size: 32%;
+    block-size: 36.95%;
+    display: grid;
+    place-items: center;
+    color: var(--text-1);
+    background: var(--ink-3);
+    clip-path: var(--hex-clip);
+    box-shadow: inset 0 0 0 1px var(--line-3);
+  }
+
+  /* The lock sits in a hex with its own bright rim, drawn as a ring behind the glyph. */
+  .lock::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgb(255 255 255 / 0.28);
+    clip-path: polygon(
+      evenodd,
+      50% 0,
+      100% 25%,
+      100% 75%,
+      50% 100%,
+      0 75%,
+      0 25%,
+      50% 0,
+      50% 9%,
+      91% 29%,
+      91% 71%,
+      50% 91%,
+      9% 71%,
+      9% 29%,
+      50% 9%
+    );
+  }
+
+  /* ---- caption ------------------------------------------------------------------------------ */
+
+  .caption {
+    display: grid;
+    justify-items: center;
+    gap: 4px;
+    max-inline-size: max(calc(var(--s) * 1.6), 150px);
+  }
+
+  .name {
+    font: 600 var(--fs-md) / 1.25 var(--font-display);
+    letter-spacing: var(--tracking-heading);
+    color: var(--text-1);
+    text-wrap: balance;
+  }
+
+  .state {
+    display: inline-flex;
+    align-items: center;
+    padding-block: 2px;
+    font: 500 var(--fs-2xs) / 1 var(--font-mono);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--accent-text);
+  }
+
+  .state[data-state="locked"] {
+    color: var(--text-3);
+  }
+
+  .state[data-state="new"] {
+    color: var(--hot);
+  }
+
+  .rule {
+    font-size: var(--fs-sm);
+    line-height: 1.45;
+    color: var(--text-3);
+    text-wrap: balance;
+  }
+
+  /* ---- modes -------------------------------------------------------------------------------- */
+
+  :global(html[data-motion="reduced"]) .medal .shine > span,
+  :global(html[data-motion="reduced"]) .medal .aura {
+    animation: none;
+  }
+
+  :global(html[data-motion="reduced"]) .burst {
+    display: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :global(html:not([data-motion="full"])) .medal .shine > span,
+    :global(html:not([data-motion="full"])) .medal .aura {
+      animation: none;
+    }
+
+    :global(html:not([data-motion="full"])) .burst {
+      display: none;
+    }
+  }
+
+  @media (forced-colors: active) {
+    .aura,
+    .shine,
+    .burst {
+      display: none;
+    }
+
+    .window {
+      background: Canvas;
+    }
+
+    .ring {
+      background: CanvasText;
+    }
+
+    .ticks path {
+      stroke: CanvasText;
+    }
+
+    .glyph {
+      color: CanvasText;
+      filter: none;
+    }
+
+    .lock {
+      background: Canvas;
+      color: CanvasText;
+    }
+
+    .state,
+    .name,
+    .rule {
+      color: CanvasText;
+    }
+  }
+}

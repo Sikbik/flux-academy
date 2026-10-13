@@ -1,0 +1,136 @@
+@layer route {
+  .panel {
+    inline-size: 100%;
+  }
+
+  .body {
+    display: grid;
+    gap: var(--space-6);
+  }
+
+  .promise {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-3);
+    margin: 0;
+    padding: var(--space-4);
+    font-size: var(--fs-sm);
+    line-height: 1.55;
+    color: var(--text-2);
+    background: rgb(255 255 255 / 0.03);
+    box-shadow: inset 0 0 0 1px var(--line-1);
+  }
+
+  .promise svg {
+    flex: none;
+    margin-block-start: 2px;
+    color: var(--accent-text);
+  }
+
+  .action {
+    display: grid;
+    gap: var(--space-3) var(--space-5);
+    align-items: center;
+    padding-block-start: var(--space-5);
+    border-block-start: 1px solid var(--line-1);
+  }
+
+  @media (min-width: 560px) {
+    .action {
+      grid-template-columns: minmax(0, 1fr) auto;
+    }
+  }
+
+  .actionText {
+    display: grid;
+    gap: var(--space-1);
+    min-inline-size: 0;
+  }
+
+  .actionTitle {
+    margin: 0;
+    font: 700 var(--fs-md) / 1.2 var(--font-display);
+    letter-spacing: var(--tracking-heading);
+    color: var(--text-1);
+  }
+
+  .actionNote {
+    margin: 0;
+    font-size: var(--fs-sm);
+    line-height: 1.5;
+    color: var(--text-3);
+  }
+
+  .error {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-2);
+    margin: var(--space-2) 0 0;
+    font-size: var(--fs-sm);
+    line-height: 1.45;
+    color: var(--status-crit);
+  }
+
+  .error svg {
+    flex: none;
+    margin-block-start: 2px;
+  }
+
+  /* ---- the import confirmation ---------------------------------------------------------------- */
+
+  .compare {
+    display: grid;
+    gap: var(--space-5);
+  }
+
+  @media (min-width: 560px) {
+    .compare {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .dropped {
+      grid-column: 1 / -1;
+    }
+  }
+
+  .compareTitle {
+    margin: 0 0 var(--space-3);
+    font: 500 var(--fs-xs) / 1 var(--font-mono);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+
+  .summary {
+    display: grid;
+    gap: var(--space-2);
+    margin: 0;
+  }
+
+  .summary div {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-4);
+    padding-block-end: var(--space-2);
+    border-block-end: 1px solid var(--line-1);
+  }
+
+  .summary dt {
+    font-size: var(--fs-sm);
+    color: var(--text-2);
+  }
+
+  .summary dd {
+    margin: 0;
+    font: 600 var(--fs-sm) / 1.3 var(--font-mono);
+    color: var(--text-1);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .dropped {
+    margin: 0;
+    font-size: var(--fs-sm);
+    line-height: 1.5;
+    color: var(--text-2);
+  }
+}

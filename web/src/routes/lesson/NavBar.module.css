@@ -1,0 +1,174 @@
+@layer route {
+  .nav {
+    position: sticky;
+    inset-block-end: 0;
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin-block-start: var(--space-8);
+    padding: var(--space-3) 0 calc(var(--space-3) + var(--safe-bottom, 0px));
+    /* Fully solid, so the text that scrolls under the bar does not ghost through its controls. The fade
+       above it (below) is what softens the edge. */
+    background: rgb(var(--ink-0-rgb));
+  }
+
+  /* More content continues below the bar: the text fades out into it, and a label says so. */
+  .nav::before {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    inset-block-end: 100%;
+    block-size: 32px;
+    background: linear-gradient(to top, rgb(var(--ink-0-rgb)), transparent);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--dur-2) var(--ease-out);
+  }
+
+  .nav[data-more="true"]::before {
+    opacity: 1;
+  }
+
+  .more {
+    position: absolute;
+    inset-block-end: calc(100% + var(--space-2));
+    inset-inline-start: 50%;
+    translate: -50% 0;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    padding: 3px var(--space-3) 3px var(--space-2);
+    font: 500 var(--fs-2xs) / 1.2 var(--font-mono);
+    letter-spacing: var(--tracking-label, 0.12em);
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: var(--accent-text);
+    background: rgb(var(--ink-1-rgb, var(--ink-0-rgb)) / 0.92);
+    box-shadow: inset 0 0 0 1px var(--accent-line);
+    clip-path: polygon(0 4px, 4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--dur-2) var(--ease-out);
+  }
+
+  .nav[data-more="true"] .more {
+    opacity: 1;
+  }
+
+  .status {
+    max-inline-size: none;
+    display: grid;
+    flex: 1 1 auto;
+    gap: 2px;
+    margin: 0;
+    min-inline-size: 0;
+    font: 500 var(--fs-xs) / 1.3 var(--font-mono);
+    letter-spacing: 0.04em;
+    color: var(--text-3);
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .reason {
+    color: var(--accent-text);
+    text-wrap: balance;
+  }
+
+  /* The key hints need room: they appear only on wide screens. */
+  .keys {
+    display: none;
+    gap: var(--space-1);
+  }
+
+  @media (min-width: 1600px) and (pointer: fine) {
+    .keys {
+      display: inline-flex;
+    }
+  }
+
+  /* The stacked layout (the three queries are the list in useStacked.ts): a fixed bar at the bottom of the
+     screen, with Back and Continue always in reach. */
+  @media (max-width: 899.98px) and (orientation: portrait), (max-width: 899.98px) and (min-height: 500.02px),
+    (max-width: 639.98px) {
+    .nav {
+      position: fixed;
+      inset-inline: 0;
+      inset-block-end: 0;
+      z-index: var(--z-raised, 10);
+      flex-wrap: wrap;
+      justify-content: space-between;
+      row-gap: var(--space-2);
+      margin: 0;
+      padding: var(--space-3) var(--gutter) calc(var(--space-3) + var(--safe-bottom, 0px));
+      background: rgb(var(--ink-0-rgb) / 0.94);
+      border-block-start: 1px solid var(--line-2);
+      backdrop-filter: var(--glass-filter);
+      -webkit-backdrop-filter: var(--glass-filter);
+    }
+
+    .nav::before {
+      block-size: 20px;
+    }
+
+    .more {
+      display: none;
+    }
+
+    .backText {
+      display: none;
+    }
+
+    /* The reason takes a line of its own above the buttons, clamped to one line. Beside the buttons it
+       would be squeezed to a column of a few letters by a label like "Start the checkpoint". The whole
+       sentence stays in the DOM as the Continue button's description. */
+    .status[data-gated="true"] {
+      order: -1;
+      flex: 1 0 100%;
+    }
+
+    .status[data-gated="true"] .count {
+      display: none;
+    }
+
+    .reason {
+      min-inline-size: 0;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      text-wrap: nowrap;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :root:not([data-motion="full"]) .nav::before,
+    :root:not([data-motion="full"]) .more {
+      transition: none;
+    }
+  }
+
+  :root[data-motion="reduced"] .nav::before,
+  :root[data-motion="reduced"] .more {
+    transition: none;
+  }
+
+  @media (forced-colors: active) {
+    .nav {
+      background: Canvas;
+      border-block-start: 1px solid CanvasText;
+    }
+
+    .nav::before {
+      display: none;
+    }
+
+    .more {
+      background: Canvas;
+      color: CanvasText;
+      box-shadow: none;
+      outline: 1px solid CanvasText;
+      outline-offset: -1px;
+      clip-path: none;
+    }
+  }
+}

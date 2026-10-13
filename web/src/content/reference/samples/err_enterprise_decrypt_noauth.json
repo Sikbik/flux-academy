@@ -1,0 +1,4 @@
+{
+  "status": "error",
+  "data": { "name": "Error", "message": "Header with enterpriseKey is mandatory for enterprise Apps." }
+}

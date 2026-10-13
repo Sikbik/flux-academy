@@ -1,0 +1,1002 @@
+@layer route {
+  /* ---- text ---------------------------------------------------------------------------- */
+
+  .p {
+    margin: 0;
+    max-inline-size: 72ch;
+    font: 400 var(--fs-md) / 1.65 var(--font-sans);
+    color: var(--text-2);
+    text-wrap: pretty;
+  }
+
+  .p code,
+  .noteText code {
+    font-family: var(--font-mono);
+    font-size: 0.9em;
+    color: var(--text-1);
+    overflow-wrap: anywhere;
+  }
+
+  .noteText {
+    margin: 0;
+    max-inline-size: 72ch;
+    font: 400 var(--fs-sm) / 1.55 var(--font-sans);
+    color: var(--text-3);
+  }
+
+  .textButton {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: 32px;
+    padding: 0 var(--space-1);
+    border: 0;
+    background: none;
+    font: 500 var(--fs-sm) / 1.3 var(--font-sans);
+    color: var(--accent-text);
+    text-decoration: underline;
+    text-decoration-color: rgb(var(--accent-rgb) / 0.45);
+    text-underline-offset: 0.2em;
+    cursor: pointer;
+  }
+
+  @media (hover: hover) {
+    .textButton:hover {
+      color: var(--accent-strong);
+      text-decoration-color: currentColor;
+    }
+  }
+
+  @media (pointer: coarse) {
+    .textButton {
+      min-block-size: 44px;
+    }
+  }
+
+  .codeChip {
+    font: 500 var(--fs-xs) / 1 var(--font-mono);
+    color: var(--text-1);
+  }
+
+  .chipRow {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 8px;
+  }
+
+  .chipRowLabel {
+    font: 500 var(--fs-2xs) / 1 var(--font-mono);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--text-3);
+    margin-inline-end: var(--space-1);
+  }
+
+  .lintChip {
+    max-inline-size: 100%;
+  }
+
+  /* ---- provenance ----------------------------------------------------------------------- */
+
+  .provList {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .prov {
+    flex: none;
+  }
+
+  .legend {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-3);
+    margin: 0;
+  }
+
+  .legendRow {
+    display: grid;
+    grid-template-columns: 7.5rem 1fr;
+    gap: var(--space-3);
+    align-items: start;
+  }
+
+  .legendRow dt,
+  .legendRow dd {
+    margin: 0;
+  }
+
+  .legendRow dd {
+    font: 400 var(--fs-sm) / 1.5 var(--font-sans);
+    color: var(--text-2);
+  }
+
+  /* ---- key fact ------------------------------------------------------------------------- */
+
+  .keyFact {
+    position: relative;
+    display: grid;
+    grid-template-columns: 9px minmax(0, 1fr);
+    gap: var(--space-4);
+    padding: var(--space-4) var(--space-5) var(--space-4) var(--space-3);
+    background: linear-gradient(90deg, rgb(var(--accent-rgb) / 0.09), rgb(var(--accent-rgb) / 0.02) 70%);
+    box-shadow: inset 0 0 0 1px var(--blueprint);
+  }
+
+  /* A dimension line: a spine with a tick every eight pixels, as on a drawing. */
+  .keyTicks {
+    align-self: stretch;
+    border-inline-end: 1px solid var(--blueprint-strong);
+    background: repeating-linear-gradient(to bottom, var(--blueprint-strong) 0 1px, transparent 1px 8px);
+    background-size: 5px 100%;
+    background-repeat: no-repeat;
+    background-position: right top;
+  }
+
+  .keyCross {
+    position: absolute;
+    inline-size: 11px;
+    block-size: 11px;
+    background:
+      linear-gradient(var(--blueprint-strong), var(--blueprint-strong)) center / 1px 100% no-repeat,
+      linear-gradient(var(--blueprint-strong), var(--blueprint-strong)) center / 100% 1px no-repeat;
+    pointer-events: none;
+  }
+
+  .keyCross[data-corner="tl"] {
+    inset-block-start: -5px;
+    inset-inline-start: -5px;
+  }
+
+  .keyCross[data-corner="br"] {
+    inset-block-end: -5px;
+    inset-inline-end: -5px;
+  }
+
+  .keyBody {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-2);
+    min-inline-size: 0;
+  }
+
+  .keyLabel {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    font: 500 var(--fs-2xs) / 1 var(--font-mono);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--accent-text);
+  }
+
+  .keyBullet {
+    inline-size: 8px;
+    block-size: 8px;
+    background: var(--accent-text);
+    clip-path: var(--hex-clip, polygon(25% 5%, 75% 5%, 100% 50%, 75% 95%, 25% 95%, 0 50%));
+  }
+
+  .keyText {
+    font: 400 var(--fs-md) / 1.6 var(--font-sans);
+    color: var(--text-1);
+    max-inline-size: 72ch;
+  }
+
+  .keyText p {
+    margin: 0;
+  }
+
+  .keyText p + p {
+    margin-block-start: var(--space-2);
+  }
+
+  .keyText code {
+    font-family: var(--font-mono);
+    font-size: 0.9em;
+  }
+
+  /*
+   * Generated art. The picture is larger than the part that is lit, so the box is clipped to the lit part
+   * plus a little room for the glow: the transparent margin must not widen the page on a phone.
+   */
+  .art {
+    position: relative;
+    display: inline-block;
+    flex: none;
+    overflow: clip;
+    overflow-clip-margin: 10px;
+  }
+
+  /* ---- sections ------------------------------------------------------------------------- */
+
+  .section {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-4);
+    padding-block-start: var(--space-8);
+    border-block-start: 1px solid var(--line-2);
+    min-inline-size: 0;
+    position: relative;
+  }
+
+  /* A short accent tick sits on the rule, where the number starts. */
+  .section::before {
+    content: "";
+    position: absolute;
+    inset-block-start: -1px;
+    inset-inline-start: 0;
+    inline-size: 2.5rem;
+    block-size: 2px;
+    background: var(--accent-solid);
+  }
+
+  .section[data-level="3"] {
+    padding-block-start: var(--space-6);
+    border-block-start-color: var(--line-1);
+  }
+
+  .section[data-level="3"]::before {
+    inline-size: 1.25rem;
+    background: var(--blueprint-strong);
+  }
+
+  /* One row. On a phone the title wraps inside its space before the controls are pushed to a row of their own. */
+  .sectionHead {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-1) var(--space-3);
+  }
+
+  .sectionNumber {
+    flex: none;
+    font: 500 var(--fs-xs) / 1 var(--font-mono);
+    letter-spacing: 0.1em;
+    color: var(--accent-text);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .sectionTitle {
+    margin: 0;
+    min-inline-size: 0;
+    font: 600 clamp(1.375rem, 1.1rem + 0.9vw, 1.75rem) / 1.2 var(--font-display);
+    letter-spacing: var(--tracking-heading);
+    color: var(--text-1);
+    text-wrap: balance;
+  }
+
+  .section[data-level="3"] .sectionTitle {
+    font-size: clamp(1.125rem, 1rem + 0.45vw, 1.3125rem);
+  }
+
+  .sectionActions {
+    flex: none;
+    margin-inline-start: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3);
+  }
+
+  .sectionSummary {
+    margin: 0;
+    max-inline-size: 70ch;
+    font: 400 var(--fs-body) / 1.6 var(--font-sans);
+    color: var(--text-2);
+    text-wrap: pretty;
+  }
+
+  .sectionBody {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-5);
+    min-inline-size: 0;
+  }
+
+  /* ---- copy link ------------------------------------------------------------------------ */
+
+  .copyLink {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    align-self: center;
+    min-inline-size: 28px;
+    min-block-size: 28px;
+    padding: 0 6px;
+    border: 0;
+    background: none;
+    color: var(--text-3);
+    cursor: pointer;
+    opacity: 0;
+    transition:
+      opacity var(--dur-1) var(--ease-out),
+      color var(--dur-1) var(--ease-out);
+    font: 500 var(--fs-2xs) / 1 var(--font-mono);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .copyLink:focus-visible,
+  .copyLink[data-state="copied"],
+  .copyLink[data-state="failed"] {
+    opacity: 1;
+  }
+
+  .copyLink[data-state="copied"] {
+    color: var(--status-ok);
+  }
+
+  .copyLink[data-state="failed"] {
+    color: var(--status-warn);
+  }
+
+  :is(.sectionHead, .rowHead, .factLabel, .troubleHead):is(:hover, :focus-within) .copyLink {
+    opacity: 1;
+  }
+
+  @media (hover: none) {
+    .copyLink {
+      opacity: 0.75;
+    }
+  }
+
+  @media (hover: hover) {
+    .copyLink:hover {
+      color: var(--accent-text);
+    }
+  }
+
+  @media (pointer: coarse) {
+    .copyLink {
+      min-inline-size: 44px;
+      min-block-size: 44px;
+    }
+
+    /* The target stays 44px but does not make the heading row taller, so it centres on the title. */
+    .sectionHead .copyLink {
+      margin-block: -8px;
+    }
+
+    .factLabel .copyLink {
+      align-self: flex-start;
+      margin-block: -12px;
+    }
+
+    /* In a table cell the 44px target would make every row at least that tall. */
+    .td .copyLink {
+      margin-block: -10px;
+    }
+  }
+
+  .copyWord {
+    min-inline-size: 0;
+  }
+
+  .copyWord:empty {
+    display: none;
+  }
+
+  /* ---- slabs ---------------------------------------------------------------------------- */
+
+  .slab {
+    min-inline-size: 0;
+  }
+
+  .slabInner {
+    display: block;
+    min-inline-size: 0;
+  }
+
+  /* ---- fact lists ----------------------------------------------------------------------- */
+
+  .facts {
+    margin: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    container-type: inline-size;
+  }
+
+  .fact {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-1) var(--space-5);
+    padding: var(--space-3) var(--space-4);
+    border-block-end: 1px solid var(--line-1);
+  }
+
+  .fact:last-child {
+    border-block-end: 0;
+  }
+
+  @container (min-width: 36rem) {
+    .fact {
+      grid-template-columns: minmax(8rem, 11.5rem) minmax(0, 1fr);
+    }
+  }
+
+  .factLabel {
+    margin: 0;
+    display: flex;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 0 var(--space-1);
+    font: 600 var(--fs-sm) / 1.5 var(--font-sans);
+    color: var(--text-1);
+  }
+
+  .factLabel code {
+    font-family: var(--font-mono);
+    font-size: 0.92em;
+    font-weight: 500;
+  }
+
+  .factText {
+    margin: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-2);
+    min-inline-size: 0;
+  }
+
+  .factP {
+    font-size: var(--fs-sm);
+    line-height: 1.6;
+  }
+
+  /* ---- troubleshooting rows ------------------------------------------------------------- */
+
+  .troubles {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-3);
+  }
+
+  .trouble {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-3);
+    padding: var(--space-4);
+    container-type: inline-size;
+  }
+
+  .troubleHead {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-2);
+  }
+
+  .troubleSymptom {
+    margin: 0;
+    flex: 1;
+    min-inline-size: 0;
+    font: 600 var(--fs-md) / 1.45 var(--font-sans);
+    color: var(--text-1);
+  }
+
+  .troubleSymptom code {
+    font-family: var(--font-mono);
+    font-size: 0.9em;
+    font-weight: 500;
+  }
+
+  .troubleCols {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-3) var(--space-6);
+  }
+
+  @container (min-width: 40rem) {
+    .troubleCols {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  .troubleLabel {
+    margin: 0 0 var(--space-1);
+    font: 500 var(--fs-2xs) / 1 var(--font-mono);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+
+  .troubleP {
+    font-size: var(--fs-sm);
+    line-height: 1.6;
+  }
+
+  .troubleFoot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2) var(--space-4);
+    padding-block-start: var(--space-3);
+    border-block-start: 1px dashed var(--line-2);
+  }
+
+  .troubleFoot:empty {
+    display: none;
+  }
+
+  /* ---- tables --------------------------------------------------------------------------- */
+
+  .tableBox {
+    container-type: inline-size;
+    inline-size: 100%;
+    overflow-x: auto;
+  }
+
+  .table {
+    inline-size: 100%;
+    border-collapse: collapse;
+    font: 400 var(--fs-sm) / 1.55 var(--font-sans);
+  }
+
+  .th {
+    padding: var(--space-3) var(--space-4);
+    text-align: start;
+    font: 500 var(--fs-2xs) / 1 var(--font-mono);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--text-3);
+    border-block-end: 1px solid var(--line-2);
+  }
+
+  .th[data-code="true"] {
+    text-transform: none;
+    letter-spacing: 0;
+  }
+
+  .td {
+    padding: var(--space-3) var(--space-4);
+    text-align: start;
+    vertical-align: top;
+    color: var(--text-2);
+    border-block-end: 1px solid var(--line-1);
+  }
+
+  .tr:last-child > .td {
+    border-block-end: 0;
+  }
+
+  .td[data-primary="true"] {
+    font-weight: 600;
+    color: var(--text-1);
+  }
+
+  .td[data-mono="true"] {
+    font-family: var(--font-mono);
+    font-size: var(--fs-sm);
+  }
+
+  .td[data-numeric="true"],
+  .th[data-numeric="true"] {
+    text-align: end;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* One box for everything a cell holds, so the phone card lays it out as a single value. */
+  .cell {
+    min-inline-size: 0;
+  }
+
+  /* biome-ignore lint/style/noDescendingSpecificity: a different container from .keyText, no shared element */
+  .td p {
+    margin: 0;
+  }
+
+  .td p + p {
+    margin-block-start: var(--space-1);
+  }
+
+  .td code {
+    font-family: var(--font-mono);
+    font-size: 0.92em;
+    color: var(--text-1);
+  }
+
+  .tr:target > .td,
+  .tr[data-flash="true"] > .td {
+    background: rgb(var(--accent-rgb) / 0.1);
+  }
+
+  /*
+   * Cards. The table component sets data-cards when the table does not fit its box: each row becomes a
+   * card whose cells carry their column's name. It is measured, not guessed from a width.
+   */
+  .tableBox[data-cards="true"] .table,
+  .tableBox[data-cards="true"] .table tbody,
+  .tableBox[data-cards="true"] .table .tr,
+  .tableBox[data-cards="true"] .table .td {
+    display: block;
+  }
+
+  .tableBox[data-cards="true"] .table thead {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+
+  .tableBox[data-cards="true"] .table .tr {
+    padding: var(--space-3) var(--space-4);
+    border-block-end: 1px solid var(--line-2);
+  }
+
+  .tableBox[data-cards="true"] .table .tr:last-child {
+    border-block-end: 0;
+  }
+
+  .tableBox[data-cards="true"] .table .td {
+    display: grid;
+    grid-template-columns: minmax(5.5rem, 32%) minmax(0, 1fr);
+    gap: var(--space-3);
+    padding: 3px 0;
+    border: 0;
+    text-align: start;
+  }
+
+  .tableBox[data-cards="true"] .table .td::before {
+    content: attr(data-label);
+    font: 500 var(--fs-2xs) / 1.6 var(--font-mono);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+
+  .tableBox[data-cards="true"] .table .td[data-code="true"]::before {
+    text-transform: none;
+    letter-spacing: 0;
+  }
+
+  .tableBox[data-cards="true"] .table .td:not([data-label])::before {
+    content: none;
+  }
+
+  .tableBox[data-cards="true"] .table .td:not([data-label]) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .tableBox[data-cards="true"] .table .td[data-primary="true"] {
+    grid-template-columns: minmax(0, 1fr);
+    padding-block-end: var(--space-2);
+    font-size: var(--fs-md);
+  }
+
+  .tableBox[data-cards="true"] .table .td[data-primary="true"]::before {
+    content: none;
+  }
+
+  .tableBox[data-cards="true"] .table .td[data-numeric="true"] {
+    text-align: start;
+  }
+
+  /* A phone: the label sits above its value, so a long name or domain gets the whole line. */
+  @container (max-width: 28rem) {
+    .tableBox[data-cards="true"] .table .td {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 1px;
+      padding: 5px 0;
+    }
+  }
+
+  /* ---- disclosure rows ------------------------------------------------------------------ */
+
+  .row {
+    position: relative;
+    border-block-end: 1px solid var(--line-1);
+    min-inline-size: 0;
+  }
+
+  .row:last-child {
+    border-block-end: 0;
+  }
+
+  .rowHead {
+    display: flex;
+    align-items: stretch;
+  }
+
+  .rowHeading {
+    margin: 0;
+    flex: 1;
+    min-inline-size: 0;
+    font: inherit;
+  }
+
+  /* The text wraps inside its own box, so the chevron stays at the right and centred however long it gets. */
+  .rowToggle {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    inline-size: 100%;
+    min-block-size: 3rem;
+    padding: var(--space-3) var(--space-2) var(--space-3) var(--space-4);
+    border: 0;
+    background: none;
+    color: inherit;
+    text-align: start;
+    cursor: pointer;
+  }
+
+  .rowToggle:focus-visible {
+    outline-offset: -3px;
+  }
+
+  @media (hover: hover) {
+    .rowToggle:hover {
+      background: rgb(var(--accent-rgb) / 0.06);
+    }
+  }
+
+  .rowText {
+    flex: 1 1 auto;
+    min-inline-size: 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-1) var(--space-3);
+  }
+
+  .rowTitle {
+    flex: none;
+    max-inline-size: 100%;
+    font: 600 var(--fs-md) / 1.3 var(--font-mono);
+    color: var(--text-1);
+    overflow-wrap: anywhere;
+  }
+
+  .rowMeta {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    flex: 1 1 auto;
+    min-inline-size: 0;
+    font: 400 var(--fs-xs) / 1.4 var(--font-mono);
+    color: var(--text-3);
+  }
+
+  .rowAside {
+    flex: 0 1 auto;
+    min-inline-size: 0;
+    max-inline-size: 100%;
+    margin-inline-start: auto;
+    font: 500 var(--fs-xs) / 1.4 var(--font-mono);
+    color: var(--text-3);
+    overflow-wrap: anywhere;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* On a phone the aside wraps to its own line, where it reads better at the start than at the end. */
+  @media (max-width: 639px) {
+    .rowAside {
+      margin-inline-start: 0;
+    }
+  }
+
+  .rowChevron {
+    flex: none;
+    display: inline-grid;
+    place-items: center;
+    inline-size: 28px;
+    block-size: 28px;
+    color: var(--text-3);
+    transition: transform var(--dur-2) var(--ease-out);
+  }
+
+  .row[data-open="true"] > .rowHead .rowChevron {
+    transform: rotate(180deg);
+    color: var(--accent-text);
+  }
+
+  .row[data-open="true"] {
+    background: rgb(var(--accent-rgb) / 0.035);
+    box-shadow: inset 2px 0 0 var(--accent-solid);
+  }
+
+  /* Set from the annotated example: the row of the field that is active up there. */
+  .row[data-linked="true"] {
+    box-shadow: inset 2px 0 0 var(--blueprint-strong);
+    background: rgb(var(--accent-rgb) / 0.05);
+  }
+
+  .rowSummary {
+    padding: 0 var(--space-4) var(--space-3);
+    margin-block-start: calc(-1 * var(--space-1));
+  }
+
+  .rowBodyInner {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-4);
+    padding: var(--space-3) var(--space-4) var(--space-5);
+    border-block-start: 1px dashed var(--line-2);
+    margin-inline: var(--space-4);
+    padding-inline: 0;
+  }
+
+  /* ---- lint card ------------------------------------------------------------------------ */
+
+  .lintCard {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-2);
+  }
+
+  /* biome-ignore lint/style/noDescendingSpecificity: a different container from .keyText, no shared element */
+  .lintCard p {
+    margin: 0;
+    font: 400 var(--fs-sm) / 1.55 var(--font-sans);
+    color: var(--text-2);
+  }
+
+  .lintCard strong {
+    color: var(--text-1);
+    font-weight: 600;
+  }
+
+  .lintCardCode {
+    font-family: var(--font-mono);
+    font-size: var(--fs-sm);
+    letter-spacing: 0.02em;
+    overflow-wrap: anywhere;
+  }
+
+  .lintCard .lintCardKind {
+    font: 500 var(--fs-2xs) / 1 var(--font-mono);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+
+  .lintCard .lintCardTitle {
+    color: var(--text-1);
+    font-weight: 600;
+  }
+
+  /* ---- targets -------------------------------------------------------------------------- */
+
+  :global([data-flash="true"]) {
+    animation: ref-flash 1.8s var(--ease-out) both;
+  }
+
+  @keyframes ref-flash {
+    from {
+      background-color: rgb(var(--accent-rgb) / 0.24);
+      box-shadow: inset 3px 0 0 var(--accent-solid);
+    }
+
+    to {
+      background-color: transparent;
+      box-shadow: inset 3px 0 0 transparent;
+    }
+  }
+
+  :root[data-motion="reduced"] :global([data-flash="true"]) {
+    animation: none;
+    background-color: rgb(var(--accent-rgb) / 0.14);
+    box-shadow: inset 3px 0 0 var(--accent-solid);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :root:not([data-motion="full"]) :global([data-flash="true"]) {
+      animation: none;
+      background-color: rgb(var(--accent-rgb) / 0.14);
+      box-shadow: inset 3px 0 0 var(--accent-solid);
+    }
+
+    .rowChevron {
+      transition: none;
+    }
+
+    .copyLink {
+      transition: none;
+    }
+  }
+
+  /* biome-ignore lint/style/noDescendingSpecificity: sets transition only, the open-row rule sets transform and color */
+  :root[data-motion="reduced"] .rowChevron,
+  :root[data-motion="reduced"] .copyLink {
+    transition: none;
+  }
+
+  @media (forced-colors: active) {
+    /* The art is light on black and screened. On a system palette it would be a smear, and it says nothing. */
+    .art {
+      display: none;
+    }
+
+    .keyFact {
+      box-shadow: none;
+      border: 1px solid CanvasText;
+      background: none;
+    }
+
+    .keyTicks {
+      border-inline-end-color: CanvasText;
+      background: none;
+    }
+
+    .keyCross {
+      background: none;
+    }
+
+    .keyBullet {
+      background: CanvasText;
+    }
+
+    .section::before {
+      background: Highlight;
+    }
+
+    .row[data-open="true"] {
+      box-shadow: none;
+      border-inline-start: 2px solid Highlight;
+    }
+
+    .row[data-linked="true"] {
+      box-shadow: none;
+      outline: 1px dashed Highlight;
+      outline-offset: -1px;
+    }
+
+    .rowToggle:hover {
+      background: none;
+      outline: 1px solid Highlight;
+    }
+
+    :global([data-flash="true"]) {
+      animation: none;
+      outline: 2px solid Highlight;
+    }
+
+    .copyLink {
+      color: LinkText;
+    }
+  }
+}
+
+@layer route {
+  .copyValue {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-block-size: 28px;
+    padding: 0 8px;
+    border: 0;
+    background: rgb(var(--ink-2-rgb, 30 40 70) / 0.5);
+    box-shadow: inset 0 0 0 1px var(--line-2);
+    color: var(--text-2);
+    font: 500 var(--fs-2xs) / 1 var(--font-mono);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+
+  .copyValue[data-state="copied"] {
+    color: var(--status-ok);
+  }
+
+  .copyValue[data-state="failed"] {
+    color: var(--status-warn);
+  }
+
+  @media (hover: hover) {
+    .copyValue:hover {
+      color: var(--accent-strong);
+      box-shadow: inset 0 0 0 1px var(--blueprint-strong);
+    }
+  }
+
+  @media (pointer: coarse) {
+    .copyValue {
+      min-block-size: 44px;
+    }
+  }
+}

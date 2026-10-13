@@ -1,0 +1,180 @@
+@layer route {
+  .dim {
+    color: var(--text-3);
+    font-weight: 400;
+  }
+
+  .sectionNote {
+    margin: 0;
+    max-inline-size: 76ch;
+    font: 400 var(--fs-sm) / 1.6 var(--font-sans);
+    color: var(--text-3);
+  }
+
+  .rowLink {
+    display: inline-flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0 var(--space-2);
+  }
+
+  .tool {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-4);
+    min-inline-size: 0;
+  }
+
+  .toolRow {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2) var(--space-3);
+  }
+
+  /* Filter chips are 22px tall in the kit; in a tool row they are the main control, so give them a target. */
+  .toolRow > button {
+    min-block-size: 32px;
+  }
+
+  @media (pointer: coarse) {
+    .toolRow > button {
+      min-block-size: 44px;
+    }
+  }
+
+  .verdictBox {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-3);
+  }
+
+  .verdictLine {
+    margin: 0;
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-2);
+    font: 500 var(--fs-md) / 1.5 var(--font-sans);
+    color: var(--text-1);
+  }
+
+  .verdictLine > :first-child {
+    flex: none;
+    margin-block-start: 0.45em;
+  }
+
+  .parts {
+    margin: 0;
+    display: grid;
+    gap: 0;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  @media (min-width: 640px) {
+    .parts {
+      grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+      gap: var(--space-3) var(--space-4);
+    }
+  }
+
+  .part {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2px;
+    padding: var(--space-2) 0;
+    border-block-end: 1px dashed var(--line-2);
+    min-inline-size: 0;
+  }
+
+  .part dt {
+    font: 500 var(--fs-2xs) / 1.4 var(--font-mono);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+
+  .part dd {
+    margin: 0;
+    font: 500 var(--fs-sm) / 1.4 var(--font-mono);
+    color: var(--text-1);
+    overflow-wrap: anywhere;
+  }
+
+  .part dd[data-empty="true"] {
+    color: var(--text-4);
+  }
+
+  .problems {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-1);
+    font: 400 var(--fs-sm) / 1.55 var(--font-sans);
+    color: var(--status-warn);
+  }
+
+  .fine {
+    margin: 0;
+    font: 400 var(--fs-sm) / 1.5 var(--font-sans);
+    color: var(--text-3);
+  }
+
+  .bindBox {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-3);
+    min-inline-size: 0;
+  }
+
+  .twoUp {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-4);
+    align-items: start;
+    min-inline-size: 0;
+  }
+
+  @media (min-width: 900px) {
+    .twoUp {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  .notes {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .note {
+    display: grid;
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-4);
+    border-block-end: 1px solid var(--line-1);
+    justify-items: start;
+  }
+
+  .note:last-child {
+    border-block-end: 0;
+  }
+
+  .noteHead {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+  }
+
+  .noteLines {
+    font: 600 var(--fs-sm) / 1.4 var(--font-mono);
+    color: var(--text-1);
+    overflow-wrap: anywhere;
+  }
+
+  .noteText {
+    font-size: var(--fs-sm);
+  }
+}

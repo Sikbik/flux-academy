@@ -1,0 +1,36 @@
+@layer reset, tokens, base, ui, route, utility;
+
+@layer ui {
+  .select {
+    flex: 1;
+    min-inline-size: 0;
+    block-size: 100%;
+    min-block-size: inherit;
+    padding: 0;
+    margin: 0;
+    background: transparent;
+    border: 0;
+    outline: none;
+    color: var(--text-1);
+    font: 500 var(--fs-md) / 1.4 var(--font-sans);
+    -webkit-appearance: none;
+    appearance: none;
+    cursor: pointer;
+    text-overflow: ellipsis;
+  }
+
+  .select:disabled {
+    cursor: not-allowed;
+  }
+
+  /* The dropdown list is the platform's; give it the page's colours. */
+  .select option,
+  .select optgroup {
+    background: var(--ink-1);
+    color: var(--text-1);
+  }
+
+  .select option:disabled {
+    color: var(--text-4);
+  }
+}

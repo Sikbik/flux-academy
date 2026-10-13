@@ -1,0 +1,33 @@
+{
+  "status": "success",
+  "data": [
+    {
+      "tier": "STRATUS",
+      "payment_address": "t3TRUNKvgywghL1vU5bsGQqs9eVC17XcUnV",
+      "txhash": "d775bf5c887da123039e71b2abf7754131a20d31f7c7f3ca1fd5c5150e88d624",
+      "outidx": "0",
+      "pubkey": "03cf1d8b708ca7f5979accb4d0dba35a90391e3dfc4422cf12670c929bb58d16ac",
+      "ip": "176.9.25.184",
+      "collateralPoints": 30,
+      "maturityPoints": 500,
+      "pubKeyPoints": 500,
+      "enterprisePoints": 2000,
+      "enterpriseApps": 0,
+      "score": 3030
+    },
+    {
+      "tier": "STRATUS",
+      "payment_address": "t3TRUNKvgywghL1vU5bsGQqs9eVC17XcUnV",
+      "txhash": "87bf3914b8348a835fb6579e3cd2096c9bfcd219dcc9ecca268ce7c105680c42",
+      "outidx": "0",
+      "pubkey": "03cf1d8b708ca7f5979accb4d0dba35a90391e3dfc4422cf12670c929bb58d16ac",
+      "ip": "176.9.25.176",
+      "collateralPoints": 30,
+      "maturityPoints": 500,
+      "pubKeyPoints": 500,
+      "enterprisePoints": 2000,
+      "enterpriseApps": 0,
+      "score": 3030
+    }
+  ]
+}

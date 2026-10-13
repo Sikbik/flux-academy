@@ -1,0 +1,56 @@
+@layer reset, tokens, base, ui, route, utility;
+
+@layer ui {
+  .dot {
+    position: relative;
+    display: inline-block;
+    flex: none;
+    inline-size: var(--dot, 9px);
+    block-size: calc(var(--dot, 9px) * 1.1547);
+    vertical-align: middle;
+    background: var(--status);
+    clip-path: var(--hex-clip);
+    box-shadow: 0 0 8px rgb(var(--status-rgb) / 0.6);
+  }
+
+  /* The slow ring: a hexagon outline that grows and fades. Live things only. */
+  .dot[data-pulse="true"]::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: var(--status);
+    clip-path: var(--hex-clip);
+    animation: ring 2.4s var(--ease-out) infinite;
+  }
+
+  @keyframes ring {
+    0% {
+      scale: 1;
+      opacity: 0.55;
+    }
+    70%,
+    100% {
+      scale: 2.4;
+      opacity: 0;
+    }
+  }
+
+  :global(html[data-motion="reduced"]) .dot[data-pulse="true"]::after {
+    animation: none;
+    display: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :global(html:not([data-motion="full"])) .dot[data-pulse="true"]::after {
+      animation: none;
+      display: none;
+    }
+  }
+
+  @media (forced-colors: active) {
+    .dot {
+      background: CanvasText;
+      box-shadow: none;
+    }
+  }
+}

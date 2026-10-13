@@ -1,0 +1,60 @@
+{
+  "status": "success",
+  "data": {
+    "latestSupportedSpecVersion": 8,
+    "price": [
+      { "height": -1, "cpu": 3, "ram": 1, "hdd": 0.5, "minPrice": 1, "port": 2, "scope": 6, "staticip": 3 },
+      {
+        "height": 983000,
+        "cpu": 0.3,
+        "ram": 0.1,
+        "hdd": 0.05,
+        "minPrice": 0.1,
+        "port": 2,
+        "scope": 6,
+        "staticip": 3
+      }
+    ],
+    "fluxUSDRate": 0.6,
+    "usdprice": {
+      "height": -1,
+      "cpu": 0.15,
+      "ram": 0.05,
+      "hdd": 0.02,
+      "minPrice": 0.01,
+      "port": 2,
+      "scope": 4,
+      "staticip": 2,
+      "fluxmultiplier": 0.95,
+      "multiplier": 1,
+      "minUSDPrice": 0.99
+    },
+    "appSpecsEnforcementHeights": {
+      "1": 0,
+      "2": 0,
+      "3": 983000,
+      "4": 1004000,
+      "5": 1142000,
+      "6": 1300000,
+      "7": 1420000,
+      "8": 1932380
+    },
+    "address": "t1LUs6quf7TB2zVZmexqPQdnqmrFMGZGjV6",
+    "addressMultisigB": "t3NryfAQLGeFs9jEoeqsxmBN2QLRaRKFLUX",
+    "portMin": 1,
+    "portMax": 65535,
+    "bannedPorts": ["16100-16299", "26100-26299"],
+    "enterprisePorts": ["0-1023", 8080],
+    "maxImageSize": 5000000000,
+    "minimumInstances": 3,
+    "minimumInstancesV8": 1,
+    "minimumInstancesV8Block": 2176519,
+    "maximumInstances": 100,
+    "blocksLasting": 22000,
+    "minBlocksAllowance": 5000,
+    "maxBlocksAllowance": 264000,
+    "postPonMaxBlocksAllowance": 1056000,
+    "daemonPONFork": 2020000,
+    "blocksAllowanceInterval": 1000
+  }
+}

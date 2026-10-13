@@ -1,0 +1,140 @@
+/*
+ * Logo: the official artwork, never recoloured outside the Brand Book colourways, never
+ * distorted. The only styling here is layout, the live words of the Academy lockup, and the
+ * forced-colors fallback (a single-colour mark in the user's own theme).
+ */
+@layer reset, tokens, base, ui, route, utility;
+
+@layer ui {
+  .logo {
+    display: inline-flex;
+    align-items: center;
+    gap: calc(var(--logo-size) * 0.3);
+    vertical-align: middle;
+    text-decoration: none;
+    color: var(--logo-word, #fff);
+    line-height: 1;
+  }
+
+  .logo[data-clear="true"] {
+    padding: var(--logo-x);
+  }
+
+  .svg {
+    display: block;
+    flex: none;
+    inline-size: auto;
+    block-size: var(--logo-size);
+    max-inline-size: none;
+    overflow: visible;
+  }
+
+  /* "Flux" at 700 and "Academy" at 300: the weights are the signature (DESIGN 5.1). */
+  .words {
+    font-family: var(--font-display);
+    font-size: calc(var(--logo-size) * 0.58);
+    line-height: 1;
+    letter-spacing: -0.025em;
+    color: var(--logo-word, #fff);
+    white-space: nowrap;
+  }
+
+  .flux {
+    font-weight: 700;
+    color: inherit;
+  }
+
+  .academy {
+    font-weight: 300;
+  }
+
+  a.logo {
+    position: relative;
+  }
+
+  /* Keyboard focus: the same one-shot white-hot beam as Panel and Button, as a 2 px frame. */
+  a.logo:focus-visible {
+    outline: none;
+  }
+
+  a.logo:focus-visible::after {
+    content: "";
+    position: absolute;
+    inset: -6px;
+    pointer-events: none;
+    clip-path: polygon(
+      evenodd,
+      0 0,
+      100% 0,
+      100% 100%,
+      0 100%,
+      0 0,
+      2px 2px,
+      2px calc(100% - 2px),
+      calc(100% - 2px) calc(100% - 2px),
+      calc(100% - 2px) 2px,
+      2px 2px
+    );
+    background: conic-gradient(
+      from var(--beam-angle),
+      #fff,
+      rgb(var(--accent-hot-rgb) / 0.95) 16%,
+      rgb(var(--accent-rgb) / 0.9) 50%,
+      rgb(var(--accent-hot-rgb) / 0.95) 84%,
+      #fff
+    );
+    animation: beam 900ms var(--ease-out) both;
+  }
+
+  @keyframes beam {
+    to {
+      --beam-angle: 360deg;
+    }
+  }
+
+  :global(html[data-motion="reduced"]) a.logo:focus-visible::after {
+    animation: none;
+    background: rgb(255 255 255 / 0.92);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :global(html:not([data-motion="full"])) a.logo:focus-visible::after {
+      animation: none;
+      background: rgb(255 255 255 / 0.92);
+    }
+  }
+
+  /* The user's own colours: one colour, in their theme. The shape is still the official one. */
+  @media (forced-colors: active) {
+    .logo {
+      forced-color-adjust: auto;
+      color: CanvasText;
+    }
+
+    .words {
+      color: CanvasText;
+    }
+
+    .svg .disc {
+      fill: CanvasText;
+    }
+
+    .svg[data-disc="true"] .symbol {
+      fill: Canvas;
+    }
+
+    .svg[data-disc="false"] .symbol,
+    .svg .word {
+      fill: CanvasText;
+    }
+
+    a.logo:focus-visible {
+      outline: 2px solid Highlight;
+      outline-offset: 4px;
+    }
+
+    a.logo:focus-visible::after {
+      display: none;
+    }
+  }
+}

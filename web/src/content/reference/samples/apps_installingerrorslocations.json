@@ -1,0 +1,19 @@
+{
+  "status": "success",
+  "data": [
+    {
+      "hash": "42fd8fd1bfc1df22e03a44f20b73452b4090d9d7b3f285085565b59b558d6926",
+      "ip": "149.154.176.33",
+      "name": "KaspaNode24GB1760888581380",
+      "broadcastedAt": "2026-05-22T14:01:22.427Z",
+      "error": "{\"status\":\"error\",\"data\":{\"name\":\"Error\",\"message\":\"Insufficient space on Flux Node. Space is already assig..."
+    },
+    {
+      "hash": "42fd8fd1bfc1df22e03a44f20b73452b4090d9d7b3f285085565b59b558d6926",
+      "ip": "149.154.176.18",
+      "name": "KaspaNode24GB1760888581380",
+      "broadcastedAt": "2026-05-22T14:01:34.034Z",
+      "error": "{\"status\":\"error\",\"data\":{\"name\":\"Error\",\"message\":\"Insufficient space on Flux Node. Space is already assig..."
+    }
+  ]
+}

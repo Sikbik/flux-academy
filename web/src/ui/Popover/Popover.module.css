@@ -1,0 +1,106 @@
+/*
+ * Popover: a Surface anchored to its trigger. The stem is a hairline from the card edge to
+ * the trigger centre, ending in a dot: the callout language of the annotation layer.
+ */
+@layer reset, tokens, base, ui, route, utility;
+
+@layer ui {
+  .card {
+    position: fixed;
+    inset: 0 auto auto 0;
+    inline-size: max-content;
+    max-inline-size: min(var(--w, 320px), calc(100vw - 16px));
+    pointer-events: auto;
+    opacity: 0;
+    translate: var(--tx, 0px) calc(var(--ty, 0px) + var(--shift, 6px));
+    transition:
+      opacity var(--dur-2) var(--ease-out),
+      translate var(--dur-3) var(--ease-out);
+    outline: none;
+  }
+
+  .card[data-side="bottom"] {
+    --shift: -6px;
+  }
+
+  .card[data-side="left"] {
+    --shift: 0px;
+  }
+
+  .card[data-state="open"] {
+    opacity: 1;
+    --shift: 0px;
+  }
+
+  .stem {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 11px;
+    inset-inline-start: var(--arrow, 50%);
+    background: var(--blueprint-strong);
+  }
+
+  .stem::after {
+    content: "";
+    position: absolute;
+    inline-size: 5px;
+    block-size: 5px;
+    inset-inline-start: -2px;
+    background: var(--hot);
+    clip-path: var(--hex-clip);
+  }
+
+  .card[data-side="top"] .stem {
+    inset-block-end: -12px;
+  }
+
+  .card[data-side="top"] .stem::after {
+    inset-block-end: -2px;
+  }
+
+  .card[data-side="bottom"] .stem {
+    inset-block-start: -12px;
+  }
+
+  .card[data-side="bottom"] .stem::after {
+    inset-block-start: -2px;
+  }
+
+  .card[data-side="left"] .stem,
+  .card[data-side="right"] .stem {
+    display: none;
+  }
+
+  .body {
+    display: grid;
+    gap: 6px;
+    padding: 12px 14px;
+  }
+
+  .title {
+    font: 600 var(--fs-md) / 1.25 var(--font-display);
+    color: var(--text-1);
+    letter-spacing: var(--tracking-heading);
+  }
+
+  .text {
+    font: 400 var(--fs-sm) / 1.55 var(--font-sans);
+    color: var(--text-2);
+  }
+
+  .text :where(p + p) {
+    margin-block-start: 0.6em;
+  }
+
+  :global(html[data-motion="reduced"]) .card {
+    --shift: 0px;
+    transition: opacity var(--dur-2) linear;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :global(html:not([data-motion="full"])) .card {
+      --shift: 0px;
+      transition: opacity var(--dur-2) linear;
+    }
+  }
+}

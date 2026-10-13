@@ -1,0 +1,325 @@
+/*
+ * The figure frame: the stage, the caption, the beat pager and the description. Layout only; the material
+ * is Panel (framed) or the lesson stage's own frame (frameless).
+ *
+ * A frameless figure is a flex column that is given a maximum height by the lesson stage (see useFit.ts):
+ * the body scrolls when the figure still does not fit, and the pager is outside the body so it never does.
+ */
+
+@layer ui {
+  .host {
+    inline-size: 100%;
+    min-inline-size: 0;
+  }
+
+  .frame {
+    inline-size: 100%;
+  }
+
+  .inner {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    min-inline-size: 0;
+    box-sizing: border-box;
+  }
+
+  /* A lesson stage is short: the chrome around the figure is kept thin so the figure gets the height. */
+  .host[data-fitted] .inner {
+    padding: var(--space-3) var(--space-4);
+    gap: var(--space-2);
+  }
+
+  .host[data-fitted][data-compact] .inner {
+    padding: var(--space-2) var(--space-3);
+  }
+
+  .body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    margin: 0;
+    min-block-size: 0;
+    min-inline-size: 0;
+    flex: 1 1 auto;
+  }
+
+  .host[data-fitted] .body {
+    gap: var(--space-2);
+  }
+
+  /* The window the diagram is seen through. In a lesson stage it is the one part of the figure that can
+     scroll: the caption and the pager below it never leave the screen. */
+  .window {
+    position: relative;
+    min-block-size: 0;
+    min-inline-size: 0;
+    flex: 0 1 auto;
+  }
+
+  .host[data-fitted] .window {
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: var(--ink-4) transparent;
+  }
+
+  /* Part of the figure is below the edge: fade the edge so the window reads as scrollable. */
+  .host[data-fitted] .window[data-more] {
+    -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 32px), transparent);
+    mask-image: linear-gradient(to bottom, #000 calc(100% - 32px), transparent);
+  }
+
+  .window:focus-visible {
+    outline: 2px solid var(--focus-color);
+    outline-offset: 2px;
+  }
+
+  /* Holds the stage at its painted height when the stage is scaled down to fit. */
+  .fit {
+    min-inline-size: 0;
+  }
+
+  .stage {
+    position: relative;
+    min-inline-size: 0;
+    transform-origin: top center;
+    /* The figure is drawn on a dark screen so its light always has a black to read against. */
+    background: rgb(var(--ink-0-rgb) / 0.7);
+    box-shadow: inset 0 0 0 1px var(--line-1);
+  }
+
+  /* The probe reticle: two hairlines and a readout, written to by useProbe. */
+  .reticleH,
+  .reticleV,
+  .readout {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-start: 0;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity var(--dur-1) var(--ease-out);
+  }
+  .reticleH {
+    inline-size: 100%;
+    block-size: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgb(var(--accent-rgb) / 0.55) 20%,
+      rgb(var(--accent-rgb) / 0.55) 80%,
+      transparent
+    );
+  }
+  .reticleV {
+    inline-size: 1px;
+    block-size: 100%;
+    background: linear-gradient(
+      180deg,
+      transparent,
+      rgb(var(--accent-rgb) / 0.55) 20%,
+      rgb(var(--accent-rgb) / 0.55) 80%,
+      transparent
+    );
+  }
+  .readout {
+    font: var(--type-label);
+    font-size: var(--fs-2xs);
+    letter-spacing: 0.06em;
+    color: var(--text-1);
+    background: var(--glass-bg-strong);
+    border: 1px solid var(--line-blue);
+    padding: 3px 7px;
+    white-space: nowrap;
+    max-inline-size: 70%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .stage[data-probe="idle"] .reticleH,
+  .stage[data-probe="idle"] .reticleV {
+    opacity: 1;
+  }
+  .stage[data-probe="on"] .reticleH,
+  .stage[data-probe="on"] .reticleV,
+  .stage[data-probe="on"] .readout {
+    opacity: 1;
+  }
+
+  /* The caption is the shared FigCaption; the note holds the beat's sentence, with the longest sentence
+     drawn invisibly under it so the area never changes height from beat to beat. */
+  .caption {
+    flex: none;
+  }
+
+  .note {
+    display: grid;
+  }
+
+  .noteLive,
+  .noteGhost {
+    grid-area: 1 / 1;
+    font-size: var(--fs-md);
+    line-height: var(--lh-normal);
+    text-wrap: pretty;
+  }
+
+  .noteLive {
+    color: var(--text-1);
+  }
+
+  .noteGhost {
+    visibility: hidden;
+    pointer-events: none;
+    user-select: none;
+  }
+
+  .host[data-compact] .noteLive,
+  .host[data-compact] .noteGhost {
+    font-size: var(--fs-sm);
+    line-height: 1.45;
+  }
+
+  /* The description of the whole figure: laid over the diagram, so the caption and the pager stay put. */
+  .alt {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    margin: 0;
+    max-inline-size: none;
+    /* A readable line length, centred, whatever the width of the stage. */
+    padding: var(--space-3) max(var(--space-4), calc((100% - 72ch) / 2));
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    font-size: var(--fs-sm);
+    line-height: var(--lh-normal);
+    color: var(--text-1);
+    background: rgb(var(--ink-0-rgb) / 0.985);
+    box-shadow: inset 0 0 0 1px var(--line-blue);
+  }
+
+  .notice {
+    margin: 0;
+    font-size: var(--fs-sm);
+    color: var(--status-warn);
+  }
+
+  /* ---- the pager ----------------------------------------------------------------------------- */
+
+  .pager {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    flex: none;
+    min-inline-size: 0;
+  }
+
+  .dots {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .dot {
+    display: grid;
+    place-items: center;
+    inline-size: 28px;
+    block-size: var(--touch-min);
+    cursor: pointer;
+    color: var(--line-blue);
+  }
+
+  .dotHex {
+    inline-size: 11px;
+    block-size: 12px;
+    background: currentColor;
+    clip-path: var(--hex-clip);
+    transition:
+      transform var(--dur-2) var(--ease-snap),
+      background-color var(--dur-2) var(--ease-out);
+  }
+
+  .dot[data-state="past"] {
+    color: rgb(var(--accent-rgb) / 0.55);
+  }
+  .dot[data-state="now"] {
+    color: var(--accent-strong);
+  }
+  .dot[data-state="now"] .dotHex {
+    transform: scale(1.3);
+  }
+  .dot:hover .dotHex {
+    transform: scale(1.25);
+  }
+  .dot:focus-visible {
+    outline: 2px solid var(--focus-color);
+    outline-offset: -4px;
+  }
+
+  .count {
+    margin-inline-start: var(--space-2);
+    flex: none;
+    white-space: nowrap;
+    font: var(--type-label);
+    letter-spacing: var(--tracking-label);
+    color: var(--text-3);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .tools {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    margin-inline-start: auto;
+    flex: none;
+  }
+
+  /* ---- loading and errors ------------------------------------------------------------------- */
+
+  .loading {
+    display: grid;
+    place-items: center;
+    min-block-size: 220px;
+    background: rgb(var(--ink-0-rgb) / 0.5);
+    box-shadow: inset 0 0 0 1px var(--line-1);
+  }
+  .loadingLabel {
+    font: var(--type-label);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+
+  .error {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: var(--space-3);
+    align-items: start;
+    color: var(--status-warn);
+  }
+  .errorTitle {
+    margin: 0;
+    font: var(--type-h4);
+    color: var(--text-1);
+  }
+  .errorBody {
+    margin: var(--space-1) 0 0;
+    font-size: var(--fs-md);
+    color: var(--text-2);
+    line-height: var(--lh-normal);
+  }
+  .errorBody code {
+    font-family: var(--font-mono);
+    color: var(--text-1);
+  }
+
+  @media (max-width: 480px) {
+    /* The FIG number already says which beat this is; the dots need the room. */
+    .count {
+      display: none;
+    }
+  }
+}

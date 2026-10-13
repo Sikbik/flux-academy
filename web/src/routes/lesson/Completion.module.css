@@ -1,0 +1,527 @@
+@layer route {
+  .done {
+    display: grid;
+    gap: var(--space-8);
+    inline-size: min(100%, 60rem);
+    margin-inline: auto;
+    padding-block-end: var(--space-8);
+  }
+
+  /* Rank up: a 600 ms wash of the tier colour, then gone. */
+  .wash {
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-ambient, 110);
+    pointer-events: none;
+    background: var(--tier-wash, var(--accent));
+    opacity: 0;
+    animation: wash 600ms var(--ease-in-out) both;
+  }
+
+  .wash[data-tier="cumulus"] {
+    --tier-wash: var(--cumulus);
+  }
+
+  .wash[data-tier="nimbus"] {
+    --tier-wash: var(--nimbus);
+  }
+
+  .wash[data-tier="stratus"] {
+    --tier-wash: var(--stratus);
+  }
+
+  @keyframes wash {
+    0%,
+    100% {
+      opacity: 0;
+    }
+    35% {
+      opacity: 0.18;
+    }
+  }
+
+  .hero {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    gap: var(--space-8);
+  }
+
+  .shard {
+    position: relative;
+    inline-size: 120px;
+    block-size: 120px;
+    --shard: var(--accent);
+    --shard-strong: var(--accent-strong);
+  }
+
+  .shard[data-tier="cumulus"] {
+    --shard: var(--cumulus);
+    --shard-strong: var(--accent-300);
+  }
+
+  .shard[data-tier="nimbus"] {
+    --shard: var(--nimbus);
+  }
+
+  .shard[data-tier="stratus"] {
+    --shard: var(--stratus);
+  }
+
+  .shard svg {
+    display: block;
+    overflow: visible;
+    filter: drop-shadow(0 0 18px rgb(var(--accent-rgb) / 0.35));
+  }
+
+  .shardRing {
+    stroke: var(--shard);
+    stroke-width: 2;
+    stroke-linejoin: miter;
+    stroke-dasharray: 360;
+    animation: shard-draw 900ms var(--ease-out) both;
+  }
+
+  .shardFill {
+    fill: var(--shard);
+    fill-opacity: 0.22;
+    stroke: var(--shard-strong);
+    stroke-width: 1.5;
+    transform-origin: 60px 60px;
+    animation: shard-land 700ms var(--ease-snap) 500ms both;
+  }
+
+  .shardCheck {
+    stroke: #fff;
+    stroke-width: 5;
+    stroke-linecap: square;
+    stroke-dasharray: 60;
+    animation: shard-check 480ms var(--ease-out) 900ms both;
+  }
+
+  @keyframes shard-draw {
+    from {
+      stroke-dashoffset: 360;
+    }
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  @keyframes shard-land {
+    from {
+      opacity: 0;
+      transform: translateY(calc(-22px * var(--motion-scale, 1)))
+        scale(calc(1 - 0.14 * var(--motion-scale, 1)));
+    }
+  }
+
+  @keyframes shard-check {
+    from {
+      stroke-dashoffset: 60;
+    }
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  .heroText {
+    display: grid;
+    gap: var(--space-3);
+    min-inline-size: 0;
+  }
+
+  .eyebrow {
+    max-inline-size: none;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-3);
+    margin: 0;
+    font: 500 var(--fs-xs) / 1 var(--font-mono);
+    letter-spacing: var(--tracking-label, 0.12em);
+    text-transform: uppercase;
+    color: var(--status-ok);
+  }
+
+  .title {
+    margin: 0;
+    font: 600 clamp(1.75rem, 1.3rem + 1.8vw, 2.75rem) / 1.08 var(--font-display);
+    letter-spacing: var(--tracking-h2, -0.03em);
+    color: var(--text-1);
+    text-wrap: balance;
+    outline: none;
+    scroll-margin-block-start: calc(var(--bar-h, 64px) + var(--rail-h, 56px) + var(--space-4));
+  }
+
+  .hook {
+    margin: 0;
+    max-inline-size: 60ch;
+    font: var(--type-lead);
+    color: var(--text-2);
+  }
+
+  /* ---- XP ------------------------------------------------------------------------------------ */
+
+  .xp {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: end;
+    gap: var(--space-3) var(--space-8);
+    padding: var(--space-6) var(--space-8);
+    background: rgb(var(--ink-0-rgb) / 0.78);
+    box-shadow:
+      inset 0 0 0 1px var(--line-2),
+      inset 3px 0 0 var(--accent);
+    clip-path: polygon(0 14px, 14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%);
+  }
+
+  .xpBig {
+    font: 300 var(--fs-stat-xl) / 1 var(--font-display);
+    letter-spacing: var(--tracking-display, -0.04em);
+    color: var(--text-1);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .odo {
+    display: inline-flex;
+  }
+
+  .lines {
+    display: grid;
+    gap: var(--space-1);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: var(--fs-md);
+    color: var(--text-2);
+  }
+
+  .total {
+    max-inline-size: none;
+    grid-column: 1 / -1;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-3);
+    margin: 0;
+    padding-block-start: var(--space-3);
+    border-block-start: 1px solid var(--line-1);
+    font: 500 var(--fs-xs) / 1 var(--font-mono);
+    letter-spacing: var(--tracking-label, 0.12em);
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+
+  .total strong {
+    font: 600 var(--fs-h4) / 1 var(--font-mono);
+    letter-spacing: 0;
+    color: var(--text-1);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .rank {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    padding: var(--space-4) var(--space-5);
+    color: var(--text-1);
+    background: rgb(var(--accent-rgb) / 0.12);
+    box-shadow: inset 0 0 0 1px var(--accent-line);
+  }
+
+  .rank p {
+    margin: 0;
+  }
+
+  .rank[data-tier="cumulus"] {
+    color: var(--cumulus);
+  }
+
+  .rank[data-tier="nimbus"] {
+    color: var(--nimbus);
+  }
+
+  .rank[data-tier="stratus"] {
+    color: var(--stratus);
+  }
+
+  .rank p {
+    color: var(--text-1);
+  }
+
+  .medals {
+    display: grid;
+    gap: var(--space-3);
+  }
+
+  .medal {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    margin: 0;
+    padding: var(--space-3) var(--space-4);
+    color: var(--accent-text);
+    background: rgb(var(--ink-0-rgb) / 0.78);
+    box-shadow: inset 0 0 0 1px var(--line-2);
+  }
+
+  .medal span {
+    display: grid;
+    gap: 2px;
+    font-size: var(--fs-sm);
+    color: var(--text-3);
+  }
+
+  .medal strong {
+    font-size: var(--fs-md);
+    color: var(--text-1);
+  }
+
+  /* ---- objectives and recap -------------------------------------------------------------------- */
+
+  .columns {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-8);
+  }
+
+  .block {
+    display: grid;
+    align-content: start;
+    gap: var(--space-4);
+    min-inline-size: 0;
+  }
+
+  .h3 {
+    margin: 0;
+    font: 500 var(--fs-xs) / 1 var(--font-mono);
+    letter-spacing: var(--tracking-label, 0.12em);
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+
+  .ticks,
+  .recap {
+    display: grid;
+    gap: var(--space-3);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: var(--fs-md);
+    line-height: var(--lh-body);
+    color: var(--text-2);
+  }
+
+  .ticks li {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: start;
+    gap: var(--space-3);
+    animation: tick-row var(--dur-3) var(--ease-out) both;
+    animation-delay: calc((900ms + var(--i, 0) * 180ms) * var(--motion-scale, 1));
+  }
+
+  @keyframes tick-row {
+    from {
+      opacity: 0;
+      transform: translateX(calc(-8px * var(--motion-scale, 1)));
+    }
+  }
+
+  .tick {
+    display: grid;
+    place-items: center;
+    inline-size: 22px;
+    block-size: 24px;
+    margin-block-start: 2px;
+    color: var(--on-accent);
+    background: var(--status-ok);
+    clip-path: var(--hex-clip);
+  }
+
+  .recap li {
+    position: relative;
+    padding-inline-start: var(--space-5);
+  }
+
+  .recap li::before {
+    content: "";
+    position: absolute;
+    inset-inline-start: 0;
+    inset-block-start: 0.6em;
+    inline-size: 8px;
+    block-size: 8px;
+    background: var(--accent);
+    clip-path: var(--hex-clip);
+  }
+
+  /* ---- next, labs, further --------------------------------------------------------------------- */
+
+  .next {
+    display: grid;
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+    gap: var(--space-6);
+    align-items: stretch;
+  }
+
+  .nextCard {
+    position: relative;
+    display: grid;
+    align-content: start;
+    gap: var(--space-2);
+    padding: var(--space-5) var(--space-6);
+    color: var(--text-1);
+    background: linear-gradient(135deg, rgb(var(--accent-rgb) / 0.16), rgb(var(--ink-0-rgb) / 0.82) 58%);
+    box-shadow: inset 0 0 0 1px var(--accent-line);
+    clip-path: polygon(0 16px, 16px 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%);
+    transition:
+      box-shadow var(--dur-2) var(--ease-out),
+      background var(--dur-2) var(--ease-out);
+  }
+
+  .nextCard:hover {
+    box-shadow:
+      inset 0 0 0 1px var(--accent-strong),
+      0 0 28px -8px var(--accent-glow);
+  }
+
+  .nextCard:focus-visible {
+    outline: 2px solid var(--focus-color);
+    outline-offset: 3px;
+  }
+
+  .nextLabel {
+    font: 500 var(--fs-xs) / 1 var(--font-mono);
+    letter-spacing: var(--tracking-label, 0.12em);
+    text-transform: uppercase;
+    color: var(--accent-text);
+  }
+
+  .nextTitle {
+    font: 600 var(--fs-h3) / 1.2 var(--font-display);
+    letter-spacing: var(--tracking-heading, -0.012em);
+  }
+
+  .nextMeta {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3);
+    font: 500 var(--fs-xs) / 1 var(--font-mono);
+    color: var(--text-3);
+  }
+
+  .nextGo {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-block-start: var(--space-3);
+    font-weight: 600;
+    color: var(--accent-text);
+  }
+
+  .labs ul,
+  .further ul {
+    display: grid;
+    gap: var(--space-2);
+    margin: var(--space-3) 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .labs a,
+  .further a {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-block-size: var(--touch-min, 44px);
+    color: var(--text-1);
+    font-weight: 600;
+  }
+
+  .further a {
+    min-block-size: 32px;
+    font-weight: 400;
+    color: var(--accent-text);
+    text-decoration: underline;
+    text-decoration-color: rgb(var(--accent-rgb) / 0.5);
+    text-underline-offset: 0.18em;
+  }
+
+  .labs a:hover,
+  .further a:hover {
+    color: var(--hot);
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-3);
+    padding-block-start: var(--space-4);
+    border-block-start: 1px solid var(--line-1);
+  }
+
+  .mapLink {
+    margin-inline-start: auto;
+    font-weight: 600;
+    color: var(--text-2);
+  }
+
+  .mapLink:hover {
+    color: var(--hot);
+  }
+
+  @media (max-width: 899.98px) {
+    .hero {
+      grid-template-columns: 1fr;
+      gap: var(--space-4);
+    }
+
+    .shard {
+      inline-size: 88px;
+      block-size: 88px;
+    }
+
+    .shard svg {
+      inline-size: 88px;
+      block-size: 88px;
+    }
+
+    .xp {
+      grid-template-columns: 1fr;
+      padding: var(--space-5);
+    }
+
+    .columns,
+    .next {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* Reduced motion: everything is already in its final place. */
+  .done[data-reduced="true"] .shardRing,
+  .done[data-reduced="true"] .shardFill,
+  .done[data-reduced="true"] .shardCheck,
+  .done[data-reduced="true"] .ticks li {
+    animation: none;
+  }
+
+  /* Forced colours: shadows are removed, so every boxed region is outlined. */
+  @media (forced-colors: active) {
+    .xp,
+    .rank,
+    .medal,
+    .nextCard {
+      box-shadow: none;
+      outline: 1px solid CanvasText;
+      outline-offset: -1px;
+      clip-path: none;
+    }
+
+    .nextCard:hover,
+    .nextCard:focus-visible {
+      outline: 2px solid Highlight;
+    }
+  }
+}

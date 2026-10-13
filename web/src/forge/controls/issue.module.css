@@ -1,0 +1,174 @@
+/*
+ * One lint issue explained. The severity colour is a rail on the left plus a glyph and a word, never
+ * colour alone (DESIGN section 8).
+ */
+@layer reset, tokens, base, ui, route, utility;
+
+@layer ui {
+  .detail {
+    --sev: var(--status-pending);
+    --sev-rgb: var(--status-pending-rgb);
+    position: relative;
+    display: grid;
+    gap: var(--space-2);
+    min-inline-size: 0;
+    padding-inline-start: var(--space-3);
+    color: var(--text-2);
+    font: 400 var(--fs-sm) / 1.55 var(--font-sans);
+  }
+
+  .detail::before {
+    content: "";
+    position: absolute;
+    inset-block: 2px;
+    inset-inline-start: 0;
+    inline-size: 2px;
+    background: linear-gradient(180deg, var(--sev), rgb(var(--sev-rgb) / 0.2));
+  }
+
+  .detail[data-severity="error"] {
+    --sev: var(--status-crit);
+    --sev-rgb: var(--status-crit-rgb);
+  }
+
+  .detail[data-severity="warning"] {
+    --sev: var(--status-warn);
+    --sev-rgb: var(--status-warn-rgb);
+  }
+
+  .head {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-2);
+  }
+
+  .sev {
+    display: inline-flex;
+    flex: none;
+    margin-block-start: 2px;
+    color: var(--sev);
+  }
+
+  .title {
+    margin: 0;
+    font: 600 var(--fs-md) / 1.35 var(--font-sans);
+    color: var(--text-1);
+    overflow-wrap: anywhere;
+  }
+
+  .message {
+    margin: 0;
+    color: var(--text-1);
+    font-weight: 600;
+    overflow-wrap: anywhere;
+  }
+
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin: 0;
+  }
+
+  .code,
+  .path {
+    padding: 1px 6px;
+    font: 500 var(--fs-2xs) / 1.5 var(--font-mono);
+    letter-spacing: 0.02em;
+    color: var(--text-3);
+    background: rgb(255 255 255 / 0.05);
+    box-shadow: inset 0 0 0 1px var(--line-1);
+    overflow-wrap: anywhere;
+  }
+
+  .path {
+    color: var(--accent-text);
+  }
+
+  .body {
+    display: grid;
+    gap: var(--space-2);
+    margin: 0;
+  }
+
+  .body dt {
+    font: 500 var(--fs-2xs) / 1.2 var(--font-mono);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+
+  .body dd {
+    margin: 2px 0 0;
+    color: var(--text-2);
+  }
+
+  .judgement {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-2);
+    margin: 0;
+    padding: var(--space-2) var(--space-3);
+    font: 400 var(--fs-xs) / 1.5 var(--font-sans);
+    color: var(--text-3);
+    background: rgb(255 255 255 / 0.03);
+    box-shadow: inset 0 0 0 1px var(--line-1);
+  }
+
+  .judgement svg {
+    flex: none;
+    margin-block-start: 1px;
+    color: var(--status-pending);
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2) var(--space-3);
+    margin-block-start: var(--space-1);
+  }
+
+  .action,
+  .primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-block-size: 30px;
+    padding: 0 var(--space-3);
+    border: 0;
+    font: 600 var(--fs-xs) / 1 var(--font-sans);
+    text-decoration: none;
+    cursor: pointer;
+    clip-path: polygon(0 5px, 5px 0, 100% 0, 100% calc(100% - 5px), calc(100% - 5px) 100%, 0 100%);
+    transition:
+      background var(--dur-1) var(--ease-out),
+      color var(--dur-1) var(--ease-out);
+  }
+
+  .action {
+    color: var(--text-2);
+    background: rgb(255 255 255 / 0.05);
+    box-shadow: inset 0 0 0 1px var(--line-2);
+  }
+
+  .action:hover {
+    color: var(--text-1);
+    background: rgb(var(--accent-rgb) / 0.18);
+  }
+
+  .primary {
+    color: var(--on-accent);
+    background: var(--accent-solid);
+  }
+
+  .primary:hover {
+    background: var(--accent-solid-hover);
+  }
+
+  .action:focus-visible,
+  .primary:focus-visible {
+    outline: 2px solid var(--focus-color);
+    outline-offset: 2px;
+  }
+}

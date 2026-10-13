@@ -1,0 +1,225 @@
+/*
+ * The small instruments inside each chapter card: the spec, the hash rows, the placed copies, the run
+ * status. Mono, quiet, and tied to the same numbers the scene reads.
+ */
+@layer route {
+  /* ---- spec --------------------------------------------------------------------------------- */
+
+  .code {
+    padding: var(--space-3) var(--space-4);
+    background: rgb(var(--ink-0-rgb) / 0.55);
+    border: 1px solid var(--line-1);
+    border-inline-start: 2px solid var(--accent);
+    overflow: hidden;
+  }
+
+  .pre {
+    margin: 0;
+    min-block-size: calc(var(--lines, 11) * 1.55em);
+    font: 400 var(--fs-xs) / 1.55 var(--font-mono);
+    color: var(--code-fg);
+    white-space: pre;
+    overflow: hidden;
+  }
+
+  .pre code {
+    font: inherit;
+  }
+
+  .codeLine {
+    display: block;
+    min-block-size: 1.55em;
+  }
+
+  .pre [data-t="keyword"] {
+    color: var(--code-keyword);
+  }
+
+  .pre [data-t="string"] {
+    color: var(--code-string);
+  }
+
+  .pre [data-t="number"] {
+    color: var(--code-number);
+  }
+
+  .pre [data-t="key"] {
+    color: var(--code-key);
+  }
+
+  .pre [data-t="punct"],
+  .pre [data-t="operator"] {
+    color: var(--code-punct);
+  }
+
+  .caret {
+    display: inline-block;
+    inline-size: 0.5ch;
+    block-size: 1.05em;
+    margin-inline-start: 1px;
+    vertical-align: text-bottom;
+    background: var(--accent);
+    animation: blink 1s steps(2, jump-none) infinite;
+  }
+
+  @keyframes blink {
+    to {
+      opacity: 0.1;
+    }
+  }
+
+  /* ---- hash rows ---------------------------------------------------------------------------- */
+
+  .rows {
+    margin: 0;
+    display: grid;
+    gap: 0;
+    border: 1px solid var(--line-1);
+    background: rgb(var(--ink-0-rgb) / 0.45);
+  }
+
+  .row {
+    display: grid;
+    grid-template-columns: 6.5rem minmax(0, 1fr);
+    gap: var(--space-3);
+    padding: var(--space-2) var(--space-4);
+    border-block-end: 1px solid var(--line-1);
+    color: var(--text-4);
+    transition: color var(--dur-3) var(--ease-out);
+  }
+
+  .row:last-child {
+    border-block-end: 0;
+  }
+
+  .row dt {
+    font: 500 var(--fs-2xs) / 1.6 var(--font-mono);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+  }
+
+  .row dd {
+    margin: 0;
+    display: grid;
+    gap: var(--space-1);
+    font: 400 var(--fs-xs) / 1.5 var(--font-mono);
+  }
+
+  .row[data-on="true"] {
+    color: var(--text-1);
+  }
+
+  .row[data-on="true"] dt {
+    color: var(--accent-text);
+  }
+
+  .hash {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 1ch;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.02em;
+  }
+
+  .group {
+    white-space: nowrap;
+  }
+
+  .block {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2) var(--space-3);
+  }
+
+  .num {
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+  }
+
+  .sub {
+    color: var(--text-3);
+  }
+
+  /* ---- placed copies and run status --------------------------------------------------------- */
+
+  .place,
+  .run {
+    display: grid;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+    background: rgb(var(--ink-0-rgb) / 0.45);
+    border: 1px solid var(--line-1);
+  }
+
+  .run {
+    justify-items: start;
+  }
+
+  .copies {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .copy {
+    inline-size: 14px;
+    block-size: 16px;
+    clip-path: var(--hex-clip);
+    background: var(--line-2);
+    transition:
+      background var(--dur-3) var(--ease-out),
+      box-shadow var(--dur-3) var(--ease-out);
+  }
+
+  .copy[data-on="true"] {
+    background: var(--accent);
+    box-shadow: 0 0 12px var(--accent-glow);
+  }
+
+  .copiesText {
+    margin-inline-start: var(--space-2);
+    font: 500 var(--fs-xs) / 1 var(--font-mono);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text-2);
+  }
+
+  .line {
+    margin: 0;
+    font: 400 var(--fs-sm) / 1.5 var(--font-sans);
+    color: var(--text-2);
+    text-wrap: pretty;
+  }
+
+  .tiers {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .asOf {
+    font: 500 var(--fs-2xs) / 1.4 var(--font-mono);
+    letter-spacing: 0.04em;
+    color: var(--text-3);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :root:not([data-motion="full"]) .caret {
+      animation: none;
+    }
+
+    :root:not([data-motion="full"]) :is(.row, .copy) {
+      transition: none;
+    }
+  }
+
+  :root[data-motion="reduced"] .caret {
+    animation: none;
+  }
+
+  :root[data-motion="reduced"] :is(.row, .copy) {
+    transition: none;
+  }
+}

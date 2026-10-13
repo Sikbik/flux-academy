@@ -1,0 +1,255 @@
+/* ==========================================================================
+   Utilities: the few global classes pages and primitives can rely on.
+   Typography roles (DESIGN 3.2), the accessible-hiding helpers, layout helpers
+   and the hex-native pill. Everything else belongs in a CSS Module.
+   The chamfer geometry (.chamfer) lives in base.css.
+   ========================================================================== */
+
+@layer reset, tokens, base, ui, route, utility;
+
+@layer utility {
+  /* Visually hidden, still announced. */
+  .sr-only {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  /* Hidden until focused (skip links). */
+  .sr-only-focusable:not(:focus, :focus-within) {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  /* ---- Type roles (DESIGN 3.2) --------------------------------------------------- */
+
+  /* Display: weight 300 for the line, 700 for the key words (wrap them in <b>).
+     Mixed weights in one headline are the signature. */
+  .t-display {
+    font: var(--type-display);
+    letter-spacing: var(--tracking-display);
+    color: var(--text-1);
+    text-wrap: balance;
+  }
+
+  .t-display :where(b, strong, em) {
+    font-weight: var(--fw-bold);
+    font-style: normal;
+  }
+
+  .t-h2 {
+    font: var(--type-h2);
+    letter-spacing: var(--tracking-h2);
+    color: var(--text-1);
+    text-wrap: balance;
+  }
+
+  .t-h3 {
+    font: var(--type-h3);
+    letter-spacing: var(--tracking-heading);
+    color: var(--text-1);
+    text-wrap: balance;
+  }
+
+  .t-h4 {
+    font: var(--type-h4);
+    color: var(--text-1);
+  }
+
+  .t-lead {
+    font: var(--type-lead);
+    color: var(--text-2);
+    max-inline-size: 58ch;
+    text-wrap: pretty;
+  }
+
+  .t-body {
+    font: var(--type-body);
+    color: var(--text-2);
+  }
+
+  /* Lesson body: 17 px, 1.65, measure 62ch. */
+  .t-lesson {
+    font: var(--type-lesson);
+    color: var(--text-2);
+    max-inline-size: var(--measure);
+    text-wrap: pretty;
+  }
+
+  .t-small {
+    font-size: var(--fs-sm);
+    line-height: var(--lh-normal);
+    color: var(--text-3);
+  }
+
+  /* The instrument voice: mono, uppercase, tracked. Eyebrows, chips, axis labels. */
+  .t-label {
+    font: var(--type-label);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+
+  .t-mono {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .t-num {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum" 1;
+  }
+
+  /* Big stat numbers: Montserrat 300 to 600, tabular. */
+  .t-stat {
+    font: var(--type-stat);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+    color: var(--text-1);
+  }
+
+  /* The accent voice: Lora italic, at most one editorial line per page. */
+  .t-accent {
+    font-family: var(--font-accent);
+    font-style: italic;
+    font-weight: 400;
+    color: var(--text-2);
+  }
+
+  /* Gradient emphasis for key words in headlines. The ONLY text gradient (DESIGN 3.2). */
+  .t-grad {
+    background: linear-gradient(100deg, #fff 0%, var(--accent-strong) 38%, var(--accent-text) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+
+  /* Words split by SplitReveal sit in transformed spans, which background-clip: text
+     cannot see through; give each word the gradient itself. */
+  .t-grad [data-w] > * {
+    background: linear-gradient(100deg, #fff 0%, var(--accent-strong) 38%, var(--accent-text) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+
+  .t-1 {
+    color: var(--text-1);
+  }
+  .t-2 {
+    color: var(--text-2);
+  }
+  .t-3 {
+    color: var(--text-3);
+  }
+
+  .nowrap {
+    white-space: nowrap;
+  }
+
+  /* An inline link in running text: accent colour, a hairline underline that firms up. */
+  .link {
+    color: var(--accent-text);
+    text-decoration: underline;
+    text-decoration-color: rgb(var(--accent-rgb) / 0.45);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.2em;
+    transition:
+      color var(--dur-1) var(--ease-out),
+      text-decoration-color var(--dur-1) var(--ease-out);
+  }
+
+  .link:hover {
+    color: var(--accent-strong);
+    text-decoration-color: currentColor;
+  }
+
+  /* ---- Layout helpers ---------------------------------------------------------------- */
+
+  /* A vertical rhythm. Set --gap (default 1rem). */
+  .stack {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap, 1rem);
+  }
+
+  /* A wrapping row. Set --gap (default 0.75rem). */
+  .cluster {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--gap, 0.75rem);
+  }
+
+  /* Page width with the fluid gutter. Add data-size="wide|narrow". */
+  .container {
+    inline-size: min(100% - 2 * var(--gutter), var(--container));
+    margin-inline: auto;
+  }
+
+  .container[data-size="wide"] {
+    inline-size: min(100% - 2 * var(--gutter), var(--container-wide));
+  }
+
+  .container[data-size="narrow"] {
+    inline-size: min(100% - 2 * var(--gutter), var(--container-narrow));
+  }
+
+  /* The hex-native pill: an elongated hexagon, for toggles and the nav. Set --hp (the
+     depth of the points, default 10px) on the element itself. */
+  .hexpill {
+    clip-path: polygon(
+      var(--hp, 10px) 0,
+      calc(100% - var(--hp, 10px)) 0,
+      100% 50%,
+      calc(100% - var(--hp, 10px)) 100%,
+      var(--hp, 10px) 100%,
+      0 50%
+    );
+  }
+
+  /*
+   * Parallax: a child that drifts opposite the pointer inside an element that writes
+   * --pxp and --pyp (an interactive Panel, a Tilt, a Spotlight). Set --depth in px.
+   *   <img class="parallax" style="--depth: 18px" />
+   */
+  .parallax {
+    translate: calc((0.5 - var(--pxp, 0.5)) * var(--depth, 12px))
+      calc((0.5 - var(--pyp, 0.5)) * var(--depth, 12px));
+    transition: translate var(--dur-2) var(--ease-out);
+  }
+
+  :root[data-motion="reduced"] .parallax {
+    translate: none;
+    transition: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :root:not([data-motion="full"]) .parallax {
+      translate: none;
+      transition: none;
+    }
+  }
+
+  @media (forced-colors: active) {
+    .t-grad,
+    .t-grad [data-w] > * {
+      background: none;
+      -webkit-text-fill-color: currentColor;
+      color: CanvasText;
+    }
+  }
+}

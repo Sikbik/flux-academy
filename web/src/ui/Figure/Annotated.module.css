@@ -1,0 +1,12 @@
+@layer reset, tokens, base, ui, route, utility;
+
+@layer ui {
+  .layer {
+    position: absolute;
+    inset: 0;
+    inline-size: 100%;
+    block-size: 100%;
+    overflow: visible;
+    pointer-events: none;
+  }
+}

@@ -1,0 +1,259 @@
+/*
+ * The calm 2D bench. It is a drawing, so it uses the same material as the rest of the page: hairlines,
+ * tier colours only on tiers, white-hot for what matters now. Motion is CSS only and stops under
+ * reduced motion (the picture is complete without it).
+ */
+@layer route {
+  /* The frame decides the height; the drawing is fitted inside it and never makes it taller. */
+  .wrap {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+  }
+
+  .svg {
+    inline-size: 100%;
+    block-size: 100%;
+    overflow: visible;
+  }
+
+  .field circle {
+    fill: rgb(var(--accent-rgb) / 0.22);
+  }
+
+  /* ---- pillars -------------------------------------------------------------------------- */
+
+  .pillar {
+    --tier: var(--cumulus);
+    --tier-rgb: var(--cumulus-rgb);
+    transform-box: fill-box;
+    transform-origin: 50% 100%;
+    animation: rise 520ms var(--ease-out) both;
+  }
+
+  .pillar[data-tier="nimbus"] {
+    --tier: var(--nimbus);
+    --tier-rgb: var(--nimbus-rgb);
+  }
+
+  .pillar[data-tier="stratus"] {
+    --tier: var(--stratus);
+    --tier-rgb: var(--stratus-rgb);
+  }
+
+  .faceT {
+    fill: rgb(var(--tier-rgb, var(--accent-rgb)) / 0.9);
+    stroke: rgb(var(--tier-rgb, var(--accent-rgb)));
+    stroke-width: 0.8;
+    filter: drop-shadow(0 0 5px rgb(var(--tier-rgb, var(--accent-rgb)) / 0.7));
+  }
+
+  .faceL {
+    fill: rgb(var(--tier-rgb, var(--accent-rgb)) / 0.22);
+    stroke: rgb(var(--tier-rgb, var(--accent-rgb)) / 0.5);
+    stroke-width: 0.6;
+  }
+
+  .faceR {
+    fill: rgb(var(--tier-rgb, var(--accent-rgb)) / 0.36);
+    stroke: rgb(var(--tier-rgb, var(--accent-rgb)) / 0.5);
+    stroke-width: 0.6;
+  }
+
+  .idle .faceT {
+    fill: rgb(var(--accent-rgb) / 0.2);
+    stroke: rgb(var(--accent-rgb) / 0.45);
+    filter: none;
+  }
+
+  .idle .faceL,
+  .idle .faceR {
+    fill: rgb(var(--accent-rgb) / 0.07);
+    stroke: rgb(var(--accent-rgb) / 0.25);
+  }
+
+  .cc {
+    fill: var(--text-3);
+    font: 500 9.5px / 1 var(--font-mono);
+    letter-spacing: 0.12em;
+  }
+
+  .pillar[data-down="true"] {
+    animation: flicker 600ms steps(1) both;
+  }
+
+  .pillar[data-down="true"] :is(.faceT, .faceL, .faceR) {
+    fill: rgb(113 113 113 / 0.22);
+    stroke: rgb(113 113 113 / 0.7);
+    filter: none;
+  }
+
+  .pillar[data-down="true"] .cc {
+    fill: var(--status-crit);
+  }
+
+  .crack {
+    fill: none;
+    stroke: var(--status-crit);
+    stroke-width: 1.4;
+    stroke-linecap: square;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    animation: draw 360ms 120ms var(--ease-out) forwards;
+  }
+
+  /* ---- arcs and packets ------------------------------------------------------------------- */
+
+  .arc {
+    fill: none;
+    stroke: url(#lite-arc);
+    stroke-width: 1.4;
+    stroke-linecap: round;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 0;
+    animation: draw 900ms var(--ease-out) both;
+    opacity: 0.9;
+  }
+
+  .arc[data-tier="cumulus"] {
+    stroke: var(--cumulus);
+  }
+
+  .arc[data-tier="nimbus"] {
+    stroke: var(--nimbus);
+  }
+
+  .arc[data-tier="stratus"] {
+    stroke: var(--stratus);
+  }
+
+  .arc[data-down="true"] {
+    stroke: var(--status-off);
+    stroke-dasharray: 0.02 0.02;
+    opacity: 0.55;
+    animation: none;
+  }
+
+  .packet {
+    fill: #fff;
+    offset-rotate: 0deg;
+    filter: drop-shadow(0 0 3px rgb(var(--accent-hot-rgb) / 0.9));
+    animation: flow 2.4s linear infinite;
+  }
+
+  /* ---- the cell --------------------------------------------------------------------------- */
+
+  .cellT {
+    fill: rgb(var(--accent-hot-rgb) / 0.22);
+    stroke: rgb(var(--accent-hot-rgb) / 0.95);
+    stroke-width: 1;
+    filter: drop-shadow(0 0 10px rgb(var(--accent-deep-rgb) / 0.9));
+  }
+
+  .cellL {
+    fill: rgb(var(--accent-rgb) / 0.12);
+    stroke: rgb(var(--accent-rgb) / 0.6);
+    stroke-width: 0.8;
+  }
+
+  .cellR {
+    fill: rgb(var(--accent-rgb) / 0.2);
+    stroke: rgb(var(--accent-rgb) / 0.6);
+    stroke-width: 0.8;
+  }
+
+  .cellSlab {
+    fill: rgb(var(--accent-hot-rgb) / 0.08);
+    stroke: rgb(var(--accent-hot-rgb) / 0.55);
+    stroke-width: 0.8;
+  }
+
+  .cell[data-live="false"] :is(.cellT, .cellSlab) {
+    stroke: var(--status-crit);
+    filter: none;
+  }
+
+  /* ---- legend (the DOM equivalent of the picture, for assistive tech) ---------------------- */
+
+  .legend {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    list-style: none;
+  }
+
+  @keyframes rise {
+    from {
+      transform: scaleY(0.15);
+      opacity: 0;
+    }
+  }
+
+  @keyframes draw {
+    from {
+      stroke-dashoffset: 1;
+    }
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  @keyframes flicker {
+    0%,
+    30%,
+    60% {
+      opacity: 0.35;
+    }
+    15%,
+    45%,
+    100% {
+      opacity: 1;
+    }
+  }
+
+  @keyframes flow {
+    from {
+      offset-distance: 0%;
+      opacity: 0;
+    }
+    10%,
+    90% {
+      opacity: 1;
+    }
+    to {
+      offset-distance: 100%;
+      opacity: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :root:not([data-motion="full"]) :is(.pillar, .arc, .crack, .packet) {
+      animation: none;
+    }
+
+    :root:not([data-motion="full"]) .packet {
+      display: none;
+    }
+
+    :root:not([data-motion="full"]) .crack {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  :root[data-motion="reduced"] :is(.pillar, .arc, .crack, .packet) {
+    animation: none;
+  }
+
+  :root[data-motion="reduced"] .packet {
+    display: none;
+  }
+
+  :root[data-motion="reduced"] .crack {
+    stroke-dashoffset: 0;
+  }
+}

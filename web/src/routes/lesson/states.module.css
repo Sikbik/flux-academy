@@ -1,0 +1,160 @@
+@layer route {
+  .skeleton {
+    inline-size: min(100% - 2 * var(--gutter), var(--container-wide));
+    margin: 0 auto;
+    padding-block: var(--space-4) var(--space-12);
+  }
+
+  .bar,
+  .eyebrow,
+  .title,
+  .line,
+  .task,
+  .stage {
+    background: linear-gradient(
+      90deg,
+      rgb(255 255 255 / 0.04),
+      rgb(255 255 255 / 0.09),
+      rgb(255 255 255 / 0.04)
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.6s linear infinite;
+  }
+
+  .rail {
+    display: flex;
+    align-items: center;
+    gap: var(--space-5);
+    block-size: var(--rail-h, 56px);
+    margin-block-end: var(--space-6);
+  }
+
+  .bar {
+    display: block;
+    block-size: 12px;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+    gap: var(--space-10);
+  }
+
+  .text {
+    display: grid;
+    align-content: start;
+    gap: var(--space-4);
+  }
+
+  .eyebrow {
+    display: block;
+    inline-size: 9rem;
+    block-size: 12px;
+  }
+
+  .title {
+    display: block;
+    inline-size: min(100%, 24rem);
+    block-size: 2.25rem;
+  }
+
+  .line {
+    display: block;
+    inline-size: 100%;
+    block-size: 14px;
+  }
+
+  .task {
+    display: block;
+    block-size: 7rem;
+    margin-block-start: var(--space-4);
+  }
+
+  .stage {
+    min-block-size: min(46rem, 62svh);
+    clip-path: polygon(0 22px, 22px 0, 100% 0, 100% calc(100% - 22px), calc(100% - 22px) 100%, 0 100%);
+  }
+
+  @keyframes shimmer {
+    to {
+      background-position: -200% 0;
+    }
+  }
+
+  :root[data-motion="reduced"] :is(.bar, .eyebrow, .title, .line, .task, .stage) {
+    animation: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :root:not([data-motion="full"]) :is(.bar, .eyebrow, .title, .line, .task, .stage) {
+      animation: none;
+    }
+  }
+
+  @media (max-width: 899.98px) {
+    .grid {
+      grid-template-columns: 1fr;
+    }
+
+    .stage {
+      order: -1;
+      min-block-size: 14rem;
+    }
+  }
+
+  /* ---- coming soon and error ------------------------------------------------------------------- */
+
+  .facts {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-4);
+    margin: 0;
+    font: 500 var(--fs-xs) / 1 var(--font-mono);
+    letter-spacing: var(--tracking-label, 0.12em);
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+
+  .related ul {
+    display: grid;
+    gap: var(--space-1);
+    margin: var(--space-2) 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .related a {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-block-size: var(--touch-min, 44px);
+    font-weight: 600;
+    color: var(--accent-text);
+  }
+
+  .related a:hover {
+    color: var(--hot);
+  }
+
+  .label {
+    margin: 0;
+    font: 500 var(--fs-xs) / 1 var(--font-mono);
+    letter-spacing: var(--tracking-label, 0.12em);
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+
+  .detail {
+    margin: 0;
+    max-inline-size: 100%;
+    overflow-wrap: anywhere;
+    font: 400 var(--fs-sm) / 1.4 var(--font-mono);
+    color: var(--text-3);
+  }
+
+  .actions {
+    display: flex;
+    gap: var(--space-3);
+  }
+}

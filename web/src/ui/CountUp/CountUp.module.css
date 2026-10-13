@@ -1,0 +1,9 @@
+@layer reset, tokens, base, ui, route, utility;
+
+@layer ui {
+  .count {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum" 1;
+    white-space: nowrap;
+  }
+}

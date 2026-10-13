@@ -1,0 +1,60 @@
+@layer route {
+  .root {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+  }
+
+  .title {
+    margin: 0;
+    font: 600 var(--fs-h4) / 1.2 var(--font-display);
+    letter-spacing: var(--tracking-heading);
+    color: var(--text-1);
+  }
+
+  .regions {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    min-inline-size: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .legend {
+    padding: 0;
+    margin-block-end: var(--space-2);
+    font: 500 var(--fs-xs) / 1.2 var(--font-mono);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .geo {
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--space-1) var(--space-3);
+    font-size: var(--fs-xs);
+    color: var(--text-3);
+  }
+
+  .geo code {
+    font: 400 var(--fs-xs) / 1.4 var(--font-mono);
+    color: var(--accent-text);
+  }
+
+  .row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+  }
+}

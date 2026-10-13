@@ -1,0 +1,251 @@
+/*
+ * Sparkline: SVG in real pixels (so strokes are never stretched), a hex on the newest point,
+ * and HTML for the cursor and the readout. The line draws in once with pathLength and
+ * stroke-dashoffset. Focus is a one-shot beam that settles into a bright rim.
+ */
+@layer reset, tokens, base, ui, route, utility;
+
+@layer ui {
+  .root {
+    --c: 6px;
+    --cm: 2px;
+    --bw: 1px;
+    position: relative;
+    inline-size: 100%;
+    min-inline-size: 0;
+    color: rgb(var(--accent-rgb));
+    touch-action: pan-y;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .root[data-interactive="true"] {
+    cursor: crosshair;
+  }
+
+  .plot {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+  }
+
+  .svg {
+    display: block;
+    overflow: visible;
+  }
+
+  .line {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.5;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    filter: drop-shadow(0 0 3px rgb(var(--accent-deep-rgb) / 0.55));
+    transition: stroke-dashoffset var(--dur-5) var(--ease-out);
+  }
+
+  .area {
+    opacity: 0;
+    transition: opacity var(--dur-5) var(--ease-out);
+  }
+
+  .root[data-entered="true"] .line {
+    stroke-dashoffset: 0;
+  }
+
+  .root[data-entered="true"] .area {
+    opacity: 1;
+  }
+
+  .target {
+    stroke: rgb(var(--accent-hot-rgb) / 0.55);
+    stroke-width: 1;
+    stroke-dasharray: 3 4;
+  }
+
+  .targetLabel {
+    position: absolute;
+    inset-inline-end: 0;
+    translate: 0 calc(-100% - 2px);
+    font: 500 0.5625rem / 1 var(--font-mono);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--text-3);
+    pointer-events: none;
+  }
+
+  /* The newest point: a hex with a soft accent bloom. */
+  .marker {
+    position: absolute;
+    inline-size: 9px;
+    block-size: 10px;
+    translate: -50% -50%;
+    background: #fff;
+    clip-path: var(--hex-clip);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity var(--dur-3) var(--ease-out) var(--dur-4);
+  }
+
+  .marker::before {
+    content: "";
+    position: absolute;
+    inset: -5px;
+    background: rgb(var(--accent-rgb) / 0.4);
+    clip-path: var(--hex-clip);
+    z-index: -1;
+  }
+
+  .root[data-entered="true"] .marker {
+    opacity: 1;
+  }
+
+  .cursorLine {
+    position: absolute;
+    inset-block: 0;
+    inline-size: 1px;
+    background: rgb(var(--accent-hot-rgb) / 0.7);
+    pointer-events: none;
+  }
+
+  .cursorDot {
+    position: absolute;
+    inline-size: 7px;
+    block-size: 8px;
+    translate: -50% -50%;
+    background: var(--ink-0);
+    box-shadow: inset 0 0 0 1.5px #fff;
+    clip-path: var(--hex-clip);
+    pointer-events: none;
+  }
+
+  .readout {
+    position: absolute;
+    inset-block-end: calc(100% + 6px);
+    translate: -50% 0;
+    padding: 4px 7px;
+    font: 500 var(--fs-2xs) / 1 var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    white-space: pre;
+    color: var(--text-1);
+    background: rgb(var(--ink-1-rgb) / 0.96);
+    border: 1px solid rgb(var(--accent-rgb) / 0.5);
+    clip-path: polygon(0 3px, 3px 0, 100% 0, 100% 100%, 0 100%);
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  .readout[data-edge="start"] {
+    translate: 0 0;
+  }
+
+  .readout[data-edge="end"] {
+    translate: -100% 0;
+  }
+
+  .baseline {
+    position: absolute;
+    inset-inline: 0;
+    inset-block-end: 6px;
+    border-block-start: 1px dashed var(--line-3);
+  }
+
+  /* ---- focus: a one-shot beam that settles into the rim ------------------------------------- */
+
+  .root::after {
+    content: "";
+    position: absolute;
+    inset: -4px;
+    clip-path: var(--clip-ring);
+    background: rgb(255 255 255 / 0.92);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .root:is(:focus-visible, [data-force="focus"]) {
+    outline: none;
+  }
+
+  .root:is(:focus-visible, [data-force="focus"])::after {
+    opacity: 1;
+    background: conic-gradient(
+      from var(--beam-angle),
+      #fff,
+      rgb(var(--accent-hot-rgb) / 0.95) 16%,
+      rgb(var(--accent-rgb) / 0.9) 50%,
+      rgb(var(--accent-hot-rgb) / 0.95) 84%,
+      #fff
+    );
+    animation: beam 900ms var(--ease-out) both;
+  }
+
+  @keyframes beam {
+    to {
+      --beam-angle: 360deg;
+    }
+  }
+
+  /* ---- reduced motion ------------------------------------------------------------------------- */
+
+  :global(html[data-motion="reduced"]) .line,
+  :global(html[data-motion="reduced"]) .area,
+  :global(html[data-motion="reduced"]) .marker {
+    transition: none;
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+
+  :global(html[data-motion="reduced"]) .root:is(:focus-visible, [data-force="focus"])::after {
+    animation: none;
+    background: rgb(255 255 255 / 0.92);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :global(html:not([data-motion="full"])) .line,
+    :global(html:not([data-motion="full"])) .area,
+    :global(html:not([data-motion="full"])) .marker {
+      transition: none;
+      stroke-dashoffset: 0;
+      opacity: 1;
+    }
+
+    :global(html:not([data-motion="full"])) .root:is(:focus-visible, [data-force="focus"])::after {
+      animation: none;
+      background: rgb(255 255 255 / 0.92);
+    }
+  }
+
+  @media (forced-colors: active) {
+    .line {
+      stroke: Highlight;
+      filter: none;
+    }
+
+    .area,
+    .marker::before {
+      display: none;
+    }
+
+    .marker,
+    .cursorLine {
+      background: CanvasText;
+    }
+
+    .target {
+      stroke: color-mix(in srgb, CanvasText 36%, Canvas);
+      forced-color-adjust: none;
+    }
+
+    .readout {
+      background: Canvas;
+      color: CanvasText;
+      border-color: CanvasText;
+    }
+
+    .root:is(:focus-visible, [data-force="focus"]) {
+      outline: 2px solid Highlight;
+      outline-offset: 3px;
+    }
+  }
+}

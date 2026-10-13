@@ -1,0 +1,8 @@
+{
+  "status": "success",
+  "data": [
+    {"Names": ["/fluxappdeploy4_appdeploy4"], "State": "running", "Status": "Up 2 weeks (healthy)"},
+    {"Names": ["/fluxappdeploy13_appdeploy13"], "State": "running", "Status": "Up 3 weeks (healthy)"},
+    {"Names": ["/fluxsifchainfinance_sifchainfinance"], "State": "running", "Status": "Up 4 weeks"}
+  ]
+}

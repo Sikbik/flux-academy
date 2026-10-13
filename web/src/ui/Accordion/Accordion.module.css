@@ -1,0 +1,293 @@
+/*
+ * Accordion: hairline-separated rows. The header draws a marker down its left edge when
+ * open; the panel opens with grid-template-rows 0fr to 1fr (no measuring). Focus draws the
+ * one-shot beam. Pseudo-state hooks: data-force="hover|press|focus" on a header.
+ */
+@layer reset, tokens, base, ui, route, utility;
+
+@layer ui {
+  .root {
+    display: block;
+    border-block-start: 1px solid var(--line-2);
+  }
+
+  .item {
+    position: relative;
+    border-block-end: 1px solid var(--line-2);
+  }
+
+  .heading {
+    margin: 0;
+    font: inherit;
+    letter-spacing: normal;
+  }
+
+  .trigger {
+    --c: 10px;
+    --cm: 3px;
+    --bw: 1px;
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    align-items: center;
+    inline-size: 100%;
+    min-block-size: 56px;
+    padding-inline: var(--space-4);
+    text-align: start;
+    color: var(--text-2);
+    font: 600 var(--fs-md) / 1.25 var(--font-display);
+    letter-spacing: var(--tracking-heading);
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    transition: color var(--dur-1) var(--ease-out);
+  }
+
+  .edge,
+  .face {
+    position: absolute;
+    z-index: -1;
+    pointer-events: none;
+  }
+
+  .edge {
+    inset: 0;
+    clip-path: var(--clip-ring);
+    background: transparent;
+  }
+
+  .face {
+    inset: var(--bw);
+    clip-path: var(--clip-inner);
+    background: transparent;
+    transition: background var(--dur-2) var(--ease-out);
+  }
+
+  /* The marker: a bright bar that draws down the left edge when the row is open. */
+  .marker {
+    position: absolute;
+    inset-block: 12px;
+    inset-inline-start: 0;
+    inline-size: 2px;
+    background: linear-gradient(180deg, var(--hot), var(--accent));
+    transform-origin: 50% 0;
+    scale: 1 0;
+    transition: scale var(--dur-3) var(--ease-out);
+    pointer-events: none;
+  }
+
+  .content {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    inline-size: 100%;
+    min-inline-size: 0;
+  }
+
+  .icon {
+    display: inline-flex;
+    flex: none;
+    color: var(--text-3);
+    transition: color var(--dur-1) var(--ease-out);
+  }
+
+  .title {
+    flex: 1 1 auto;
+    min-inline-size: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .meta {
+    flex: none;
+    margin-inline-start: auto;
+    font: 500 var(--fs-xs) / 1 var(--font-mono);
+    letter-spacing: 0.02em;
+    font-variant-numeric: tabular-nums;
+    color: var(--text-3);
+    white-space: nowrap;
+  }
+
+  .chev {
+    display: inline-flex;
+    flex: none;
+    color: var(--text-3);
+    transition:
+      rotate var(--dur-3) var(--ease-out),
+      color var(--dur-1) var(--ease-out);
+  }
+
+  /* hover */
+  .trigger:is(:hover, [data-force="hover"]):not(:disabled) {
+    color: var(--text-1);
+  }
+
+  .trigger:is(:hover, [data-force="hover"]):not(:disabled) .face {
+    background: linear-gradient(90deg, rgb(var(--accent-rgb) / 0.12), rgb(var(--accent-rgb) / 0.03));
+  }
+
+  .trigger:is(:hover, [data-force="hover"]):not(:disabled) :is(.icon, .chev) {
+    color: var(--accent-text);
+  }
+
+  /* press */
+  .trigger:is(:active, [data-force="press"]):not(:disabled) .face {
+    background: linear-gradient(90deg, rgb(var(--accent-rgb) / 0.22), rgb(var(--accent-rgb) / 0.06));
+  }
+
+  /* open */
+  .item[data-open="true"] .trigger {
+    color: var(--text-1);
+  }
+
+  .item[data-open="true"] .marker {
+    scale: 1 1;
+  }
+
+  .item[data-open="true"] .chev {
+    rotate: 180deg;
+    color: var(--accent-text);
+  }
+
+  .item[data-open="true"] .icon {
+    color: var(--accent-text);
+  }
+
+  /* disabled */
+  .trigger:disabled {
+    opacity: 0.42;
+    cursor: not-allowed;
+  }
+
+  /* focus: the one-shot beam */
+  .trigger:is(:focus-visible, [data-force="focus"]) {
+    outline: none;
+    --bw: 2px;
+  }
+
+  .trigger:is(:focus-visible, [data-force="focus"]) .edge {
+    background: conic-gradient(
+      from var(--beam-angle),
+      #fff,
+      rgb(var(--accent-hot-rgb) / 0.95) 16%,
+      rgb(var(--accent-rgb) / 0.9) 50%,
+      rgb(var(--accent-hot-rgb) / 0.95) 84%,
+      #fff
+    );
+    animation: beam 900ms var(--ease-out) both;
+  }
+
+  @keyframes beam {
+    to {
+      --beam-angle: 360deg;
+    }
+  }
+
+  /* ---- the panel: grid rows 0fr to 1fr ----------------------------------------------------- */
+
+  .panel {
+    display: grid;
+    grid-template-rows: 0fr;
+    visibility: hidden;
+    transition:
+      grid-template-rows var(--dur-3) var(--ease-out),
+      visibility 0s linear var(--dur-3);
+  }
+
+  .panel[data-open="true"] {
+    grid-template-rows: 1fr;
+    visibility: visible;
+    transition:
+      grid-template-rows var(--dur-3) var(--ease-out),
+      visibility 0s;
+  }
+
+  .panelInner {
+    min-block-size: 0;
+    overflow: hidden;
+  }
+
+  .panelBody {
+    padding: var(--space-1) var(--space-4) var(--space-5);
+    font: 400 var(--fs-md) / 1.6 var(--font-sans);
+    color: var(--text-2);
+    opacity: 0;
+    translate: 0 -6px;
+    transition:
+      opacity var(--dur-2) var(--ease-out),
+      translate var(--dur-3) var(--ease-out);
+  }
+
+  .item[data-icon="true"] .panelBody {
+    padding-inline-start: calc(var(--space-4) + 18px + var(--space-3));
+  }
+
+  .panel[data-open="true"] .panelBody {
+    opacity: 1;
+    translate: 0 0;
+  }
+
+  /* ---- reduced motion: no travel, no row animation; the content fades ------------------------- */
+
+  :global(html[data-motion="reduced"]) :is(.panel, .panel[data-open="true"]) {
+    transition: none;
+  }
+
+  :global(html[data-motion="reduced"]) .panelBody {
+    translate: none;
+    transition: opacity var(--dur-2) linear;
+  }
+
+  :global(html[data-motion="reduced"]) :is(.marker, .chev) {
+    transition: none;
+  }
+
+  :global(html[data-motion="reduced"]) .trigger:is(:focus-visible, [data-force="focus"]) .edge {
+    animation: none;
+    background: rgb(255 255 255 / 0.92);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :global(html:not([data-motion="full"])) :is(.panel, .panel[data-open="true"]) {
+      transition: none;
+    }
+
+    :global(html:not([data-motion="full"])) .panelBody {
+      translate: none;
+      transition: opacity var(--dur-2) linear;
+    }
+
+    :global(html:not([data-motion="full"])) :is(.marker, .chev) {
+      transition: none;
+    }
+
+    :global(html:not([data-motion="full"])) .trigger:is(:focus-visible, [data-force="focus"]) .edge {
+      animation: none;
+      background: rgb(255 255 255 / 0.92);
+    }
+  }
+
+  @media (forced-colors: active) {
+    .root,
+    .item {
+      border-color: CanvasText;
+    }
+
+    .trigger {
+      color: ButtonText;
+    }
+
+    .marker {
+      background: Highlight;
+    }
+
+    .trigger:is(:focus-visible, [data-force="focus"]) {
+      outline: 2px solid Highlight;
+      outline-offset: -2px;
+    }
+
+    .trigger:is(:focus-visible, [data-force="focus"]) .edge {
+      background: Highlight;
+      animation: none;
+    }
+  }
+}

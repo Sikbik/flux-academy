@@ -1,0 +1,148 @@
+/*
+ * Skeleton: dim accent-tinted shapes with a transform-only shimmer sweep. Shapes keep the
+ * silhouettes of the real content: chamfered blocks, hexes, text lines of one line-height.
+ */
+@layer reset, tokens, base, ui, route, utility;
+
+@layer ui {
+  .wrap {
+    display: block;
+    min-inline-size: 0;
+  }
+
+  .sk {
+    --c: 8px;
+    position: relative;
+    display: block;
+    overflow: hidden;
+    background: rgb(var(--accent-rgb) / 0.16);
+    box-shadow: inset 0 0 0 1px rgb(var(--accent-rgb) / 0.12);
+  }
+
+  .sk::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      100deg,
+      transparent 30%,
+      rgb(var(--accent-hot-rgb) / 0.26) 50%,
+      transparent 70%
+    );
+    translate: -100% 0;
+    animation: sweep 1.8s var(--ease-in-out) infinite;
+    animation-delay: calc(var(--i, 0) * 140ms);
+  }
+
+  @keyframes sweep {
+    60%,
+    100% {
+      translate: 100% 0;
+    }
+  }
+
+  /* text lines */
+  .lines {
+    display: grid;
+    gap: 0.62em;
+    inline-size: var(--sk-w, 100%);
+  }
+
+  .lines > .sk {
+    block-size: var(--sk-h, 0.9em);
+    clip-path: polygon(0 0, calc(100% - 4px) 0, 100% 4px, 100% 100%, 4px 100%, 0 calc(100% - 4px));
+  }
+
+  .lines > .sk[data-last="true"] {
+    inline-size: 62%;
+  }
+
+  /* solo shapes */
+  .solo {
+    inline-size: var(--sk-w, 100%);
+    block-size: var(--sk-h, 96px);
+  }
+
+  .solo[data-shape="block"] {
+    --c: 12px;
+    clip-path: polygon(
+      0 4px,
+      4px 0,
+      calc(100% - var(--c)) 0,
+      100% var(--c),
+      100% calc(100% - 4px),
+      calc(100% - 4px) 100%,
+      var(--c) 100%,
+      0 calc(100% - var(--c))
+    );
+  }
+
+  .solo[data-shape="circle"] {
+    inline-size: var(--sk-w, 48px);
+    block-size: var(--sk-h, var(--sk-w, 48px));
+    border-radius: 50%;
+  }
+
+  .solo[data-shape="hex"] {
+    inline-size: var(--sk-w, 48px);
+    block-size: var(--sk-h, calc(var(--sk-w, 48px) * 1.1547));
+    clip-path: var(--hex-clip);
+  }
+
+  /* a Stat: label, big number, sub line */
+  .stat {
+    display: grid;
+    gap: 10px;
+    inline-size: var(--sk-w, 100%);
+  }
+
+  .stat > .sk {
+    clip-path: polygon(0 0, calc(100% - 4px) 0, 100% 4px, 100% 100%, 4px 100%, 0 calc(100% - 4px));
+  }
+
+  .stat > [data-part="label"] {
+    inline-size: 42%;
+    block-size: 0.7rem;
+  }
+
+  .stat > [data-part="value"] {
+    inline-size: 68%;
+    block-size: var(--sk-h, var(--fs-stat));
+  }
+
+  .stat > [data-part="sub"] {
+    inline-size: 54%;
+    block-size: 0.75rem;
+  }
+
+  :global(html[data-motion="reduced"]) .sk::after {
+    animation: none;
+    display: none;
+  }
+
+  :global(html[data-motion="reduced"]) .sk {
+    background: rgb(var(--accent-rgb) / 0.2);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :global(html:not([data-motion="full"])) .sk::after {
+      animation: none;
+      display: none;
+    }
+
+    :global(html:not([data-motion="full"])) .sk {
+      background: rgb(var(--accent-rgb) / 0.2);
+    }
+  }
+
+  @media (forced-colors: active) {
+    .sk {
+      background: color-mix(in srgb, CanvasText 36%, Canvas);
+      forced-color-adjust: none;
+    }
+
+    .sk::after {
+      display: none;
+    }
+  }
+}

@@ -1,0 +1,123 @@
+@layer route {
+  .root {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .head {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+  }
+
+  .title {
+    margin: 0;
+    font: 600 var(--fs-h4) / 1.2 var(--font-display);
+    letter-spacing: var(--tracking-heading);
+    color: var(--text-1);
+  }
+
+  .body {
+    display: flex;
+    align-items: center;
+    gap: var(--space-5);
+    flex-wrap: wrap;
+  }
+
+  .dial {
+    flex: 0 0 auto;
+    min-inline-size: 112px;
+    min-block-size: 112px;
+    display: grid;
+    place-items: center;
+  }
+
+  .facts {
+    margin: 0;
+    flex: 1 1 8rem;
+    display: grid;
+    gap: var(--space-3);
+  }
+
+  .facts div {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .facts dt {
+    font: 500 var(--fs-2xs) / 1.2 var(--font-mono);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+
+  .facts dd {
+    margin: 0;
+    font: 500 var(--fs-md) / 1.2 var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    color: var(--text-1);
+  }
+
+  .trend {
+    min-inline-size: 0;
+    padding-block-start: var(--space-2);
+  }
+
+  .legend {
+    margin: var(--space-2) 0 0;
+    font-size: var(--fs-xs);
+    line-height: 1.5;
+    color: var(--text-3);
+  }
+
+  .empty {
+    margin: 0;
+    padding: var(--space-4) 0;
+    font-size: var(--fs-sm);
+    color: var(--text-3);
+  }
+
+  .next {
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--space-1) var(--space-3);
+    padding-block-start: var(--space-3);
+    border-block-start: 1px solid var(--line-1);
+  }
+
+  .nextLabel {
+    font: 500 var(--fs-2xs) / 1.2 var(--font-mono);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+
+  .nextValue {
+    font: 500 var(--fs-md) / 1.2 var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    color: var(--text-1);
+  }
+
+  .nextHint {
+    font-size: var(--fs-xs);
+    color: var(--text-3);
+  }
+
+  .note {
+    font-size: var(--fs-xs);
+    line-height: 1.5;
+    color: var(--text-3);
+  }
+
+  .note:empty {
+    display: none;
+  }
+
+  .note p {
+    margin: 0;
+  }
+}

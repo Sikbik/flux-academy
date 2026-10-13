@@ -1,0 +1,125 @@
+name: CI
+
+# Pull requests: web typecheck, lint, test and build; server typecheck, lint and test; a Docker build with a
+# smoke test of the container (no push).
+# Pushes to main: the same, then push littlestache/flux-academy:latest and :sha-<short> to Docker Hub when the
+# repository has the DOCKERHUB_USERNAME and DOCKERHUB_TOKEN secrets (without them the push is skipped and the
+# run stays green; deploy/README.md has the by-hand push).
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  IMAGE: littlestache/flux-academy
+
+jobs:
+  web:
+    name: Web (typecheck, lint, test, build)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - run: npm --prefix web ci --no-audit --no-fund
+      - run: npm --prefix web run typecheck
+      - run: npm --prefix web run lint
+      - run: npm --prefix web test
+      - run: npm --prefix web run build
+      # Sizes of the production build against docs/DESIGN.md section 10 (no browser needed).
+      - run: npm --prefix web run budgets
+
+  server:
+    name: Server (typecheck, lint, test)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: server/package-lock.json
+      - run: npm --prefix server ci --no-audit --no-fund
+      - run: npm --prefix server run typecheck
+      - run: npm --prefix server run lint
+      # Includes the shared/ tests (the Flux spec, pricing and lint engine) and the contract tests.
+      - run: npm --prefix server test
+
+  docker:
+    name: Docker image
+    runs-on: ubuntu-latest
+    needs: [web, server]
+    env:
+      # The secrets context cannot be used in an `if:`, so the steps read this instead.
+      HAS_DOCKERHUB: ${{ secrets.DOCKERHUB_USERNAME != '' && secrets.DOCKERHUB_TOKEN != '' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Build image (no push)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          load: true
+          tags: flux-academy:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      # FIXTURES=1 keeps the container offline and deterministic: the smoke test checks the wiring (static
+      # files, head injection, redirects, API envelope), not the live Flux network.
+      - name: Smoke test the container
+        run: |
+          docker run -d --name academy -p 42069:42069 -e FIXTURES=1 flux-academy:ci
+          for i in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:42069/healthz >/dev/null 2>&1; then break; fi
+            sleep 1
+          done
+          curl -fsS http://127.0.0.1:42069/healthz
+          curl -fsS http://127.0.0.1:42069/api/v1/network | head -c 300; echo
+          node server/scripts/smoke.ts http://127.0.0.1:42069
+          test "$(docker exec academy id -u)" != "0"
+          docker stop --timeout 10 academy
+          test "$(docker inspect academy --format '{{.State.ExitCode}}')" = "0"
+          docker rm -f academy
+
+      - name: Short SHA
+        id: sha
+        run: echo "short=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+
+      - name: Docker Hub secrets are missing
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && env.HAS_DOCKERHUB != 'true'
+        run: echo "::notice::DOCKERHUB_USERNAME and DOCKERHUB_TOKEN are not set, so the image was built and tested but not pushed."
+
+      - name: Log in to Docker Hub
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && env.HAS_DOCKERHUB == 'true'
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Push image (main only)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && env.HAS_DOCKERHUB == 'true'
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ env.IMAGE }}:latest
+            ${{ env.IMAGE }}:sha-${{ steps.sha.outputs.short }}
+          cache-from: type=gha

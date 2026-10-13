@@ -1,0 +1,591 @@
+/*
+ * Tabs. The line variant is a hairline rail with a faint ruler, a 2 px indicator that is
+ * scaled and translated (transform only), a hex head riding its centre and a short run of
+ * lit ticks under the selected tab: the blueprint language, not a coloured box. The plate
+ * variant is chamfered plates. Focus draws the one-shot beam. Pseudo-state hooks:
+ * data-force="hover|press|focus" on a tab (the kit gallery).
+ */
+@layer reset, tokens, base, ui, route, utility;
+
+@layer ui {
+  .wrap {
+    display: block;
+    min-inline-size: 0;
+  }
+
+  .root {
+    --th: 44px;
+    --tpx: 16px;
+    --tfs: 0.9375rem;
+    --tick: rgb(255 255 255 / 0.1);
+    position: relative;
+    min-inline-size: 0;
+  }
+
+  .root[data-size="sm"] {
+    --th: 36px;
+    --tpx: 12px;
+    --tfs: 0.8125rem;
+  }
+
+  @media (pointer: coarse) {
+    .root[data-size="sm"] {
+      --th: 44px;
+    }
+  }
+
+  /* ---- the scrolling list and its edge fades ----------------------------------------- */
+
+  .scroller {
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+    -webkit-mask-image: linear-gradient(
+      90deg,
+      transparent 0,
+      #000 var(--fl, 0px),
+      #000 calc(100% - var(--fr, 0px)),
+      transparent 100%
+    );
+    mask-image: linear-gradient(
+      90deg,
+      transparent 0,
+      #000 var(--fl, 0px),
+      #000 calc(100% - var(--fr, 0px)),
+      transparent 100%
+    );
+  }
+
+  .scroller::-webkit-scrollbar {
+    display: none;
+  }
+
+  .root[data-fade-left="true"] {
+    --fl: 32px;
+  }
+
+  .root[data-fade-right="true"] {
+    --fr: 32px;
+  }
+
+  .list {
+    position: relative;
+    display: flex;
+    align-items: stretch;
+    gap: 2px;
+    inline-size: max-content;
+    min-inline-size: 100%;
+  }
+
+  .root[data-variant="line"] .list {
+    padding-block-end: 5px; /* room for the hex head below the rail */
+  }
+
+  .root[data-variant="plate"] .list {
+    gap: 6px;
+    padding-block: 6px;
+    padding-inline: 4px;
+  }
+
+  /* ---- a tab ------------------------------------------------------------------------- */
+
+  .tab {
+    --c: 8px;
+    --cm: 2px;
+    --bw: 1px;
+    position: relative;
+    isolation: isolate;
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-block-size: var(--th);
+    padding: 0 var(--tpx);
+    color: var(--text-3);
+    font: 600 var(--tfs) / 1 var(--font-display);
+    letter-spacing: 0.005em;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    scale: var(--press, 1);
+    transition:
+      color var(--dur-1) var(--ease-out),
+      scale var(--dur-1) var(--ease-snap);
+  }
+
+  .root[data-full="true"] .tab {
+    flex: 1 0 auto;
+  }
+
+  .edge,
+  .face {
+    position: absolute;
+    z-index: -1;
+    pointer-events: none;
+  }
+
+  .edge {
+    inset: 0;
+    clip-path: var(--clip-ring);
+    background: transparent;
+    transition: opacity var(--dur-2) var(--ease-out);
+  }
+
+  .face {
+    inset: var(--bw);
+    clip-path: var(--clip-inner);
+    background: transparent;
+    transition: background var(--dur-2) var(--ease-out);
+  }
+
+  /* plate variant, base: before the state rules, so they cascade upward */
+  .root[data-variant="plate"] .tab {
+    padding-inline: calc(var(--tpx) - 2px);
+  }
+
+  .root[data-variant="plate"] .edge {
+    background: linear-gradient(
+      165deg,
+      rgb(var(--accent-rgb) / 0.4),
+      rgb(var(--accent-rgb) / 0.14) 55%,
+      rgb(var(--accent-rgb) / 0.26)
+    );
+  }
+
+  .root[data-variant="plate"] .face {
+    background: rgb(var(--ink-0-rgb) / 0.62);
+  }
+
+  .content {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--tgap, 8px);
+  }
+
+  .icon {
+    display: inline-flex;
+    flex: none;
+    color: var(--text-3);
+    transition: color var(--dur-1) var(--ease-out);
+  }
+
+  .count {
+    flex: none;
+    padding-inline-start: 8px;
+    border-inline-start: 1px solid var(--line-3);
+    font: 500 var(--fs-2xs) / 1 var(--font-mono);
+    letter-spacing: 0.02em;
+    font-variant-numeric: tabular-nums;
+    color: var(--text-3);
+  }
+
+  /* hover */
+  .tab:where(:hover, [data-force="hover"]):where(:not([aria-disabled="true"], :disabled)) {
+    color: var(--text-1);
+  }
+
+  .tab:where(:hover, [data-force="hover"]):where(:not([aria-disabled="true"], :disabled)) .icon {
+    color: var(--accent-text);
+  }
+
+  .root[data-variant="line"]
+    .tab:where(:hover, [data-force="hover"]):where(:not([aria-selected="true"], :disabled))
+    .face {
+    background: linear-gradient(180deg, transparent, rgb(var(--accent-rgb) / 0.1));
+  }
+
+  /* selected */
+  .tab[aria-selected="true"] {
+    color: var(--text-1);
+  }
+
+  .tab[aria-selected="true"] .icon {
+    color: var(--accent-text);
+  }
+
+  .tab[aria-selected="true"] .count {
+    color: var(--accent-strong);
+    border-inline-start-color: rgb(var(--accent-rgb) / 0.5);
+  }
+
+  /* press */
+  .tab:where(:active, [data-force="press"]):where(:not([aria-disabled="true"], :disabled)) {
+    --press: var(--press-scale);
+  }
+
+  /* disabled */
+  .tab:is(:disabled, [aria-disabled="true"]) {
+    opacity: 0.42;
+    cursor: not-allowed;
+  }
+
+  /* focus: the one-shot beam; the steady state is the bright rim */
+  .tab:is(:focus-visible, [data-force="focus"]) {
+    outline: none;
+    --bw: 2px;
+  }
+
+  .tab:is(:focus-visible, [data-force="focus"]) .edge {
+    background: conic-gradient(
+      from var(--beam-angle),
+      #fff,
+      rgb(var(--accent-hot-rgb) / 0.95) 16%,
+      rgb(var(--accent-rgb) / 0.9) 50%,
+      rgb(var(--accent-hot-rgb) / 0.95) 84%,
+      #fff
+    );
+    animation: beam 900ms var(--ease-out) both;
+  }
+
+  @keyframes beam {
+    to {
+      --beam-angle: 360deg;
+    }
+  }
+
+  /* ---- compaction: set by Tabs.tsx when the row would otherwise scroll ------------------------------
+     1 tightens the padding and the gap, 2 also steps the type down, 3 also drops the icon of a tab that
+     has a label. Past that the row scrolls. The touch height never changes. */
+  .root[data-fit="1"] {
+    --tpx: 10px;
+    --tgap: 6px;
+  }
+
+  .root[data-size="sm"][data-fit="1"] {
+    --tpx: 8px;
+  }
+
+  .root[data-fit="2"],
+  .root[data-fit="3"] {
+    --tpx: 8px;
+    --tgap: 6px;
+    --tfs: 0.875rem;
+  }
+
+  .root[data-size="sm"][data-fit="2"],
+  .root[data-size="sm"][data-fit="3"] {
+    --tpx: 6px;
+    --tfs: 0.75rem;
+  }
+
+  .root[data-fit="3"] .tab[data-labelled="true"] .icon {
+    display: none;
+  }
+
+  /* ---- line variant: rail, ruler, indicator, head ---------------------------------------- */
+
+  .rail {
+    position: absolute;
+    inset-inline: 0;
+    inset-block-end: 5px;
+    block-size: 1px;
+    background: var(--line-2);
+    pointer-events: none;
+  }
+
+  /* Blueprint furniture: a ruler along the rail, minor ticks every 6 px, major every 30. */
+  .rail::after {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    inset-block-end: 1px;
+    block-size: 6px;
+    background:
+      repeating-linear-gradient(90deg, var(--tick) 0 1px, transparent 1px 6px) bottom / 100% 3px no-repeat,
+      repeating-linear-gradient(90deg, var(--tick) 0 1px, transparent 1px 30px) bottom / 100% 6px no-repeat;
+  }
+
+  /* The same ruler, lit, in a window under the selected tab. Quantised to the 6 px grid so
+     its ticks land on the static ruler's. */
+  .litTicks {
+    position: absolute;
+    inset-block-end: 6px;
+    inset-inline-start: 0;
+    inline-size: 168px;
+    block-size: 6px;
+    background:
+      repeating-linear-gradient(90deg, rgb(var(--accent-hot-rgb) / 0.8) 0 1px, transparent 1px 6px) bottom /
+      100% 3px no-repeat,
+      repeating-linear-gradient(90deg, rgb(255 255 255 / 0.95) 0 1px, transparent 1px 30px) bottom / 100% 6px
+      no-repeat;
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 32%, #000 68%, transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 32%, #000 68%, transparent);
+    translate: calc(var(--x, 0px) + var(--w, 0) * 0.5px - 84px) 0;
+    /* biome-ignore lint/suspicious/noDuplicateProperties: quantised to the ruler where round() exists */
+    translate: round(down, calc(var(--x, 0px) + var(--w, 0) * 0.5px - 84px), 6px) 0;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .litTicks[data-ready="true"] {
+    opacity: calc(0.75 + var(--flash) * 0.25);
+  }
+
+  /* The indicator is a 1 px wide line scaled to the tab's width: only translate and scale. */
+  .indicator {
+    position: absolute;
+    inset-block-end: 5px;
+    inset-inline-start: 0;
+    inline-size: 1px;
+    block-size: 2px;
+    transform-origin: 0 50%;
+    translate: var(--x, 0px) 0;
+    scale: var(--w, 0) 1;
+    background: linear-gradient(
+      90deg,
+      rgb(var(--accent-rgb) / 0.35),
+      var(--accent-strong) 50%,
+      rgb(var(--accent-rgb) / 0.35)
+    );
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  /* Light cast up from the line, onto the label. Scaling it horizontally is exactly right. */
+  .indicator::before {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    inset-block-end: 100%;
+    block-size: 24px;
+    background: linear-gradient(0deg, rgb(var(--accent-rgb) / 0.2), transparent);
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 22%, #000 78%, transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 22%, #000 78%, transparent);
+  }
+
+  .indicator[data-ready="true"] {
+    opacity: 1;
+    animation: draw var(--dur-4) var(--ease-out) backwards;
+  }
+
+  @keyframes draw {
+    from {
+      scale: 0 1;
+      opacity: 0;
+    }
+  }
+
+  .head {
+    position: absolute;
+    inset-block-end: 0;
+    inset-inline-start: 0;
+    inline-size: 9px;
+    block-size: 10px;
+    background: var(--hot);
+    clip-path: var(--hex-clip);
+    translate: calc(var(--x, 0px) + var(--w, 0) * 0.5px - 4.5px) 0;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .head[data-ready="true"] {
+    opacity: 1;
+    animation: head-in var(--dur-4) var(--ease-out) backwards;
+  }
+
+  @keyframes head-in {
+    from {
+      scale: 0;
+      opacity: 0;
+    }
+  }
+
+  .list[data-settled="true"] :is(.indicator, .head, .litTicks) {
+    transition:
+      translate var(--dur-3) var(--ease-out),
+      scale var(--dur-3) var(--ease-out);
+  }
+
+  /* ---- plate variant ---------------------------------------------------------------------- */
+
+  .root[data-variant="plate"]
+    .tab:where(:hover, [data-force="hover"]):where(:not([aria-selected="true"], :disabled))
+    .edge {
+    background: linear-gradient(165deg, rgb(255 255 255 / 0.7), rgb(var(--accent-hot-rgb) / 0.4));
+  }
+
+  .root[data-variant="plate"]
+    .tab:where(:hover, [data-force="hover"]):where(:not([aria-selected="true"], :disabled))
+    .face {
+    background:
+      linear-gradient(180deg, rgb(var(--accent-rgb) / 0.16), rgb(var(--accent-rgb) / 0.04)),
+      rgb(var(--ink-0-rgb) / 0.7);
+  }
+
+  .root[data-variant="plate"] .tab[aria-selected="true"] {
+    filter: drop-shadow(0 0 5px rgb(var(--accent-deep-rgb) / 0.55));
+  }
+
+  .root[data-variant="plate"] .tab[aria-selected="true"] .edge {
+    background: linear-gradient(
+      165deg,
+      #fff,
+      rgb(var(--accent-hot-rgb) / 0.85) 40%,
+      rgb(var(--accent-rgb) / 0.8)
+    );
+  }
+
+  .root[data-variant="plate"] .tab[aria-selected="true"] .face {
+    background:
+      linear-gradient(180deg, rgb(var(--accent-rgb) / 0.34), rgb(var(--accent-rgb) / 0.12)),
+      rgb(var(--ink-0-rgb) / 0.78);
+  }
+
+  .root[data-variant="plate"] .tab:is(:focus-visible, [data-force="focus"]) .edge {
+    background: conic-gradient(
+      from var(--beam-angle),
+      #fff,
+      rgb(var(--accent-hot-rgb) / 0.95) 16%,
+      rgb(var(--accent-rgb) / 0.9) 50%,
+      rgb(var(--accent-hot-rgb) / 0.95) 84%,
+      #fff
+    );
+  }
+
+  /* ---- panels ----------------------------------------------------------------------------- */
+
+  .panels {
+    margin-block-start: var(--space-4);
+  }
+
+  .panel {
+    animation: panel-in var(--dur-3) var(--ease-out) backwards;
+  }
+
+  .panel[hidden] {
+    display: none;
+  }
+
+  @keyframes panel-in {
+    from {
+      opacity: 0;
+      translate: 0 6px;
+    }
+  }
+
+  /* ---- reduced motion: calm and complete (no slide, no draw, no travel) ----------------------- */
+
+  :global(html[data-motion="reduced"]) .tab {
+    transition: color var(--dur-1) linear;
+  }
+
+  :global(html[data-motion="reduced"]) .list[data-settled="true"] :is(.indicator, .head, .litTicks) {
+    transition: none;
+  }
+
+  :global(html[data-motion="reduced"]) :is(.indicator, .head) {
+    animation: none;
+  }
+
+  :global(html[data-motion="reduced"]) .panel {
+    animation: panel-fade 160ms linear backwards;
+  }
+
+  :global(html[data-motion="reduced"]) .tab:is(:focus-visible, [data-force="focus"]) .edge {
+    animation: none;
+    background: rgb(255 255 255 / 0.92);
+  }
+
+  @keyframes panel-fade {
+    from {
+      opacity: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :global(html:not([data-motion="full"])) .tab {
+      transition: color var(--dur-1) linear;
+    }
+
+    :global(html:not([data-motion="full"])) .list[data-settled="true"] :is(.indicator, .head, .litTicks) {
+      transition: none;
+    }
+
+    :global(html:not([data-motion="full"])) :is(.indicator, .head) {
+      animation: none;
+    }
+
+    :global(html:not([data-motion="full"])) .panel {
+      animation: panel-fade 160ms linear backwards;
+    }
+
+    :global(html:not([data-motion="full"])) .tab:is(:focus-visible, [data-force="focus"]) .edge {
+      animation: none;
+      background: rgb(255 255 255 / 0.92);
+    }
+  }
+
+  /* ---- contrast and forced colours ------------------------------------------------------------- */
+
+  @media (prefers-contrast: more) {
+    .rail::after,
+    .litTicks {
+      display: none;
+    }
+
+    .rail {
+      background: var(--line-3);
+    }
+  }
+
+  @media (forced-colors: active) {
+    .tab {
+      color: ButtonText;
+    }
+
+    /* Selected = CanvasText on Canvas with a rim and an underline. A Highlight fill with
+       HighlightText is avoided on purpose: some forced palettes make Highlight translucent, the
+       browser then paints a Canvas backplate behind the label, and the label vanishes. */
+    .tab[aria-selected="true"] {
+      color: CanvasText;
+      background: Canvas;
+      outline: 2px solid CanvasText;
+      outline-offset: -2px;
+    }
+
+    .tab[aria-selected="true"] .label {
+      text-decoration: underline;
+      text-decoration-thickness: 2px;
+      text-underline-offset: 4px;
+    }
+
+    .root[data-variant="plate"] .edge {
+      background: ButtonText;
+    }
+
+    .root[data-variant="plate"] .tab[aria-selected="true"] {
+      filter: none;
+    }
+
+    .rail {
+      background: CanvasText;
+    }
+
+    .indicator {
+      background: Highlight;
+    }
+
+    .head {
+      background: Highlight;
+    }
+
+    .indicator::before,
+    .litTicks,
+    .rail::after {
+      display: none;
+    }
+
+    .tab:is(:focus-visible, [data-force="focus"]) {
+      outline: 2px solid Highlight;
+      outline-offset: 2px;
+    }
+
+    .tab:is(:focus-visible, [data-force="focus"]) .edge {
+      background: Highlight;
+      animation: none;
+    }
+  }
+}

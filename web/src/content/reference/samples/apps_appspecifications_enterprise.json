@@ -1,0 +1,19 @@
+{
+  "status": "success",
+  "data": {
+    "version": 8,
+    "name": "Fluxtracker",
+    "description": "Tracks flux stats",
+    "owner": "17CgKMG6SETpDv9GS17F1KxHCAD4uxsftW",
+    "compose": [],
+    "instances": 3,
+    "contacts": [],
+    "geolocation": [],
+    "expire": 774628,
+    "nodes": [],
+    "staticip": false,
+    "enterprise": "<base64 ciphertext, 1316 chars>",
+    "height": 2969042,
+    "hash": "1e633893fa3b32125973e2a1fdbff8197497eff2140208d379e177af47af77de"
+  }
+}

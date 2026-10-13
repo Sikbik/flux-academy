@@ -1,0 +1,16 @@
+{
+  "status": "success",
+  "data": {
+    "total": 7105,
+    "stable": 7105,
+    "basic-enabled": 3585,
+    "super-enabled": 1691,
+    "bamf-enabled": 1829,
+    "cumulus-enabled": 3585,
+    "nimbus-enabled": 1691,
+    "stratus-enabled": 1829,
+    "ipv4": 2516,
+    "ipv6": 0,
+    "onion": 0
+  }
+}

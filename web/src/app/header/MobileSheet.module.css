@@ -1,0 +1,76 @@
+@layer ui {
+  /* The Drawer owns the surface, the scrim, the heading and the close button. This is its content. */
+  .drawer {
+    --menu-gap: var(--space-4);
+  }
+
+  .links {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-block-size: var(--touch-min, 44px);
+    padding-block: var(--space-3);
+    border-block-end: 1px solid var(--line-1);
+    font: 600 1.25rem / 1.2 var(--font-display);
+    letter-spacing: -0.02em;
+    color: var(--text-1);
+  }
+
+  .link[aria-current="page"] {
+    color: var(--accent-text);
+  }
+
+  .link svg {
+    color: var(--text-3);
+  }
+
+  .rows {
+    display: flex;
+    flex-direction: column;
+    gap: var(--menu-gap);
+    margin-block-start: var(--space-4);
+  }
+
+  .row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    min-block-size: var(--touch-min, 44px);
+  }
+
+  .label {
+    font: 500 var(--fs-xs) / 1 var(--font-mono);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+
+  .action {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-block-size: var(--touch-min, 44px);
+    padding-inline: var(--space-4);
+    color: var(--text-1);
+    box-shadow: inset 0 0 0 1px var(--line-3);
+    font: 500 var(--fs-sm) / 1 var(--font-sans);
+  }
+
+  /* Focus rings sit inside the controls here: the beat chip and the sound toggle are clipped to hexes,
+     which would cut away a ring drawn outside them. */
+  .row :is(a, button):focus-visible {
+    outline: 2px solid var(--focus-color);
+    outline-offset: -3px;
+  }
+
+  .link:focus-visible {
+    outline: 2px solid var(--focus-color);
+    outline-offset: -3px;
+  }
+}

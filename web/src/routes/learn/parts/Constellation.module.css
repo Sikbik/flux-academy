@@ -1,0 +1,623 @@
+@layer route {
+  .wrap {
+    position: relative;
+    inline-size: 100%;
+  }
+
+  /* One layout pixel is `--u` (a length, written by the component from the measured width): the whole
+     map is positioned in layout units, so the SVG and the links over it always agree, at any width.
+     Nothing here may create a stacking context around the art, or its screen blend finds no backdrop. */
+  .map {
+    --u: 1px;
+    position: relative;
+    inline-size: 100%;
+    aspect-ratio: var(--w) / var(--h);
+  }
+
+  .svg {
+    position: absolute;
+    inset: 0;
+    inline-size: 100%;
+    block-size: 100%;
+    overflow: visible;
+    pointer-events: none;
+  }
+
+  /* ---- bands ------------------------------------------------------------------------------ */
+
+  .band {
+    stroke: rgb(var(--tier-rgb) / 0.3);
+    stroke-width: 1;
+  }
+
+  .ticks {
+    opacity: 0.55;
+  }
+
+  .tick {
+    stroke: rgb(var(--tier-rgb) / 0.55);
+    stroke-width: 1;
+    fill: none;
+  }
+
+  .bandHead {
+    position: absolute;
+    inset-inline-start: calc(var(--x) * var(--u));
+    inset-block-start: calc(var(--y) * var(--u));
+    inline-size: calc(var(--bw) * var(--u));
+    block-size: calc(var(--bh) * var(--u));
+    padding: var(--space-3) var(--space-3) 0 var(--space-3);
+  }
+
+  /* ---- edges ------------------------------------------------------------------------------ */
+
+  .edge {
+    fill: none;
+    stroke: var(--edge-stroke, rgb(var(--accent-rgb) / 0.3));
+    stroke-width: 1.4;
+    stroke-linecap: round;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 0;
+    animation: draw var(--dur-4) var(--ease-in-out) both;
+    animation-delay: calc(var(--k, 0) * var(--stagger) + 180ms);
+    transition:
+      stroke-opacity var(--dur-2) var(--ease-out),
+      stroke-width var(--dur-2) var(--ease-out),
+      opacity var(--dur-2) var(--ease-out);
+  }
+
+  [data-long="true"] > .edge {
+    stroke-opacity: 0.8;
+  }
+
+  [data-state="open"] > .edge {
+    stroke-width: 1.8;
+  }
+
+  [data-state="walked"] > .edge {
+    stroke-width: 2.2;
+    opacity: calc(0.82 + 0.18 * var(--flash, 0));
+  }
+
+  .edgeGlow {
+    fill: none;
+    stroke: rgb(var(--accent-hot-rgb) / 0.16);
+    stroke-width: 8;
+    stroke-linecap: round;
+  }
+
+  .pulse {
+    fill: none;
+    stroke: #fff;
+    stroke-width: 2.6;
+    stroke-linecap: round;
+    stroke-dasharray: 0.06 1;
+    stroke-dashoffset: 0.06;
+    filter: drop-shadow(0 0 4px rgb(255 255 255 / 0.9));
+    animation: travel 2.8s linear 1.2s infinite;
+  }
+
+  @keyframes travel {
+    to {
+      stroke-dashoffset: -1;
+    }
+  }
+
+  @keyframes draw {
+    from {
+      stroke-dashoffset: 1;
+    }
+  }
+
+  @keyframes fade {
+    from {
+      opacity: 0;
+    }
+  }
+
+  /* Related lines while a lesson or module is in focus. */
+  .map[data-active="true"] [data-rel="none"] > path {
+    opacity: 0.14;
+  }
+
+  .map[data-active="true"] [data-rel="anc"] > .edge {
+    stroke-width: 2;
+    stroke-opacity: 1;
+  }
+
+  .map[data-active="true"] [data-rel="req"] > .edge {
+    stroke: #fff;
+    stroke-width: 2.6;
+    stroke-opacity: 1;
+    opacity: 1;
+  }
+
+  .map[data-active="true"] [data-rel="dep"] > .edge {
+    stroke-width: 2;
+    stroke-opacity: 1;
+    stroke-dasharray: 0.02 0.012;
+  }
+
+  .map[data-active="true"] [data-rel="req"] > .edgeGlow {
+    stroke: rgb(255 255 255 / 0.2);
+  }
+
+  /* ---- nodes ------------------------------------------------------------------------------ */
+
+  .pop {
+    animation: pop var(--dur-4) var(--ease-out) both;
+    animation-delay: calc(var(--k, 0) * var(--stagger) * 1.4 + 80ms);
+    transition: opacity var(--dur-2) var(--ease-out);
+  }
+
+  @keyframes pop {
+    from {
+      opacity: 0;
+      transform: scale(calc(1 - 0.2 * var(--motion-scale, 1)));
+    }
+  }
+
+  .halo {
+    opacity: 0;
+    transition: opacity var(--dur-3) var(--ease-out);
+  }
+
+  .ringOuter,
+  .ringInner {
+    fill: none;
+    stroke: var(--tier);
+    stroke-width: 1;
+    opacity: 0;
+    transition: opacity var(--dur-3) var(--ease-out);
+  }
+
+  .base {
+    fill: var(--ink-0);
+    stroke: rgb(255 255 255 / 0.3);
+    stroke-width: 1.6;
+    transition:
+      stroke var(--dur-2) var(--ease-out),
+      fill var(--dur-2) var(--ease-out);
+  }
+
+  .facets path {
+    opacity: 0;
+    transition: opacity var(--dur-3) var(--ease-out);
+  }
+
+  .facetTop {
+    fill: color-mix(in oklab, var(--tier) 62%, white);
+  }
+
+  .facetLeft {
+    fill: var(--tier);
+  }
+
+  .facetRight {
+    fill: color-mix(in oklab, var(--tier) 62%, black);
+  }
+
+  .arcTrack,
+  .arc {
+    fill: none;
+    opacity: 0;
+    transition: opacity var(--dur-3) var(--ease-out);
+  }
+
+  .arcTrack {
+    stroke: rgb(255 255 255 / 0.1);
+    stroke-width: 2.6;
+  }
+
+  .arc {
+    stroke: var(--tier);
+    stroke-width: 3;
+    stroke-linecap: butt;
+    filter: drop-shadow(0 0 3px rgb(var(--tier-rgb) / 0.7));
+  }
+
+  .rim {
+    fill: none;
+    stroke: #fff;
+    stroke-width: 2.2;
+    opacity: 0;
+    transition: opacity var(--dur-2) var(--ease-out);
+  }
+
+  /* In progress: a ring that fills with the saved step, a faint gem. */
+  .node[data-status="in-progress"] .base {
+    stroke: rgb(var(--tier-rgb) / 0.75);
+  }
+
+  .node[data-status="in-progress"] .arcTrack,
+  .node[data-status="in-progress"] .arc {
+    opacity: 1;
+  }
+
+  .node[data-status="in-progress"] .facets path {
+    opacity: 0.16;
+  }
+
+  .node[data-status="in-progress"] .halo {
+    opacity: 0.4;
+  }
+
+  /* Complete: a lit gem with concentric rings. */
+  .node[data-status="complete"] .base {
+    stroke: color-mix(in oklab, var(--tier) 70%, white);
+    stroke-width: 2;
+  }
+
+  .node[data-status="complete"] .facets path {
+    opacity: 1;
+  }
+
+  .node[data-status="complete"] .halo {
+    opacity: 0.85;
+  }
+
+  .node[data-status="complete"] .ringInner {
+    opacity: 0.4;
+  }
+
+  .node[data-status="complete"] .ringOuter {
+    opacity: 0.2;
+  }
+
+  /* Next: a white-hot rim that breathes. */
+  .node[data-next="true"] .rim {
+    opacity: 1;
+    filter: drop-shadow(0 0 5px rgb(255 255 255 / 0.85));
+    animation: breathe 2.4s var(--ease-in-out) infinite;
+  }
+
+  .node[data-next="true"] .halo {
+    opacity: 0.7;
+  }
+
+  @keyframes breathe {
+    50% {
+      opacity: 0.55;
+    }
+  }
+
+  /* Focus relations. */
+  .map[data-active="true"] .node[data-rel="none"] .pop {
+    opacity: 0.3;
+  }
+
+  .node[data-rel="self"] .rim {
+    opacity: 1;
+    stroke: #fff;
+    animation: none;
+  }
+
+  .node[data-rel="req"] .rim {
+    opacity: 0.85;
+    stroke: var(--accent-strong);
+    animation: none;
+  }
+
+  .node[data-rel="anc"] .rim {
+    opacity: 0.4;
+    stroke: var(--accent-strong);
+    animation: none;
+  }
+
+  .node[data-rel="dep"] .rim {
+    opacity: 0.7;
+    stroke: var(--tier);
+    stroke-dasharray: 3 3;
+    animation: none;
+  }
+
+  /* ---- links over the nodes -------------------------------------------------------------- */
+
+  .items {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    pointer-events: none;
+    z-index: 3;
+  }
+
+  .item {
+    position: absolute;
+    inset-inline-start: calc(var(--x) * var(--u));
+    inset-block-start: calc(var(--y) * var(--u));
+    inline-size: 0;
+    block-size: 0;
+  }
+
+  .link {
+    position: absolute;
+    inset: 0 auto auto 0;
+    translate: -50% calc(var(--r) * var(--u) * -1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-1);
+    inline-size: max-content;
+    color: var(--text-2);
+    text-align: center;
+    pointer-events: auto;
+    outline: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .face {
+    position: relative;
+    display: grid;
+    place-items: center;
+    inline-size: calc(var(--r) * 1.7320508 * var(--u));
+    block-size: calc(var(--r) * 2 * var(--u));
+    clip-path: var(--hex-clip);
+    transition: background var(--dur-2) var(--ease-out);
+  }
+
+  .link:hover .face,
+  .link[data-selected="true"] .face {
+    background: radial-gradient(closest-side, rgb(255 255 255 / 0.14), transparent);
+  }
+
+  .num {
+    font: 600 clamp(0.6875rem, calc(var(--r) * var(--u) * 0.5), 0.9375rem) / 1 var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    color: var(--text-2);
+  }
+
+  .link[data-status="in-progress"] .num {
+    color: var(--text-1);
+  }
+
+  .check {
+    color: #04101a;
+  }
+
+  .label {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    overflow: hidden;
+    inline-size: calc(var(--pitch) * 0.9 * var(--u));
+    font: 500 0.71875rem / 1.25 var(--font-sans);
+    color: var(--text-2);
+    text-wrap: balance;
+    text-shadow:
+      0 0 6px #000,
+      0 0 2px #000;
+    transition: color var(--dur-2) var(--ease-out);
+  }
+
+  .link:hover .label,
+  .link:focus-visible .label,
+  .link[data-selected="true"] .label {
+    color: var(--text-1);
+  }
+
+  .link[data-status="complete"] .label {
+    color: var(--text-1);
+  }
+
+  .link[data-status="untouched"]:not([data-next="true"]) .label {
+    color: var(--text-3);
+  }
+
+  .map[data-active="true"] .item[data-rel="none"] .link {
+    opacity: 0.4;
+  }
+
+  .tag {
+    position: absolute;
+    inset-block-start: calc(var(--r) * var(--u));
+    inset-inline-start: calc(50% + var(--r) * var(--u) * 1.02);
+    translate: 0 -50%;
+    padding: 3px var(--space-2);
+    background: #fff;
+    color: #000;
+    font: 700 0.625rem / 1 var(--font-mono);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    clip-path: polygon(0 3px, 3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%);
+    box-shadow: 0 0 14px rgb(255 255 255 / 0.5);
+    pointer-events: none;
+  }
+
+  /* The keyboard ring: a white-hot hexagon outline around the node. */
+  .focusRing {
+    --fw: 2.5px;
+    position: absolute;
+    inset: -7px -7px -7px -7px;
+    background: var(--focus-color);
+    opacity: 0;
+    clip-path: polygon(
+      evenodd,
+      50% 0,
+      100% 25%,
+      100% 75%,
+      50% 100%,
+      0 75%,
+      0 25%,
+      50% 0,
+      50% calc(1.1547 * var(--fw)),
+      calc(100% - var(--fw)) calc(25% + 0.5774 * var(--fw)),
+      calc(100% - var(--fw)) calc(75% - 0.5774 * var(--fw)),
+      50% calc(100% - 1.1547 * var(--fw)),
+      var(--fw) calc(75% - 0.5774 * var(--fw)),
+      var(--fw) calc(25% + 0.5774 * var(--fw)),
+      50% calc(1.1547 * var(--fw))
+    );
+    transition: opacity var(--dur-1) var(--ease-out);
+  }
+
+  .link:focus-visible .focusRing {
+    opacity: 1;
+  }
+
+  .link:focus-visible .label {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  /* ---- the card ---------------------------------------------------------------------------- */
+
+  .card {
+    position: absolute;
+    z-index: 6;
+    inset-inline-start: calc(var(--cx) * var(--u));
+    inset-block-start: calc(var(--cy) * var(--u));
+    animation: card-in var(--dur-2) var(--ease-out) both;
+  }
+
+  @keyframes card-in {
+    from {
+      opacity: 0;
+    }
+  }
+
+  /* ---- touch: the card docks under the map ----------------------------------------------- */
+
+  .dock {
+    margin-block-start: var(--space-4);
+  }
+
+  /* With a card in it, the dock rides the bottom of the screen while the map is in view, so the tapped
+     lesson's card is never a scroll away from the finger. */
+  .dock[data-open="true"] {
+    position: sticky;
+    inset-block-end: var(--space-3);
+    z-index: 6;
+  }
+
+  .dockHint {
+    margin: 0;
+    padding: var(--space-3) var(--space-4);
+    font: 500 var(--fs-xs) / 1.4 var(--font-mono);
+    letter-spacing: 0.04em;
+    color: var(--text-3);
+    text-align: center;
+    box-shadow: inset 0 0 0 1px var(--line-1);
+  }
+
+  /* ---- phones: bands stacked, no labels ---------------------------------------------------- */
+
+  /* A tablet in portrait gets the phone's layout, but not at a width that makes the lessons huge. */
+  .wrap[data-orientation="vertical"] .map,
+  .wrap[data-orientation="vertical"] .dock {
+    max-inline-size: 30rem;
+    margin-inline: auto;
+  }
+
+  .wrap[data-orientation="vertical"] .face {
+    inline-size: calc(var(--r) * 1.7320508 * var(--u));
+  }
+
+  /* No room beside a node on a phone (its neighbour is a node away): the flag stands above it, in the
+     gap between two layers. */
+  .wrap[data-orientation="vertical"] .tag {
+    inset-block-start: 0;
+    inset-inline-start: 50%;
+    translate: -50% calc(-100% - 4px);
+  }
+
+  .wrap[data-orientation="vertical"] .bandHead {
+    padding: var(--space-2) var(--space-3) 0 var(--space-3);
+  }
+
+  /* ---- calm: opacity only, no loops ------------------------------------------------------- */
+
+  .wrap[data-calm="true"] .edge {
+    animation-name: fade;
+  }
+
+  .wrap[data-calm="true"] .pop {
+    animation-name: fade;
+  }
+
+  .wrap[data-calm="true"] .pulse {
+    animation: none;
+    stroke-dasharray: 0.07 1;
+    stroke-dashoffset: -0.86;
+  }
+
+  .wrap[data-calm="true"] .node[data-next="true"] .rim {
+    animation: none;
+  }
+
+  .wrap[data-calm="true"] .card {
+    animation: none;
+  }
+
+  @media (forced-colors: active) {
+    .base {
+      fill: Canvas;
+      stroke: CanvasText;
+    }
+
+    .node[data-status="complete"] .base {
+      fill: Highlight;
+      stroke: Highlight;
+    }
+
+    .facets path,
+    .halo,
+    .ringOuter,
+    .ringInner {
+      display: none;
+    }
+
+    .arc {
+      stroke: Highlight;
+      filter: none;
+    }
+
+    .rim {
+      stroke: Highlight;
+      filter: none;
+    }
+
+    .edge {
+      stroke: GrayText;
+    }
+
+    [data-state="walked"] > .edge,
+    [data-state="open"] > .edge {
+      stroke: CanvasText;
+    }
+
+    .map[data-active="true"] [data-rel="req"] > .edge {
+      stroke: Highlight;
+    }
+
+    .pulse {
+      stroke: Highlight;
+      filter: none;
+    }
+
+    /* Canvas plate, CanvasText label and a rim: Highlight / HighlightText is avoided because a
+       translucent Highlight makes the browser paint a Canvas backplate behind the label. */
+    .tag {
+      background: Canvas;
+      color: CanvasText;
+      outline: 1px solid CanvasText;
+      box-shadow: none;
+    }
+
+    .num,
+    .label {
+      color: CanvasText;
+      text-shadow: none;
+    }
+
+    .check {
+      color: HighlightText;
+    }
+
+    .focusRing {
+      background: Highlight;
+    }
+  }
+}

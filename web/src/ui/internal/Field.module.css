@@ -1,0 +1,201 @@
+/*
+ * Field: label, hint and error layout, and the chamfered frame the text controls share.
+ * Focus draws the rim once around the frame (:focus-within, so the frame lights whatever
+ * inside it takes focus).
+ */
+@layer reset, tokens, base, ui, route, utility;
+
+@layer ui {
+  .field {
+    display: grid;
+    /* One column that may shrink below its content: an auto column takes the input's intrinsic width
+       and makes a field overflow a narrow flex row. */
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-2);
+    min-inline-size: 0;
+  }
+
+  .head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-3);
+  }
+
+  .label {
+    font: 500 var(--fs-2xs) / 1.2 var(--font-mono);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+
+  .req {
+    color: var(--accent-text);
+  }
+
+  .meta {
+    font: 500 var(--fs-2xs) / 1 var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    color: var(--text-3);
+  }
+
+  .hint {
+    font: 400 var(--fs-xs) / 1.45 var(--font-sans);
+    color: var(--text-3);
+    max-inline-size: none;
+  }
+
+  .error {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-2);
+    font: 500 var(--fs-xs) / 1.45 var(--font-sans);
+    color: var(--status-crit);
+    max-inline-size: none;
+  }
+
+  .error svg {
+    flex: none;
+    margin-block-start: 1px;
+  }
+
+  .field[data-disabled="true"] .label {
+    color: var(--text-4);
+  }
+
+  /* ---- the frame ------------------------------------------------------------------ */
+
+  .box {
+    --c: 8px;
+    --cm: 2px;
+    --bw: 1px;
+    --h: 44px;
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-block-size: var(--h);
+    padding-inline: var(--space-3);
+    color: var(--text-1);
+    cursor: text;
+  }
+
+  .box[data-size="lg"] {
+    --h: 52px;
+    --c: 10px;
+  }
+
+  .box[data-multiline="true"] {
+    align-items: flex-start;
+    padding-block: var(--space-3);
+  }
+
+  .edge,
+  .face {
+    position: absolute;
+    z-index: -1;
+    pointer-events: none;
+  }
+
+  .edge {
+    inset: 0;
+    clip-path: var(--clip-ring);
+    background: linear-gradient(180deg, rgb(255 255 255 / 0.26), rgb(255 255 255 / 0.12));
+    transition: background var(--dur-2) var(--ease-out);
+  }
+
+  .face {
+    inset: var(--bw);
+    clip-path: var(--clip-inner);
+    background:
+      linear-gradient(180deg, rgb(var(--accent-rgb) / 0.05), transparent 60%), rgb(var(--ink-0-rgb) / 0.78);
+    transition: background var(--dur-2) var(--ease-out);
+  }
+
+  .box:hover .edge {
+    background: linear-gradient(180deg, rgb(255 255 255 / 0.42), rgb(var(--accent-hot-rgb) / 0.22));
+  }
+
+  .box:is(:focus-within, :has([data-force="focus"])) {
+    --bw: 2px;
+  }
+
+  .box:is(:focus-within, :has([data-force="focus"])) .edge {
+    background: conic-gradient(
+      from var(--beam-angle),
+      var(--hot),
+      rgb(var(--accent-hot-rgb) / 0.95) 16%,
+      rgb(var(--accent-rgb) / 0.9) 50%,
+      rgb(var(--accent-hot-rgb) / 0.95) 84%,
+      var(--hot)
+    );
+    animation: beam 900ms var(--ease-out) both;
+  }
+
+  .box[data-invalid="true"] .edge {
+    background: linear-gradient(180deg, rgb(var(--status-crit-rgb) / 0.9), rgb(var(--status-crit-rgb) / 0.5));
+  }
+
+  .box[data-invalid="true"]:is(:focus-within, :has([data-force="focus"])) .edge {
+    background: conic-gradient(
+      from var(--beam-angle),
+      var(--hot),
+      rgb(var(--status-crit-rgb)) 25%,
+      rgb(var(--status-crit-rgb) / 0.8) 50%,
+      rgb(var(--status-crit-rgb)) 75%,
+      var(--hot)
+    );
+  }
+
+  @keyframes beam {
+    to {
+      --beam-angle: 360deg;
+    }
+  }
+
+  .field[data-disabled="true"] .box {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .affix {
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    gap: var(--space-2);
+    color: var(--text-3);
+    font: 500 var(--fs-xs) / 1 var(--font-mono);
+  }
+
+  :global(html[data-motion="reduced"]) .box:is(:focus-within, :has([data-force="focus"])) .edge {
+    animation: none;
+    background: rgb(255 255 255 / 0.92);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :global(html:not([data-motion="full"])) .box:is(:focus-within, :has([data-force="focus"])) .edge {
+      animation: none;
+      background: rgb(255 255 255 / 0.92);
+    }
+  }
+
+  @media (forced-colors: active) {
+    .edge {
+      background: ButtonText;
+    }
+
+    .face {
+      background: Field;
+    }
+
+    .box:is(:focus-within, :has([data-force="focus"])) .edge {
+      background: Highlight;
+      animation: none;
+    }
+
+    .box[data-invalid="true"] .edge {
+      background: LinkText;
+    }
+  }
+}

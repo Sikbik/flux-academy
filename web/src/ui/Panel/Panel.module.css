@@ -1,0 +1,607 @@
+/*
+ * Panel: the glass slab (ref-blueprint-ui). Layers, bottom to top:
+ *   halo     the accent bloom that follows the cuts
+ *   edge     the 1 px gradient ring, burning hot at one cut corner
+ *   fill     the glass: ink-0 at about 62 percent, backdrop blur, inner top highlight
+ *   pattern  the faint hex lattice, masked to fade from one corner
+ *   grain    fine noise
+ *   spot     the cursor spotlight, with a crosshair at its centre
+ *   marks    corner crosshairs (flare on the Beat)
+ *   ruler    a tick ruler along one edge
+ *   content  the children
+ * The root carries no clip, filter or opacity, so the fill's backdrop blur always sees what
+ * is behind the page. Do not put filter, opacity < 1, clip-path or mask on an ancestor.
+ */
+@layer reset, tokens, base, ui, route, utility;
+
+@layer ui {
+  .panel {
+    --c: var(--chamfer);
+    --cm: var(--bevel);
+    --bw: 1px;
+    --hx: 100%;
+    --hy: 0%;
+    --hx2: 0%;
+    --hy2: 100%;
+    --pat-x: 100%;
+    --pat-y: 100%;
+    --pat-r: 300px; /* how far the hex lattice reaches from its corner */
+    --mk: 9px; /* crosshair inset */
+    --pad: 0px; /* reset, so a padding="none" panel inside a padded one is not padded */
+    position: relative;
+    display: block;
+    min-inline-size: 0;
+    isolation: isolate;
+    color: var(--text-2);
+    text-align: start;
+    scale: var(--press, 1);
+    -webkit-tap-highlight-color: transparent;
+    transition: scale var(--dur-1) var(--ease-snap);
+  }
+
+  .panel[data-size="sm"] {
+    --c: var(--chamfer-sm);
+    --cm: 3px;
+    --mk: 7px;
+  }
+
+  .panel[data-size="lg"] {
+    --c: var(--chamfer-lg);
+    --cm: 6px;
+    --mk: 12px;
+  }
+
+  .panel[data-hot="tl"] {
+    --hx: 0%;
+    --hy: 0%;
+    --hx2: 100%;
+    --hy2: 100%;
+  }
+
+  .panel[data-hot="br"] {
+    --hx: 100%;
+    --hy: 100%;
+    --hx2: 0%;
+    --hy2: 0%;
+  }
+
+  .panel[data-hot="bl"] {
+    --hx: 0%;
+    --hy: 100%;
+    --hx2: 100%;
+    --hy2: 0%;
+  }
+
+  .panel[data-pattern="tl"] {
+    --pat-x: 0%;
+    --pat-y: 0%;
+  }
+
+  .panel[data-pattern="tr"] {
+    --pat-x: 100%;
+    --pat-y: 0%;
+  }
+
+  .panel[data-pattern="bl"] {
+    --pat-x: 0%;
+    --pat-y: 100%;
+  }
+
+  .panel[data-container] {
+    container-type: inline-size;
+  }
+
+  /* ---- layers ------------------------------------------------------------------------- */
+
+  .halo,
+  .edge,
+  .glow,
+  .fill,
+  .pattern,
+  .grain,
+  .spot,
+  .marks,
+  .ruler {
+    position: absolute;
+    display: block;
+    pointer-events: none;
+  }
+
+  /*
+   * The bloom around the slab. The shape is drawn opaque and cast as a drop-shadow, then
+   * clip-path (which runs after filter) removes the shape's own interior and keeps a band
+   * around it: a glow that follows the cuts and never tints the glass. A filter's ink
+   * overflow adds no scrollable overflow, so a panel at the edge of a scroller is safe.
+   */
+  .halo {
+    --h: 44px;
+    inset: 0;
+    z-index: -1;
+    filter: drop-shadow(0 0 1.5px rgb(var(--accent-hot-rgb) / 0.55))
+      drop-shadow(0 0 4px rgb(var(--accent-deep-rgb) / 0.9))
+      drop-shadow(0 0 20px rgb(var(--accent-deep-rgb) / 0.55));
+    clip-path: polygon(
+      evenodd,
+      calc(-1 * var(--h)) 50%,
+      calc(-1 * var(--h)) calc(-1 * var(--h)),
+      calc(100% + var(--h)) calc(-1 * var(--h)),
+      calc(100% + var(--h)) calc(100% + var(--h)),
+      calc(-1 * var(--h)) calc(100% + var(--h)),
+      calc(-1 * var(--h)) 50%,
+      0 50%,
+      0 var(--c-tl),
+      var(--c-tl) 0,
+      calc(100% - var(--c-tr)) 0,
+      100% var(--c-tr),
+      100% calc(100% - var(--c-br)),
+      calc(100% - var(--c-br)) 100%,
+      var(--c-bl) 100%,
+      0 calc(100% - var(--c-bl)),
+      0 50%
+    );
+    opacity: calc(0.6 + var(--flash) * 0.4);
+    transition: opacity var(--dur-3) var(--ease-out);
+  }
+
+  .halo::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    clip-path: var(--clip-outer);
+    background: #000;
+  }
+
+  .panel[data-halo="false"] .halo,
+  :global(html[data-glass="lite"]) .halo {
+    display: none;
+  }
+
+  .edge {
+    inset: 0;
+    z-index: 0;
+    clip-path: var(--clip-ring);
+    background:
+      linear-gradient(90deg, transparent 4%, rgb(var(--accent-hot-rgb) / 0.95) 34%, transparent 66%) top /
+      100% 3px no-repeat,
+      radial-gradient(
+        84px 84px at var(--hx) var(--hy),
+        var(--hot),
+        rgb(var(--accent-hot-rgb) / 0.92) 28%,
+        transparent 100%
+      ),
+      radial-gradient(60px 60px at var(--hx2) var(--hy2), rgb(var(--accent-hot-rgb) / 0.55), transparent 100%),
+      linear-gradient(
+        165deg,
+        rgb(var(--accent-rgb) / 1),
+        rgb(var(--accent-rgb) / 0.5) 46%,
+        rgb(var(--accent-rgb) / 0.82)
+      );
+    opacity: calc(0.88 + var(--flash) * 0.12);
+    transition: opacity var(--dur-2) var(--ease-out);
+  }
+
+  /* The edge catches the pointer: a hot hairline under the cursor. */
+  .edge::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+      160px 160px at var(--px, 50%) var(--py, 0%),
+      var(--hot),
+      rgb(var(--accent-hot-rgb) / 0.5) 40%,
+      transparent 72%
+    );
+    opacity: 0;
+    transition: opacity var(--dur-3) var(--ease-out);
+  }
+
+  /*
+   * The light bleeding inward from the edge, following every cut: the ring is drawn on a
+   * pseudo-element, blurred, and the parent's clip (applied after the filter) keeps the
+   * part inside the silhouette.
+   */
+  .glow {
+    inset: 0;
+    z-index: 2;
+    clip-path: var(--clip-outer);
+    filter: blur(9px);
+    opacity: calc(0.72 + var(--flash) * 0.28);
+  }
+
+  .glow::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    --bw: 3px;
+    clip-path: var(--clip-ring);
+    background:
+      radial-gradient(130px 130px at var(--hx) var(--hy), rgb(var(--accent-hot-rgb) / 0.9), transparent 100%),
+      rgb(var(--accent-deep-rgb) / 0.9);
+  }
+
+  .panel[data-halo="false"] .glow,
+  :global(html[data-glass="lite"]) .glow {
+    display: none;
+  }
+
+  .fill {
+    inset: var(--bw);
+    z-index: 1;
+    clip-path: var(--clip-inner);
+    background:
+      radial-gradient(120% 95% at var(--hx) var(--hy), rgb(var(--accent-rgb) / 0.15), transparent 62%),
+      linear-gradient(180deg, rgb(var(--accent-rgb) / 0.05), transparent 40%), var(--glass-bg);
+    -webkit-backdrop-filter: var(--glass-filter);
+    backdrop-filter: var(--glass-filter);
+    box-shadow: var(--inset-hi);
+  }
+
+  /*
+   * The lattice fades from its corner. The reach is the SIZE of the radial layer (min() is
+   * valid in mask-size, not inside a gradient's ellipse size, where Chromium drops the whole
+   * declaration and the wash would paint flat across the slab): a box up to --pat-r from the
+   * corner, holding a quarter ellipse that spans it exactly.
+   */
+  .pattern {
+    inset: var(--bw);
+    z-index: 3;
+    clip-path: var(--clip-inner);
+    background: rgb(var(--accent-hot-rgb) / 0.24);
+    -webkit-mask-image:
+      var(--pattern-hex-mask),
+      radial-gradient(ellipse 100% 100% at var(--pat-x) var(--pat-y), #000 0, transparent 100%);
+    mask-image:
+      var(--pattern-hex-mask),
+      radial-gradient(ellipse 100% 100% at var(--pat-x) var(--pat-y), #000 0, transparent 100%);
+    -webkit-mask-size:
+      var(--pattern-hex-w) var(--pattern-hex-h),
+      min(78%, var(--pat-r)) min(96%, var(--pat-r));
+    mask-size:
+      var(--pattern-hex-w) var(--pattern-hex-h),
+      min(78%, var(--pat-r)) min(96%, var(--pat-r));
+    -webkit-mask-position:
+      0 0,
+      var(--pat-x) var(--pat-y);
+    mask-position:
+      0 0,
+      var(--pat-x) var(--pat-y);
+    -webkit-mask-repeat: repeat, no-repeat;
+    mask-repeat: repeat, no-repeat;
+    -webkit-mask-composite: source-in;
+    mask-composite: intersect;
+    opacity: 0.9;
+  }
+
+  .grain {
+    inset: var(--bw);
+    z-index: 4;
+    clip-path: var(--clip-inner);
+    background-image: var(--grain-image);
+    opacity: var(--grain-opacity);
+  }
+
+  .spot {
+    inset: var(--bw);
+    z-index: 5;
+    clip-path: var(--clip-inner);
+    background:
+      radial-gradient(
+        96px 96px at var(--px, 50%) var(--py, 30%),
+        rgb(var(--accent-hot-rgb) / 0.5),
+        transparent 100%
+      ),
+      radial-gradient(
+        300px 300px at var(--px, 50%) var(--py, 30%),
+        rgb(var(--accent-rgb) / 0.2),
+        rgb(var(--accent-rgb) / 0.07) 45%,
+        transparent 100%
+      );
+    opacity: 0;
+    transition: opacity var(--dur-3) var(--ease-out);
+  }
+
+  /* The cursor crosshair inside the spotlight: the probe, local to the slab. */
+  .spot::after {
+    content: "";
+    position: absolute;
+    inline-size: 15px;
+    block-size: 15px;
+    inset-inline-start: var(--px, 50%);
+    inset-block-start: var(--py, 30%);
+    translate: -7px -7px;
+    background: var(--hot);
+    -webkit-mask: var(--mask-plus-lg) center / 15px 15px no-repeat;
+    mask: var(--mask-plus-lg) center / 15px 15px no-repeat;
+  }
+
+  /* Corner crosshairs: four pluses, poured through a mask so the colour can breathe. */
+  .marks {
+    inset: 0;
+    z-index: 6;
+    --mc: rgb(255 255 255 / calc(0.4 + var(--flash) * 0.4));
+    background: var(--mc);
+    -webkit-mask-image: var(--mask-plus), var(--mask-plus), var(--mask-plus), var(--mask-plus);
+    mask-image: var(--mask-plus), var(--mask-plus), var(--mask-plus), var(--mask-plus);
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-size: 11px 11px;
+    mask-size: 11px 11px;
+    -webkit-mask-position:
+      left var(--mk) top var(--mk),
+      right var(--mk) top var(--mk),
+      left var(--mk) bottom var(--mk),
+      right var(--mk) bottom var(--mk);
+    mask-position:
+      left var(--mk) top var(--mk),
+      right var(--mk) top var(--mk),
+      left var(--mk) bottom var(--mk),
+      right var(--mk) bottom var(--mk);
+    transition: opacity var(--dur-3) var(--ease-out);
+  }
+
+  /* The tick ruler: a minor tick every 5 px, a major every 25, faded at both ends. */
+  .ruler {
+    display: none;
+    z-index: 6;
+    --tc: rgb(255 255 255 / calc(0.5 + var(--flash) * 0.4));
+  }
+
+  .panel[data-ruler="left"] .ruler,
+  .panel[data-ruler="right"] .ruler {
+    display: block;
+    inset-block: 18% 22%;
+    inline-size: 12px;
+    background:
+      repeating-linear-gradient(180deg, var(--tc) 0 1px, transparent 1px 6px) var(--rside, left) top / 6px
+      100% no-repeat,
+      repeating-linear-gradient(180deg, var(--tc) 0 1px, transparent 1px 30px) var(--rside, left) top / 12px
+      100% no-repeat;
+    -webkit-mask-image: linear-gradient(180deg, transparent, #000 14%, #000 86%, transparent);
+    mask-image: linear-gradient(180deg, transparent, #000 14%, #000 86%, transparent);
+  }
+
+  .panel[data-ruler="left"] .ruler {
+    inset-inline-start: 9px;
+  }
+
+  .panel[data-ruler="right"] .ruler {
+    --rside: right;
+    inset-inline-end: 9px;
+  }
+
+  .panel[data-ruler="top"] .ruler,
+  .panel[data-ruler="bottom"] .ruler {
+    display: block;
+    inset-inline: 22% 18%;
+    block-size: 12px;
+    background:
+      repeating-linear-gradient(90deg, var(--tc) 0 1px, transparent 1px 6px) left var(--rside, top) / 100% 6px
+      no-repeat,
+      repeating-linear-gradient(90deg, var(--tc) 0 1px, transparent 1px 30px) left var(--rside, top) / 100%
+      12px no-repeat;
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 14%, #000 86%, transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 14%, #000 86%, transparent);
+  }
+
+  .panel[data-ruler="top"] .ruler {
+    inset-block-start: 9px;
+  }
+
+  .panel[data-ruler="bottom"] .ruler {
+    --rside: bottom;
+    inset-block-end: 9px;
+  }
+
+  .content {
+    position: relative;
+    z-index: 7;
+    min-inline-size: 0;
+    padding: var(--pad, 0);
+  }
+
+  .panel[data-pad="sm"] {
+    --pad: var(--space-5);
+  }
+
+  .panel[data-pad="md"] {
+    --pad: clamp(1.25rem, 1rem + 0.9vw, 1.75rem);
+  }
+
+  .panel[data-pad="lg"] {
+    --pad: clamp(1.5rem, 1.1rem + 1.4vw, 2.5rem);
+  }
+
+  /* A ruler needs room: nudge the content off the ruled edge. */
+  .panel[data-ruler="left"] > .content {
+    padding-inline-start: calc(var(--pad, 0px) + 14px);
+  }
+
+  .panel[data-ruler="right"] > .content {
+    padding-inline-end: calc(var(--pad, 0px) + 14px);
+  }
+
+  .panel[data-clip="true"] > .content {
+    clip-path: var(--clip-outer);
+  }
+
+  /* ---- variants ----------------------------------------------------------------------- */
+
+  /* Slab: opaque-ish, no blur. A consumer can set --panel-fill (modal surfaces do). */
+  .panel[data-variant="slab"] .fill {
+    background:
+      radial-gradient(120% 95% at var(--hx) var(--hy), rgb(var(--accent-rgb) / 0.12), transparent 62%),
+      var(--panel-fill, var(--glass-bg-strong));
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
+  .panel[data-variant="ghost"] .fill {
+    background: transparent;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    box-shadow: none;
+  }
+
+  .panel[data-variant="ghost"] .grain {
+    display: none;
+  }
+
+  .panel[data-marks="false"] .marks {
+    display: none;
+  }
+
+  .panel[data-pattern="none"] .pattern {
+    display: none;
+  }
+
+  /* ---- interaction -------------------------------------------------------------------- */
+
+  .panel[data-clickable="true"] {
+    cursor: pointer;
+  }
+
+  .panel[data-tilt="true"] {
+    transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+    transform-origin: 50% 50%;
+  }
+
+  /* Keyboard focus: a white-hot beam sweeps the chamfer and the edge thickens to 2 px. */
+  .panel:is(:focus-visible, [data-force="focus"]) {
+    outline: none;
+    --bw: 2px;
+  }
+
+  .panel:is(:focus-visible, [data-force="focus"]) .edge {
+    opacity: 1;
+    background: conic-gradient(
+      from var(--beam-angle),
+      var(--hot),
+      rgb(var(--accent-hot-rgb) / 0.95) 16%,
+      rgb(var(--accent-rgb) / 0.9) 50%,
+      rgb(var(--accent-hot-rgb) / 0.95) 84%,
+      var(--hot)
+    );
+    animation: beam 1100ms var(--ease-out) both;
+  }
+
+  @keyframes beam {
+    to {
+      --beam-angle: 360deg;
+    }
+  }
+
+  :global(html[data-motion="reduced"]) .panel,
+  :global(html[data-motion="reduced"]) .spot,
+  :global(html[data-motion="reduced"]) .edge {
+    transition: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :global(html:not([data-motion="full"])) .panel,
+    :global(html:not([data-motion="full"])) .spot,
+    :global(html:not([data-motion="full"])) .edge {
+      transition: none;
+    }
+  }
+
+  /* Hover is written by useSpotlight as data-hover on the root. Real :hover is the floor. */
+  .panel[data-interactive="true"]:is([data-hover="true"], [data-force="hover"]) .spot,
+  .panel[data-interactive="true"]:is([data-hover="true"], [data-force="hover"]) .edge {
+    opacity: 1;
+  }
+
+  .panel[data-interactive="true"]:is([data-hover="true"], [data-force="hover"]) .edge::after {
+    opacity: 0.9;
+  }
+
+  .panel[data-interactive="true"]:is([data-hover="true"], [data-force="hover"]) .halo {
+    opacity: 1;
+    filter: drop-shadow(0 0 1.5px rgb(var(--accent-hot-rgb) / 0.7))
+      drop-shadow(0 0 5px rgb(var(--accent-deep-rgb) / 0.95))
+      drop-shadow(0 0 24px rgb(var(--accent-deep-rgb) / 0.65));
+  }
+
+  .panel[data-interactive="true"]:is([data-hover="true"], [data-force="hover"]) .marks {
+    --mc: rgb(255 255 255 / calc(0.45 + var(--flash) * 0.4));
+  }
+
+  /* Without a spotlight (touch, forced state) the spot sits at a fixed place. */
+  .panel[data-force="hover"] .spot::after {
+    inset-inline-start: 62%;
+    inset-block-start: 38%;
+  }
+
+  .panel[data-interactive="true"]:is(:active, [data-force="press"]) {
+    --press: var(--press-scale);
+  }
+
+  :global(html[data-motion="reduced"]) .panel:is(:focus-visible, [data-force="focus"]) .edge {
+    animation: none;
+    background: rgb(255 255 255 / 0.9);
+  }
+
+  :global(html[data-motion="reduced"]) .panel[data-tilt="true"] {
+    transform: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :global(html:not([data-motion="full"])) .panel:is(:focus-visible, [data-force="focus"]) .edge {
+      animation: none;
+      background: rgb(255 255 255 / 0.9);
+    }
+
+    :global(html:not([data-motion="full"])) .panel[data-tilt="true"] {
+      transform: none;
+    }
+  }
+
+  /* ---- accessibility modes ---------------------------------------------------------------- */
+
+  @media (prefers-contrast: more) {
+    .pattern,
+    .grain,
+    .marks,
+    .ruler {
+      display: none;
+    }
+
+    .edge {
+      background: rgb(255 255 255 / 0.75);
+      opacity: 1;
+    }
+
+    .fill {
+      background: var(--glass-bg-solid);
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+    }
+  }
+
+  @media (forced-colors: active) {
+    .edge {
+      background: CanvasText;
+      opacity: 1;
+    }
+
+    .fill {
+      background: Canvas;
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+      box-shadow: none;
+    }
+
+    .halo,
+    .pattern,
+    .grain,
+    .spot,
+    .marks,
+    .ruler {
+      display: none;
+    }
+
+    .panel:is(:focus-visible, [data-force="focus"]) {
+      outline: 2px solid Highlight;
+      outline-offset: 3px;
+    }
+  }
+}

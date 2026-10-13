@@ -1,0 +1,15 @@
+{
+  "status": "success",
+  "data": {
+    "ip": "176.9.51.187",
+    "continent": "Europe",
+    "continentCode": "EU",
+    "country": "Germany",
+    "countryCode": "DE",
+    "region": "SN",
+    "regionName": "Saxony",
+    "lat": 50.4777,
+    "lon": 12.3649,
+    "org": "Hetzner"
+  }
+}

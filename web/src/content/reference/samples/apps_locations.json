@@ -1,0 +1,35 @@
+{
+  "status": "success",
+  "data": [
+    {
+      "ip": "144.76.98.48:16197",
+      "name": "FoldingAtRunOnFlux25",
+      "hash": "3bd44ecad2364dbcc1d0eb1447ed4b453a0b3e7c68d942e9e48a43b19f850f46",
+      "broadcastedAt": "2026-10-12T19:29:15.376Z",
+      "expireAt": "2026-10-12T21:34:15.376Z",
+      "osUptime": 16128215.16,
+      "staticIp": false,
+      "runningSince": "2026-03-26T14:59:19.296Z"
+    },
+    {
+      "name": "TimpiCollector1762287368786",
+      "ip": "66.103.162.196:16137",
+      "hash": "8d6789d58416b1285f5eaa20de37677f728869ecc65f43d0c2bde3a2b7d0e648",
+      "broadcastedAt": "2026-10-12T19:32:25.576Z",
+      "expireAt": "2026-10-12T21:37:25.576Z",
+      "osUptime": 15124920.52,
+      "staticIp": false,
+      "runningSince": "2026-05-20T16:53:54.534Z"
+    },
+    {
+      "ip": "66.103.162.196:16137",
+      "name": "probeamericas",
+      "hash": "ab1d4dcac794a9ba9e3046114a024b65a029e35bc0d89c4193f7d789367b3014",
+      "broadcastedAt": "2026-10-12T19:32:25.576Z",
+      "expireAt": "2026-10-12T21:37:25.576Z",
+      "osUptime": 15124920.52,
+      "staticIp": false,
+      "runningSince": "2026-05-28T08:36:52.616Z"
+    }
+  ]
+}

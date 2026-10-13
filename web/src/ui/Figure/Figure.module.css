@@ -1,0 +1,209 @@
+/*
+ * Figure: a frame, a content box (the plate), the annotation layer on top, a caption and a
+ * legend. The caption's rule draws in with the rest of the figure (scaleX, from the left).
+ */
+@layer reset, tokens, base, ui, route, utility;
+
+@layer ui {
+  .figure {
+    display: grid;
+    gap: var(--space-3);
+    margin: 0;
+    min-inline-size: 0;
+  }
+
+  .frame {
+    min-inline-size: 0;
+  }
+
+  .plate {
+    position: relative;
+    inline-size: 100%;
+    min-inline-size: 0;
+  }
+
+  .plate[data-ratio] {
+    overflow: visible;
+  }
+
+  /* A diagram or image given to the figure fills the content box. */
+  .plate > :where(svg:not([aria-hidden="true"]), img, canvas, video, picture) {
+    display: block;
+    inline-size: 100%;
+    block-size: 100%;
+  }
+
+  /* ---- caption --------------------------------------------------------------------------- */
+
+  .caption {
+    position: relative;
+    display: grid;
+    gap: var(--space-1);
+    padding-block-start: var(--space-3);
+    font: 500 var(--fs-xs) / 1.4 var(--font-mono);
+    color: var(--text-2);
+  }
+
+  /* The rule is a hairline with a cross tick at its start; it draws left to right. */
+  .rule {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline: 0;
+    block-size: 1px;
+    background: linear-gradient(90deg, var(--blueprint-strong), var(--blueprint) 28%, transparent 78%);
+    transform-origin: left center;
+    scale: 0 1;
+    transition: scale var(--dur-4) var(--ease-out);
+  }
+
+  .rule::before {
+    content: "";
+    position: absolute;
+    inset-block-start: -2px;
+    inset-inline-start: 0;
+    inline-size: 1px;
+    block-size: 5px;
+    background: var(--blueprint-strong);
+  }
+
+  .caption[data-drawn="true"] .rule {
+    scale: 1 1;
+  }
+
+  .line {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-1) var(--space-3);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+  }
+
+  .bullet {
+    flex: none;
+    inline-size: 7px;
+    block-size: 8px;
+    background: var(--accent);
+    clip-path: var(--hex-clip);
+  }
+
+  .num {
+    color: var(--accent-text);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .title {
+    color: var(--text-2);
+  }
+
+  .note {
+    font: 400 var(--fs-sm) / 1.55 var(--font-sans);
+    color: var(--text-3);
+    max-inline-size: var(--measure);
+    text-transform: none;
+    letter-spacing: 0;
+  }
+
+  /* ---- visible legend ------------------------------------------------------------------------- */
+
+  .legend {
+    display: grid;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .item {
+    display: grid;
+    grid-template-columns: 24px minmax(0, 1fr);
+    gap: var(--space-3);
+    align-items: start;
+    font: 400 var(--fs-sm) / 1.5 var(--font-sans);
+    color: var(--text-2);
+  }
+
+  .key {
+    display: grid;
+    place-items: center;
+    inline-size: 22px;
+    block-size: 22px;
+    border: 1px solid rgb(var(--accent-hot-rgb) / 0.8);
+    border-radius: 50%;
+    font: 500 11px / 1 var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    color: var(--text-1);
+  }
+
+  /* Dimension entries get a short double bar instead of a number. */
+  .keyDim {
+    border: 0;
+    border-radius: 0;
+    background:
+      linear-gradient(rgb(var(--accent-hot-rgb) / 0.7), rgb(var(--accent-hot-rgb) / 0.7)) center / 100% 1px
+      no-repeat,
+      linear-gradient(rgb(var(--accent-hot-rgb) / 0.7), rgb(var(--accent-hot-rgb) / 0.7)) left / 1px 10px
+      no-repeat,
+      linear-gradient(rgb(var(--accent-hot-rgb) / 0.7), rgb(var(--accent-hot-rgb) / 0.7)) right / 1px 10px
+      no-repeat;
+  }
+
+  .itemText {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 var(--space-3);
+    padding-block-start: 2px;
+  }
+
+  .itemLabel {
+    font: 500 var(--fs-2xs) / 1.6 var(--font-mono);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--accent-strong);
+  }
+
+  .itemNote {
+    color: var(--text-2);
+  }
+
+  /* ---- reduced motion: the rule is simply there ------------------------------------------------- */
+
+  :global(html[data-motion="reduced"]) .rule {
+    scale: 1 1;
+    opacity: 0;
+    transition: opacity var(--dur-3) linear;
+  }
+
+  :global(html[data-motion="reduced"]) .caption[data-drawn="true"] .rule {
+    opacity: 1;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :global(html:not([data-motion="full"])) .rule {
+      scale: 1 1;
+      opacity: 0;
+      transition: opacity var(--dur-3) linear;
+    }
+
+    :global(html:not([data-motion="full"])) .caption[data-drawn="true"] .rule {
+      opacity: 1;
+    }
+  }
+
+  @media (forced-colors: active) {
+    .rule,
+    .rule::before {
+      background: CanvasText;
+    }
+
+    .bullet {
+      background: CanvasText;
+    }
+
+    .key {
+      border-color: CanvasText;
+      color: CanvasText;
+    }
+  }
+}

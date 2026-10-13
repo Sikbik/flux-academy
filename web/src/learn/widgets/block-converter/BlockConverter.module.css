@@ -1,0 +1,376 @@
+/*
+ * The block converter: the question, four linked unit fields, the duration discount bar with a marker at
+ * the current length, and the expiry height sum. The material is Panel and TextField; this file is layout.
+ */
+@layer reset, tokens, base, ui, route, utility;
+
+@layer route {
+  .root {
+    inline-size: 100%;
+  }
+
+  /* The Panel puts its children in an inner wrapper; this is where the sections stack. */
+  .content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+  }
+
+  .head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2) var(--space-3);
+  }
+
+  .eyebrow {
+    margin: 0;
+    font: 500 var(--fs-2xs) / 1 var(--font-mono);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent-text);
+  }
+
+  .h {
+    margin: 0;
+    font: 500 var(--fs-2xs) / 1.2 var(--font-mono);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+
+  /* ---- the task ----------------------------------------------------------------------------- */
+
+  .task {
+    display: grid;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+    background: rgb(var(--ink-1-rgb) / 0.6);
+    box-shadow: inset 0 0 0 1px rgb(var(--accent-rgb) / 0.5);
+    clip-path: polygon(0 8px, 8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%);
+    transition: box-shadow var(--dur-3) var(--ease-out);
+  }
+
+  .task[data-ok="true"] {
+    box-shadow: inset 0 0 0 1px rgb(var(--status-ok-rgb) / 0.6);
+  }
+
+  .question {
+    margin: 0;
+    font: 600 var(--fs-md) / 1.4 var(--font-display);
+    color: var(--text-1);
+    max-inline-size: var(--measure);
+    text-wrap: pretty;
+  }
+
+  .answerRow {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+    gap: var(--space-3);
+  }
+
+  .tool {
+    margin: 0;
+    font-size: var(--fs-sm);
+    line-height: var(--lh-normal);
+    color: var(--text-3);
+  }
+
+  /* An input is a compressible replaced element only with a percentage width: without it a field in a
+     narrow cell keeps its intrinsic width and spills over its neighbour. */
+  .answerRow input,
+  .fields input,
+  .expiryRow input {
+    inline-size: 100%;
+  }
+
+  .unit {
+    font: 500 var(--fs-xs) / 1 var(--font-mono);
+    letter-spacing: 0.06em;
+    color: var(--text-3);
+    white-space: nowrap;
+  }
+
+  .feedback {
+    margin: 0;
+    min-block-size: 1.4em;
+    font-size: var(--fs-sm);
+    line-height: var(--lh-normal);
+    color: var(--text-2);
+  }
+
+  .feedback[data-tone="ok"] {
+    color: var(--status-ok);
+  }
+
+  .feedback[data-tone="no"] {
+    color: var(--text-1);
+  }
+
+  /* ---- the four fields ---------------------------------------------------------------------------- */
+
+  .fields {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+    gap: var(--space-3);
+  }
+
+  @container (min-width: 36rem) {
+    .fields {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+
+  /* ---- the discount bar --------------------------------------------------------------------------- */
+
+  .bar {
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  /* The marker rides above the bar, so it never crosses the words in the bands. */
+  .markRow {
+    position: relative;
+    block-size: 24px;
+  }
+
+  .marker {
+    position: absolute;
+    inset-block-end: 0;
+    inline-size: 0;
+    block-size: 24px;
+    transition: inset-inline-start var(--dur-3) var(--ease-out);
+  }
+
+  .marker::after {
+    content: "";
+    position: absolute;
+    inset-block-end: 0;
+    inset-inline-start: -5px;
+    inline-size: 10px;
+    block-size: 7px;
+    background: var(--hot);
+    clip-path: polygon(0 0, 100% 0, 50% 100%);
+  }
+
+  .markerText {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-start: 0;
+    translate: -50% 0;
+    padding-inline: var(--space-1);
+    font: 600 var(--fs-xs) / 1.2 var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    color: var(--text-1);
+    white-space: nowrap;
+  }
+
+  .marker[data-edge="start"] .markerText {
+    translate: -6px 0;
+  }
+
+  .marker[data-edge="end"] .markerText {
+    translate: calc(-100% + 6px) 0;
+  }
+
+  .track {
+    display: flex;
+    gap: 2px;
+    block-size: 34px;
+  }
+
+  .band {
+    flex-basis: 0;
+    min-inline-size: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-inline: var(--space-1);
+    background: rgb(var(--ink-1-rgb) / 0.8);
+    box-shadow: inset 0 0 0 1px var(--line-1);
+    transition:
+      background-color var(--dur-2) var(--ease-out),
+      box-shadow var(--dur-2) var(--ease-out);
+  }
+
+  .band[data-on="true"] {
+    background: rgb(var(--accent-rgb) / 0.2);
+    box-shadow: inset 0 0 0 1px rgb(var(--accent-rgb) / 0.8);
+  }
+
+  .bandName {
+    font: 500 var(--fs-2xs) / 1.1 var(--font-mono);
+    letter-spacing: 0.02em;
+    color: var(--text-3);
+    text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .band[data-on="true"] .bandName {
+    color: var(--text-1);
+  }
+
+  .ticks {
+    display: flex;
+    gap: 2px;
+    font: 400 var(--fs-2xs) / 1 var(--font-mono);
+    color: var(--text-3);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .ticks > span {
+    flex-basis: 0;
+    min-inline-size: 0;
+  }
+
+  .ticks > .tickEnd {
+    flex: none;
+    margin-inline-start: auto;
+  }
+
+  .barText,
+  .note {
+    margin: 0;
+    font-size: var(--fs-sm);
+    line-height: var(--lh-normal);
+    color: var(--text-2);
+    max-inline-size: var(--measure);
+  }
+
+  /* ---- the expiry sum ------------------------------------------------------------------------------ */
+
+  .expiry {
+    display: grid;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+    background: rgb(var(--ink-1-rgb) / 0.6);
+    box-shadow: inset 0 0 0 1px var(--line-1);
+    clip-path: polygon(0 8px, 8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%);
+  }
+
+  .expiryHead {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+  }
+
+  .expiryRow {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  @container (min-width: 40rem) {
+    .expiryRow {
+      grid-template-columns: minmax(0, 1.4fr) auto minmax(0, 1fr) auto minmax(0, 1fr);
+      gap: var(--space-3);
+    }
+  }
+
+  .plus {
+    font: 500 var(--fs-lg) / 1 var(--font-mono);
+    color: var(--text-3);
+    justify-self: center;
+  }
+
+  .length,
+  .result {
+    display: grid;
+    gap: var(--space-1);
+    min-inline-size: 0;
+  }
+
+  .lengthKey {
+    font: 500 var(--fs-2xs) / 1.2 var(--font-mono);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+
+  .lengthVal,
+  .resultVal {
+    font: 600 var(--fs-md) / 1.2 var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    color: var(--text-1);
+    overflow-wrap: anywhere;
+  }
+
+  .resultVal {
+    color: var(--accent-strong);
+  }
+
+  .result[data-empty="true"] .resultVal {
+    color: var(--text-3);
+  }
+
+  /* ---- the constants -------------------------------------------------------------------------------- */
+
+  .consts summary {
+    cursor: pointer;
+    padding-block: var(--space-2);
+    min-block-size: 24px;
+    font: 500 var(--fs-2xs) / 1.2 var(--font-mono);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent-text);
+  }
+
+  .constList {
+    display: grid;
+    gap: var(--space-2);
+    margin: var(--space-2) 0;
+  }
+
+  .constRow {
+    display: grid;
+    grid-template-columns: minmax(8rem, 12rem) minmax(0, 1fr);
+    gap: var(--space-3);
+    font-size: var(--fs-sm);
+    line-height: var(--lh-normal);
+  }
+
+  .constRow dt {
+    color: var(--text-3);
+  }
+
+  .constRow dd {
+    margin: 0;
+    color: var(--text-1);
+    font-variant-numeric: tabular-nums;
+  }
+
+  @media (max-width: 480px) {
+    .answerRow {
+      grid-template-columns: minmax(0, 1fr);
+      align-items: stretch;
+    }
+
+    .bandName {
+      white-space: normal;
+      overflow-wrap: anywhere;
+      line-height: 1.15;
+    }
+
+    .constRow {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 0;
+    }
+  }
+
+  @media (forced-colors: active) {
+    .marker {
+      background: CanvasText;
+    }
+
+    .band[data-on="true"] {
+      box-shadow: inset 0 0 0 2px CanvasText;
+    }
+  }
+}

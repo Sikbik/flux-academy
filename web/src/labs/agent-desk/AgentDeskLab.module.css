@@ -1,0 +1,234 @@
+/*
+ * Agent Desk: the set-up rail beside the session. The page is a size container, so the two columns appear by
+ * the width of the working area and not of the window. On a narrow one the set-up folds away once a session
+ * runs and a one-line summary and a button take its place.
+ */
+@layer route {
+  .lab {
+    container: agentdesk / inline-size;
+    padding-block-end: var(--space-4);
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-5);
+    align-items: start;
+  }
+
+  .rail,
+  .stage {
+    min-inline-size: 0;
+  }
+
+  .rail {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .railHead {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+  }
+
+  .railTitle {
+    margin: 0;
+    font: var(--type-h4);
+    color: var(--text-1);
+  }
+
+  .railSummary {
+    display: none;
+    margin: 0;
+    font-size: var(--fs-sm);
+    line-height: 1.5;
+    color: var(--text-2);
+  }
+
+  .railSummary strong {
+    color: var(--text-1);
+    font-weight: var(--fw-semibold);
+  }
+
+  .setup {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+    min-inline-size: 0;
+  }
+
+  /* Narrow: a folded set-up is a summary line and a button. */
+  @container agentdesk (max-width: 63.99rem) {
+    .setup[data-collapsed] {
+      display: none;
+    }
+
+    .rail:has(.setup[data-collapsed]) .railSummary {
+      display: block;
+    }
+  }
+
+  @container agentdesk (min-width: 64rem) {
+    .grid {
+      grid-template-columns: minmax(0, 21rem) minmax(0, 1fr);
+      gap: var(--space-6);
+    }
+
+    .railToggle {
+      display: none;
+    }
+  }
+
+  /* ---- the art ----------------------------------------------------------------------------------------- */
+
+  .art {
+    display: block;
+    inline-size: 100%;
+    aspect-ratio: 1;
+    mix-blend-mode: screen;
+    pointer-events: none;
+    user-select: none;
+  }
+
+  .art img {
+    display: block;
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: contain;
+  }
+
+  .runningHint {
+    margin: 0;
+    font-size: var(--fs-xs);
+    line-height: 1.5;
+    color: var(--text-3);
+  }
+
+  .stage {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+  }
+
+  /* ---- which calls a policy stops ---------------------------------------------------------------------- */
+
+  .tools {
+    font-size: var(--fs-sm);
+    color: var(--text-2);
+    padding-block-start: var(--space-3);
+    border-block-start: 1px solid var(--line-1);
+  }
+
+  .tools > summary {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--space-1) var(--space-3);
+    min-block-size: 32px;
+    cursor: pointer;
+    font: 600 var(--fs-md) / 1.3 var(--font-display);
+    color: var(--text-1);
+  }
+
+  @media (pointer: coarse) {
+    .tools > summary {
+      min-block-size: var(--touch-min);
+    }
+  }
+
+  .toolsCount {
+    font: 400 var(--fs-xs) / 1.3 var(--font-sans);
+    color: var(--text-3);
+  }
+
+  .toolsLead {
+    margin: var(--space-2) 0 var(--space-3);
+    font-size: var(--fs-xs);
+    line-height: 1.5;
+    color: var(--text-3);
+  }
+
+  /* ---- what you have run ------------------------------------------------------------------------------- */
+
+  .tried {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .triedTitle {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin: 0;
+    font: var(--type-h4);
+    color: var(--text-1);
+  }
+
+  .triedTable {
+    inline-size: 100%;
+    border-collapse: collapse;
+    font-size: var(--fs-xs);
+    line-height: 1.35;
+    color: var(--text-2);
+  }
+
+  .triedTable th,
+  .triedTable td {
+    padding: var(--space-2) var(--space-2);
+    text-align: start;
+    vertical-align: top;
+    border-block-start: 1px solid var(--line-1);
+  }
+
+  .triedTable thead th {
+    border-block-start: 0;
+    border-block-end: 1px solid var(--line-3);
+    font: var(--type-label);
+    font-size: var(--fs-2xs);
+    letter-spacing: 0;
+    color: var(--text-3);
+    vertical-align: bottom;
+  }
+
+  .triedTable tbody th {
+    font-weight: var(--fw-medium);
+    color: var(--text-1);
+  }
+
+  .triedCell {
+    display: inline-flex;
+    align-items: flex-start;
+    gap: var(--space-1);
+    color: var(--text-1);
+  }
+
+  .triedCell > svg {
+    flex: none;
+    margin-block-start: 1px;
+  }
+
+  .triedCell[data-verdict="good"] > svg {
+    color: var(--status-ok);
+  }
+
+  .triedCell[data-verdict="flawed"] > svg,
+  .triedCell[data-verdict="costly"] > svg {
+    color: var(--status-warn);
+  }
+
+  .triedCell[data-verdict="harmful"] > svg {
+    color: var(--status-crit);
+  }
+
+  .triedCell[data-verdict="stopped"] > svg {
+    color: var(--accent-text);
+  }
+
+  .triedNone {
+    color: var(--text-3);
+  }
+}

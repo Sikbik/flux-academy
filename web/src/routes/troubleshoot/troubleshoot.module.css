@@ -1,0 +1,208 @@
+@layer route {
+  .page {
+    min-inline-size: 0;
+    inline-size: min(100% - 2 * var(--gutter), var(--container));
+    margin: clamp(var(--space-8), 5vw, var(--space-12)) auto var(--space-16);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+  }
+
+  .head {
+    display: grid;
+    gap: var(--space-3);
+  }
+
+  .eyebrow {
+    margin: 0;
+    font: 500 var(--fs-xs) / 1 var(--font-mono);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent-text);
+  }
+
+  .h1 {
+    margin: 0;
+    font: 700 clamp(1.875rem, 1.3rem + 1.7vw, 2.75rem) / 1.05 var(--font-display);
+    letter-spacing: var(--tracking-h2);
+    color: var(--text-1);
+    outline: none;
+  }
+
+  .lead {
+    margin: 0;
+    max-inline-size: 70ch;
+    font: var(--type-lead);
+    color: var(--text-2);
+    text-wrap: pretty;
+  }
+
+  /* ---- the search ---------------------------------------------------------------------- */
+
+  .finder {
+    display: block;
+    max-inline-size: 60rem;
+  }
+
+  .finderBody {
+    display: grid;
+    gap: var(--space-3);
+    padding: var(--space-2) var(--space-3) var(--space-3);
+  }
+
+  .examples {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+    margin: 0;
+  }
+
+  .examplesLabel {
+    margin-inline-end: var(--space-1);
+    font: 500 var(--fs-2xs) / 1 var(--font-mono);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+
+  .slashHint {
+    margin-inline-start: var(--space-3);
+    font-size: var(--fs-xs);
+    color: var(--text-3);
+  }
+
+  .crumbs {
+    margin-block-end: calc(-1 * var(--space-2));
+  }
+
+  /* ---- a problem: the list of its stage beside the answer -------------------------------- */
+
+  .split {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-6);
+    align-items: start;
+  }
+
+  @media (min-width: 1080px) {
+    .split {
+      grid-template-columns: 17.5rem minmax(0, 1fr);
+      gap: var(--space-10);
+    }
+  }
+
+  .side {
+    display: none;
+  }
+
+  @media (min-width: 1080px) {
+    .side {
+      display: grid;
+      gap: var(--space-2);
+      position: sticky;
+      inset-block-start: calc(var(--header-h-condensed, 52px) + var(--space-4));
+      max-block-size: calc(100svh - var(--header-h-condensed, 52px) - var(--space-8));
+      overflow-y: auto;
+      padding-inline-end: var(--space-2);
+      scrollbar-width: thin;
+    }
+  }
+
+  .sideHead {
+    padding-block-end: var(--space-2);
+    border-block-end: 1px solid var(--line-2);
+    font: 500 var(--fs-xs) / 1.3 var(--font-mono);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--accent-text);
+    text-decoration: none;
+  }
+
+  .sideList {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 2px;
+  }
+
+  .sideLink {
+    display: block;
+    padding: var(--space-2) var(--space-3);
+    border-inline-start: 2px solid transparent;
+    font: 400 var(--fs-sm) / 1.4 var(--font-sans);
+    color: var(--text-2);
+    text-decoration: none;
+  }
+
+  @media (hover: hover) {
+    .sideLink:hover {
+      color: var(--text-1);
+      background: rgb(var(--ink-2-rgb, 30 36 52) / 0.5);
+    }
+  }
+
+  .sideLink[aria-current="page"] {
+    color: var(--text-1);
+    border-inline-start-color: var(--accent-solid);
+    background: rgb(var(--accent-rgb) / 0.1);
+  }
+
+  .sideHead:focus-visible,
+  .sideLink:focus-visible {
+    outline: 2px solid var(--accent-text);
+    outline-offset: -2px;
+  }
+
+  .main {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-5);
+    min-inline-size: 0;
+  }
+
+  @media (forced-colors: active) {
+    .sideHead {
+      color: CanvasText;
+      border-block-end-color: CanvasText;
+    }
+
+    .sideLink[aria-current="page"] {
+      border-inline-start-color: CanvasText;
+      background: none;
+      text-decoration: underline;
+    }
+  }
+
+  @media print {
+    .finder,
+    .side,
+    .crumbs {
+      display: none;
+    }
+  }
+}
+
+/* Printing a diagnosis: black on white, without the site header, footer and backdrop. Unlayered so it wins
+   over the theme, and scoped by the marker on this page's root so no other page changes. */
+@media print {
+  html:has([data-print-page="troubleshoot"]),
+  body:has([data-print-page="troubleshoot"]) {
+    background: #fff;
+    color: #000;
+  }
+
+  body:has([data-print-page="troubleshoot"]) :is(header, footer, canvas):not(main *) {
+    display: none;
+  }
+
+  [data-print-page="troubleshoot"],
+  [data-print-page="troubleshoot"] * {
+    color: #000;
+    background: transparent;
+    box-shadow: none;
+    text-shadow: none;
+    border-color: #999;
+  }
+}

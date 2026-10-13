@@ -1,0 +1,417 @@
+/*
+ * The JSON editor: gutter (line numbers and issue markers), highlight layer and textarea share one
+ * monospace metric, so a column is `ch` and an underline is a positioned span. The scan line, the
+ * underlines and the callout marks follow DESIGN section 4 ("Scan").
+ */
+@layer reset, tokens, base, ui, route, utility;
+
+@layer ui {
+  .editor {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-block-size: 0;
+    block-size: 100%;
+  }
+
+  .scroller {
+    --lh: 22px;
+    --pad-x: 16px;
+    --pad-y: 12px;
+    --font: 500 13px / var(--lh) var(--font-mono);
+    position: relative;
+    flex: 1 1 auto;
+    min-block-size: 12rem;
+    overflow: auto;
+    overscroll-behavior: contain;
+    background: rgb(var(--ink-1-rgb) / 0.78);
+    box-shadow: inset 0 0 0 1px var(--line-1);
+    scrollbar-color: var(--ink-4) transparent;
+    scrollbar-width: thin;
+  }
+
+  .scroller:focus-within {
+    box-shadow: inset 0 0 0 1px rgb(var(--accent-rgb) / 0.55);
+  }
+
+  .inner {
+    display: flex;
+    min-inline-size: 100%;
+    inline-size: max-content;
+    min-block-size: 100%;
+  }
+
+  /* ---- gutter ---------------------------------------------------------------------- */
+
+  .gutter {
+    position: sticky;
+    inset-inline-start: 0;
+    z-index: 2;
+    flex: none;
+    inline-size: calc(var(--digits) * 1ch + 56px);
+    padding-block: var(--pad-y);
+    background: var(--ink-0);
+    border-inline-end: 1px solid var(--line-1);
+    user-select: none;
+  }
+
+  .gl {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 6px;
+    block-size: var(--lh);
+    padding-inline: 6px 10px;
+    font: var(--font);
+    font-size: 11px;
+    font-variant-numeric: tabular-nums;
+    /* --text-4 is for disabled text only (4.1:1). Line numbers are read, so stay above 4.5:1: 80 percent
+       of --text-3 over the slab is about 5.8:1 (a 62 percent mix measured 3.9:1, which axe rejects). */
+    color: color-mix(in srgb, var(--text-3) 80%, var(--ink-0));
+  }
+
+  .gl[data-active="true"] {
+    color: var(--text-1);
+    background: rgb(var(--accent-rgb) / 0.12);
+  }
+
+  .num {
+    min-inline-size: calc(var(--digits) * 1ch);
+    text-align: end;
+  }
+
+  .marker {
+    display: inline-grid;
+    place-items: center;
+    inline-size: 20px;
+    block-size: 20px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+    margin-inline-end: auto;
+    animation: pop var(--dur-2) var(--ease-snap) both;
+  }
+
+  .marker[data-severity="error"] {
+    color: var(--status-crit);
+  }
+
+  .marker[data-severity="warning"] {
+    color: var(--status-warn);
+  }
+
+  .marker[data-severity="info"] {
+    color: var(--status-pending);
+  }
+
+  .marker:hover {
+    filter: brightness(1.3);
+  }
+
+  .marker:focus-visible {
+    outline: 2px solid var(--focus-color);
+    outline-offset: -2px;
+  }
+
+  .noteMark {
+    display: inline-grid;
+    place-items: center;
+    inline-size: 16px;
+    block-size: 18px;
+    font: 700 10px / 1 var(--font-mono);
+    color: var(--on-accent);
+    background: var(--accent-solid);
+    clip-path: var(--hex-clip);
+  }
+
+  @keyframes pop {
+    from {
+      opacity: 0;
+      transform: scale(0.4);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  /* ---- text layers ------------------------------------------------------------------- */
+
+  .stack {
+    position: relative;
+    flex: 1 0 auto;
+    min-inline-size: calc(var(--cols) * 1ch + var(--pad-x) * 2 + 2ch);
+    block-size: calc(var(--rows) * var(--lh) + var(--pad-y) * 2);
+  }
+
+  .hl,
+  .ta {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    padding: var(--pad-y) var(--pad-x);
+    font: var(--font);
+    letter-spacing: 0;
+    tab-size: 2;
+    white-space: pre;
+    word-spacing: 0;
+    text-rendering: optimizeSpeed;
+    font-variant-ligatures: none;
+  }
+
+  .hl {
+    color: var(--code-fg);
+    pointer-events: none;
+  }
+
+  .ta {
+    z-index: 1;
+    inline-size: 100%;
+    block-size: 100%;
+    border: 0;
+    outline: none;
+    resize: none;
+    overflow: hidden;
+    background: transparent;
+    color: transparent;
+    caret-color: var(--hot);
+    -webkit-text-fill-color: transparent;
+  }
+
+  .ta::selection {
+    background: rgb(var(--accent-rgb) / 0.45);
+    -webkit-text-fill-color: transparent;
+  }
+
+  .scroller[data-readonly="true"] .ta {
+    cursor: default;
+  }
+
+  .line {
+    position: relative;
+    block-size: var(--lh);
+    min-block-size: var(--lh);
+  }
+
+  .line[data-flash="true"]::before {
+    content: "";
+    position: absolute;
+    inset-block: 0;
+    inset-inline: calc(var(--pad-x) * -1) calc(var(--pad-x) * -1);
+    background: rgb(var(--accent-rgb) / 0.22);
+    animation: flash 1.2s var(--ease-out) both;
+    pointer-events: none;
+  }
+
+  @keyframes flash {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
+  }
+
+  .caretLine {
+    position: absolute;
+    inset-inline: 0;
+    inset-block-start: calc(var(--pad-y) + var(--line) * var(--lh));
+    block-size: var(--lh);
+    background: rgb(255 255 255 / 0.035);
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  .tKey {
+    color: var(--code-key);
+  }
+
+  .tString {
+    color: var(--code-string);
+  }
+
+  .tNumber {
+    color: var(--code-number);
+  }
+
+  .tLiteral {
+    color: var(--code-keyword);
+  }
+
+  .tPunct {
+    color: var(--code-punct);
+  }
+
+  .tError {
+    color: var(--status-crit);
+  }
+
+  /* ---- underlines ------------------------------------------------------------------- */
+
+  /* A wavy underline poured through a mask, so the colour is the severity colour. */
+  .mark {
+    position: absolute;
+    inset-block-end: 1px;
+    inset-inline-start: calc(var(--col) * 1ch);
+    inline-size: calc(var(--len) * 1ch);
+    block-size: 4px;
+    background: currentColor;
+    -webkit-mask: var(--wave) repeat-x left bottom / 6px 4px;
+    mask: var(--wave) repeat-x left bottom / 6px 4px;
+    --wave: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='6' height='4' viewBox='0 0 6 4'%3E%3Cpath d='M0 3 L1.5 1 L3 3 L4.5 1 L6 3' fill='none' stroke='%23000' stroke-width='1.2'/%3E%3C/svg%3E");
+    transform-origin: 0 50%;
+    animation: draw 280ms var(--ease-out) both;
+    animation-delay: calc(240ms + var(--i, 0) * 40ms);
+    pointer-events: none;
+    color: var(--status-pending);
+  }
+
+  .mark[data-severity="error"],
+  .mark[data-severity="syntax"] {
+    color: var(--status-crit);
+  }
+
+  .mark[data-severity="warning"] {
+    color: var(--status-warn);
+  }
+
+  @keyframes draw {
+    from {
+      transform: scaleX(0);
+      opacity: 0;
+    }
+    to {
+      transform: scaleX(1);
+      opacity: 1;
+    }
+  }
+
+  /* ---- panel chrome ----------------------------------------------------------------- */
+
+  .head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+    padding-block-end: var(--space-3);
+  }
+
+  .headTitle {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-inline-end: auto;
+    font: 500 var(--fs-2xs) / 1 var(--font-mono);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+
+  .state {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font: 500 var(--fs-2xs) / 1 var(--font-mono);
+    color: var(--status-ok);
+  }
+
+  .state[data-state="error"] {
+    color: var(--status-crit);
+  }
+
+  .state[data-state="custom"] {
+    color: var(--text-3);
+  }
+
+  .banner {
+    display: grid;
+    gap: var(--space-2);
+    margin-block-end: var(--space-3);
+    padding: var(--space-3);
+    font: 400 var(--fs-sm) / 1.5 var(--font-sans);
+    color: var(--text-2);
+    background: rgb(var(--status-crit-rgb) / 0.1);
+    box-shadow: inset 2px 0 0 var(--status-crit);
+  }
+
+  .banner[data-kind="note"] {
+    background: rgb(var(--accent-rgb) / 0.08);
+    box-shadow: inset 2px 0 0 rgb(var(--accent-rgb) / 0.7);
+  }
+
+  .banner[data-kind="locked"] {
+    background: rgb(var(--status-warn-rgb) / 0.1);
+    box-shadow: inset 2px 0 0 var(--status-warn);
+  }
+
+  .banner strong {
+    color: var(--text-1);
+    font-weight: 600;
+  }
+
+  .bannerRow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .markerCard {
+    display: grid;
+    gap: var(--space-3);
+    font: 400 var(--fs-sm) / 1.5 var(--font-sans);
+    color: var(--text-2);
+  }
+
+  .markerCard p {
+    margin: 0;
+  }
+
+  .scan {
+    position: absolute;
+    inset-inline: 0;
+    inset-block-start: 0;
+    block-size: 2px;
+    background: linear-gradient(90deg, transparent, rgb(var(--accent-hot-rgb)), transparent);
+    box-shadow: 0 0 14px 1px rgb(var(--accent-rgb) / 0.8);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 3;
+    animation: scan 240ms linear both;
+  }
+
+  @keyframes scan {
+    0% {
+      opacity: 0.95;
+      inset-block-start: 0;
+    }
+    100% {
+      opacity: 0;
+      inset-block-start: calc(100% - 2px);
+    }
+  }
+
+  :global(html[data-motion="reduced"]) .mark,
+  :global(html[data-motion="reduced"]) .marker,
+  :global(html[data-motion="reduced"]) .scan,
+  :global(html[data-motion="reduced"]) .line[data-flash="true"]::before {
+    animation: none;
+  }
+
+  :global(html[data-motion="reduced"]) .scan {
+    display: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :global(html:not([data-motion="full"])) .mark,
+    :global(html:not([data-motion="full"])) .marker,
+    :global(html:not([data-motion="full"])) .scan,
+    :global(html:not([data-motion="full"])) .line[data-flash="true"]::before {
+      animation: none;
+    }
+
+    :global(html:not([data-motion="full"])) .scan {
+      display: none;
+    }
+  }
+}

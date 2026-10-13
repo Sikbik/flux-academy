@@ -1,0 +1,28 @@
+{
+  "status": "success",
+  "data": [
+    {
+      "geolocation": {
+        "ip": "91.51.243.197",
+        "continent": "Europe",
+        "continentCode": "EU",
+        "country": "Germany",
+        "countryCode": "DE",
+        "region": "BY",
+        "regionName": "Bavaria",
+        "lat": 49.7173,
+        "lon": 11.0506,
+        "org": "Deutsche Telekom AG",
+        "isp": "Deutsche Telekom AG",
+        "asn": "AS3320 Deutsche Telekom AG",
+        "mobile": false,
+        "proxy": false,
+        "hosting": false,
+        "static": false,
+        "dataCenter": false
+      },
+      "ip": "91.51.243.197",
+      "tier": "CUMULUS"
+    }
+  ]
+}

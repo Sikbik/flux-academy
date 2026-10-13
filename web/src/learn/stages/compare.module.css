@@ -1,0 +1,116 @@
+@layer route {
+  /* The container is the outer element and the grid is inside it: a container query cannot restyle its
+     own container, so with both on one element the panels stayed in two columns on a phone. */
+  .compare {
+    container-type: inline-size;
+    padding: var(--space-5);
+  }
+
+  .grid {
+    display: grid;
+    gap: var(--space-4);
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+  }
+
+  @container (max-width: 40rem) {
+    .grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .panel {
+    --tone: var(--status-off);
+    --tone-rgb: var(--status-off-rgb);
+    display: grid;
+    gap: var(--space-3);
+    min-inline-size: 0;
+    padding: var(--space-4);
+    background: rgb(var(--ink-0-rgb) / 0.72);
+    box-shadow: inset 0 0 0 1px rgb(var(--tone-rgb) / 0.4);
+    clip-path: polygon(0 12px, 12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%);
+  }
+
+  .panel[data-tone="good"] {
+    --tone: var(--status-ok);
+    --tone-rgb: var(--status-ok-rgb);
+  }
+
+  .panel[data-tone="bad"] {
+    --tone: var(--status-crit);
+    --tone-rgb: var(--status-crit-rgb);
+  }
+
+  .head {
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  .code {
+    min-inline-size: 0;
+  }
+
+  /*
+   * Code wraps in a compare panel (the panels are narrow, and a line that scrolls out of sight is not read).
+   * A wrapped line is marked: its continuation rows are indented two columns further than the code, and
+   * carry a small return arrow in the gutter column, where the line number is on the first row only.
+   * The selectors follow the code block's own structure (pre > code > one span per line).
+   */
+  .panel pre[data-wrap="true"][data-numbers="true"] > code > span {
+    position: relative;
+    padding-inline-start: calc(var(--gutter-w) + 2ch);
+    text-indent: calc(-1 * (var(--gutter-w) + 2ch));
+  }
+
+  .panel pre[data-wrap="true"][data-numbers="true"] > code > span::after {
+    content: "";
+    position: absolute;
+    inset-block: calc(var(--fs-code) * var(--lh-code)) 0;
+    inset-inline-start: calc(var(--gutter-w) - 26px);
+    inline-size: 12px;
+    background: var(--code-punct);
+    -webkit-mask:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2 1v6h7M6 4l3 3-3 3' fill='none' stroke='%23000' stroke-width='1.4'/%3E%3C/svg%3E")
+      center top / 12px calc(var(--fs-code) * var(--lh-code)) repeat-y;
+    mask:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2 1v6h7M6 4l3 3-3 3' fill='none' stroke='%23000' stroke-width='1.4'/%3E%3C/svg%3E")
+      center top / 12px calc(var(--fs-code) * var(--lh-code)) repeat-y;
+    pointer-events: none;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    inline-size: fit-content;
+    font: 500 var(--fs-2xs) / 1 var(--font-mono);
+    letter-spacing: var(--tracking-label, 0.12em);
+    text-transform: uppercase;
+    color: var(--tone);
+  }
+
+  .label {
+    margin: 0;
+    font: var(--type-h4);
+    color: var(--text-1);
+  }
+
+  .body {
+    margin: 0;
+    color: var(--text-2);
+    font-size: var(--fs-md);
+    line-height: var(--lh-body);
+  }
+
+  @media (forced-colors: active) {
+    .panel {
+      box-shadow: none;
+      outline: 1px solid CanvasText;
+      outline-offset: -1px;
+    }
+
+    .panel pre[data-wrap="true"][data-numbers="true"] > code > span::after {
+      background: CanvasText;
+    }
+  }
+}

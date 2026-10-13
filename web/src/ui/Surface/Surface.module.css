@@ -1,0 +1,98 @@
+/*
+ * Surface: the light floating glass. Edge ring plus an opaque-ish ink fill; the glow is a
+ * filter on the wrapper, applied after the children are clipped, so it follows the cuts.
+ * No backdrop-filter here (a filter ancestor would blind it, and it is not needed at ~94%).
+ */
+@layer reset, tokens, base, ui, route, utility;
+
+@layer ui {
+  .surface {
+    --c: 10px;
+    --cm: 3px;
+    --bw: 1px;
+    position: relative;
+    display: block;
+    min-inline-size: 0;
+    color: var(--text-1);
+    isolation: isolate;
+    filter: drop-shadow(0 0 1px rgb(var(--accent-hot-rgb) / 0.35))
+      drop-shadow(0 0 12px rgb(var(--accent-deep-rgb) / 0.42));
+  }
+
+  .surface[data-glow="false"] {
+    filter: none;
+  }
+
+  .surface[data-size="sm"] {
+    --c: 6px;
+    --cm: 2px;
+  }
+
+  .surface[data-size="lg"] {
+    --c: 14px;
+    --cm: 4px;
+  }
+
+  .edge,
+  .fill {
+    position: absolute;
+    inset: 0;
+    display: block;
+    pointer-events: none;
+  }
+
+  .edge {
+    z-index: 0;
+    clip-path: var(--clip-ring);
+    background:
+      radial-gradient(
+        48px 48px at 100% 0%,
+        var(--hot),
+        rgb(var(--accent-hot-rgb) / 0.8) 35%,
+        transparent 100%
+      ),
+      linear-gradient(
+        165deg,
+        rgb(var(--accent-rgb) / 0.95),
+        rgb(var(--accent-rgb) / 0.4) 50%,
+        rgb(var(--accent-rgb) / 0.7)
+      );
+  }
+
+  .fill {
+    inset: var(--bw);
+    z-index: 1;
+    clip-path: var(--clip-inner);
+    background:
+      radial-gradient(110% 90% at 100% 0%, rgb(var(--accent-rgb) / 0.14), transparent 60%),
+      rgb(var(--ink-1-rgb) / 0.96);
+    box-shadow: var(--inset-hi);
+  }
+
+  .content {
+    position: relative;
+    z-index: 2;
+    min-inline-size: 0;
+  }
+
+  @media (prefers-contrast: more) {
+    .edge {
+      background: rgb(255 255 255 / 0.8);
+    }
+  }
+
+  @media (forced-colors: active) {
+    .surface {
+      filter: none;
+    }
+
+    .edge {
+      background: CanvasText;
+    }
+
+    .fill {
+      background: Canvas;
+      box-shadow: none;
+    }
+  }
+}

@@ -1,0 +1,220 @@
+/*
+ * Breadcrumbs: hex bullets between the levels; the current page is plain text. When the
+ * trail does not fit, the component sets data-fold on the root and the middle levels hide
+ * behind the "..." button. Pseudo-state hooks: data-force="hover|press|focus" on a link.
+ */
+@layer reset, tokens, base, ui, route, utility;
+
+@layer ui {
+  .root {
+    display: block;
+    inline-size: 100%;
+    min-inline-size: 0;
+    --bf: var(--fs-sm);
+    --bc: var(--text-3);
+  }
+
+  .root[data-variant="label"] {
+    --bf: var(--fs-2xs);
+  }
+
+  .list {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    row-gap: 2px;
+  }
+
+  .list > li {
+    display: flex;
+    flex: none;
+    align-items: center;
+    min-inline-size: 0;
+    min-block-size: 32px;
+    font: 500 var(--bf) / 1.2 var(--font-sans);
+    color: var(--bc);
+  }
+
+  .root[data-variant="label"] .list > li {
+    font-family: var(--font-mono);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+  }
+
+  @media (pointer: coarse) {
+    .list > li {
+      min-block-size: 44px;
+    }
+  }
+
+  /* The hex bullet before every level but the first. */
+  .list > li:not(:first-child)::before {
+    content: "";
+    flex: none;
+    inline-size: 5px;
+    block-size: 6px;
+    margin-inline: 10px;
+    background: var(--blueprint-strong);
+    clip-path: var(--hex-clip);
+  }
+
+  .link,
+  .plain,
+  .current {
+    display: inline-block;
+    min-inline-size: 0;
+  }
+
+  .link {
+    position: relative;
+    color: var(--bc);
+    text-decoration: none;
+    padding-block: 6px;
+    transition: color var(--dur-1) var(--ease-out);
+  }
+
+  /* An underline that draws in from the left. */
+  .link::after {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    inset-block-end: 3px;
+    block-size: 1px;
+    background: currentColor;
+    transform-origin: 0 50%;
+    scale: 0 1;
+    transition: scale var(--dur-3) var(--ease-out);
+  }
+
+  .link:is(:hover, [data-force="hover"]) {
+    color: var(--text-1);
+  }
+
+  .link:is(:hover, [data-force="hover"])::after {
+    scale: 1 1;
+  }
+
+  .link:is(:active, [data-force="press"]) {
+    color: var(--accent-strong);
+  }
+
+  .link:is(:focus-visible, [data-force="focus"]) {
+    outline: 2px solid var(--focus-color);
+    outline-offset: 3px;
+  }
+
+  /* The current page takes what is left of the line and truncates; it only wraps to a new
+     line when less than 14ch remains. */
+  .list > li[data-current="true"] {
+    flex: 1 1 0;
+    min-inline-size: min(14ch, 100%);
+  }
+
+  .current {
+    color: var(--text-1);
+    font-weight: 600;
+    max-inline-size: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* ---- the fold --------------------------------------------------------------------- */
+
+  .list > .more {
+    display: none;
+  }
+
+  .list > .more[data-forced="true"],
+  .root[data-fold="true"] .list > .more {
+    display: flex;
+  }
+
+  .root[data-fold="true"] .list > .item[data-fold="true"] {
+    display: none;
+  }
+
+  .moreBtn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-inline-size: 32px;
+    block-size: 26px;
+    padding-inline: 8px;
+    color: var(--text-2);
+    background: rgb(var(--accent-rgb) / 0.1);
+    clip-path: polygon(
+      0 3px,
+      3px 0,
+      calc(100% - 3px) 0,
+      100% 3px,
+      100% calc(100% - 3px),
+      calc(100% - 3px) 100%,
+      3px 100%,
+      0 calc(100% - 3px)
+    );
+    cursor: pointer;
+    transition:
+      background var(--dur-1) var(--ease-out),
+      color var(--dur-1) var(--ease-out);
+  }
+
+  .moreBtn:hover {
+    color: var(--text-1);
+    background: rgb(var(--accent-rgb) / 0.22);
+  }
+
+  .moreBtn:focus-visible {
+    outline: 2px solid var(--focus-color);
+    outline-offset: 2px;
+  }
+
+  @media (pointer: coarse) {
+    .moreBtn {
+      min-inline-size: 44px;
+      block-size: 36px;
+    }
+  }
+
+  .dots {
+    display: inline-flex;
+    gap: 4px;
+  }
+
+  .dots i {
+    display: block;
+    inline-size: 4px;
+    block-size: 4.6px;
+    background: currentColor;
+    clip-path: var(--hex-clip);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :global(html:not([data-motion="full"])) .link::after {
+      transition: none;
+    }
+  }
+
+  :global(html[data-motion="reduced"]) .link::after {
+    transition: none;
+  }
+
+  @media (forced-colors: active) {
+    .list > li:not(:first-child)::before {
+      background: CanvasText;
+    }
+
+    .link {
+      color: LinkText;
+    }
+
+    .moreBtn {
+      background: ButtonFace;
+      color: ButtonText;
+      outline: 1px solid ButtonText;
+    }
+  }
+}

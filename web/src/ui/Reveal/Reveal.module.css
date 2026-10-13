@@ -1,0 +1,53 @@
+/*
+ * Reveal: opacity 0 to 1, translate 24 px to 0, blur 8 px to 0, once, staggered. Under
+ * reduced motion the distance and blur tokens are 0, so it is a plain fade.
+ */
+@layer reset, tokens, base, ui, route, utility;
+
+@layer ui {
+  .reveal {
+    opacity: 0;
+    translate: var(--rx, 0px) var(--ry, var(--reveal-y));
+    filter: blur(var(--reveal-blur));
+    transition:
+      opacity var(--dur-4) var(--ease-out) var(--rd, 0ms),
+      translate var(--dur-4) var(--ease-out) var(--rd, 0ms),
+      filter var(--dur-4) var(--ease-out) var(--rd, 0ms);
+  }
+
+  .reveal[data-blur="false"] {
+    filter: none;
+  }
+
+  .reveal[data-dir="down"] {
+    --ry: calc(var(--reveal-y) * -1);
+  }
+
+  .reveal[data-dir="left"] {
+    --rx: var(--reveal-y);
+    --ry: 0px;
+  }
+
+  .reveal[data-dir="right"] {
+    --rx: calc(var(--reveal-y) * -1);
+    --ry: 0px;
+  }
+
+  .reveal[data-dir="none"] {
+    --ry: 0px;
+  }
+
+  .reveal[data-shown="true"] {
+    opacity: 1;
+    translate: 0 0;
+    filter: none;
+  }
+
+  @media print {
+    .reveal {
+      opacity: 1;
+      translate: none;
+      filter: none;
+    }
+  }
+}

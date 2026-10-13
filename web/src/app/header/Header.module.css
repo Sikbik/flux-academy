@@ -1,0 +1,599 @@
+/*
+ * The shell header (docs/DESIGN.md section 5.1): a sticky glass bar with the lockup, a sliding-pill
+ * nav, and the instrument cluster (block beat, rank, deck, accent, sound). It condenses after 120 px
+ * of scroll. Below 900 px the nav and the secondary controls move into the bottom sheet.
+ */
+
+@layer ui {
+  .header {
+    --bar-h: var(--header-h, 64px);
+    position: sticky;
+    inset-block-start: 0;
+    z-index: var(--z-header, 60);
+    block-size: var(--bar-h);
+    padding-inline: var(--gutter);
+    display: flex;
+    align-items: center;
+    isolation: isolate;
+    transition: block-size var(--dur-3) var(--ease-out);
+  }
+
+  .header[data-condensed="true"] {
+    --bar-h: var(--header-h-condensed, 52px);
+  }
+
+  /* The glass sits on its own layer so the bottom hairline and ticks can be drawn over it. */
+  .glass {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(to bottom, rgb(var(--ink-0-rgb) / 0.82), rgb(var(--ink-0-rgb) / 0.58));
+    backdrop-filter: var(--glass-filter);
+    -webkit-backdrop-filter: var(--glass-filter);
+    border-block-end: 1px solid var(--line-1);
+    transition: background var(--dur-3) var(--ease-out);
+  }
+
+  .header[data-condensed="true"] .glass {
+    background: rgb(var(--ink-0-rgb) / 0.9);
+    border-block-end-color: var(--line-2);
+  }
+
+  /* A hot hairline fades in along the bottom edge once the page has scrolled. */
+  .glass::after {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    inset-block-end: -1px;
+    block-size: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgb(var(--accent-rgb) / 0.55) 22%,
+      rgb(var(--accent-hot-rgb) / 0.8) 50%,
+      rgb(var(--accent-rgb) / 0.55) 78%,
+      transparent 100%
+    );
+    opacity: calc(0.18 + var(--flash, 0) * 0.82);
+  }
+
+  /* Tick ruler: the blueprint furniture, flaring on the Beat. */
+  .ticks {
+    position: absolute;
+    inset-inline: var(--gutter);
+    inset-block-end: 0;
+    block-size: 5px;
+    z-index: -1;
+    pointer-events: none;
+    background: repeating-linear-gradient(90deg, rgb(var(--accent-rgb) / 0.5) 0 1px, transparent 1px 8px);
+    opacity: calc(0.12 + var(--flash, 0) * 0.55);
+    mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+  }
+
+  .bar {
+    inline-size: 100%;
+    max-inline-size: var(--container-wide, 1520px);
+    margin-inline: auto;
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+  }
+
+  /* ---- Lockup ---------------------------------------------------------------- */
+
+  /* The lockup is the one thing in the bar that may give way: the controls keep their touch targets, and
+     the wordmark clips (with an ellipsis) before the bar can ever grow wider than the screen. */
+  .lockup {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3);
+    flex: 0 1 auto;
+    min-inline-size: 0;
+    border-radius: var(--r-sm);
+    color: var(--text-1);
+  }
+
+  .symbol {
+    inline-size: 32px;
+    block-size: 32px;
+    flex: none;
+    transition:
+      inline-size var(--dur-3) var(--ease-out),
+      block-size var(--dur-3) var(--ease-out);
+  }
+
+  .header[data-condensed="true"] .symbol {
+    inline-size: 28px;
+    block-size: 28px;
+  }
+
+  .word {
+    min-inline-size: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-family: var(--font-display);
+    font-size: 1.1875rem;
+    letter-spacing: -0.02em;
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  .word b {
+    font-weight: var(--fw-bold);
+    color: var(--text-1);
+  }
+
+  .word span {
+    font-weight: var(--fw-light);
+    color: var(--text-2);
+  }
+
+  /* ---- Pill nav ----------------------------------------------------------------- */
+
+  .nav {
+    --hp: 12px;
+    position: relative;
+    flex: none;
+    margin-inline-start: var(--space-4);
+    padding: 1px;
+    background: var(--line-2);
+    clip-path: var(--hexpill-clip);
+  }
+
+  .navInner {
+    --hp: 11px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    padding: 3px;
+    background: rgb(var(--ink-0-rgb) / 0.92);
+    clip-path: var(--hexpill-clip);
+  }
+
+  .indicator {
+    --hp: 9px;
+    position: absolute;
+    inset-block: 3px;
+    inset-inline-start: 0;
+    inline-size: var(--iw, 0px);
+    transform: translateX(var(--ix, 0px));
+    background: linear-gradient(to bottom, rgb(255 255 255 / 0.1), transparent 60%), var(--accent-soft-2);
+    box-shadow: inset 0 0 0 1px var(--accent-line);
+    clip-path: var(--hexpill-clip);
+    opacity: 0;
+    transition:
+      transform var(--dur-3) var(--ease-out),
+      inline-size var(--dur-3) var(--ease-out),
+      opacity var(--dur-2) var(--ease-out);
+  }
+
+  .indicator[data-on="true"] {
+    opacity: 1;
+  }
+
+  .navLink {
+    position: relative;
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    min-block-size: 34px;
+    padding-inline: var(--space-4);
+    font: 500 var(--fs-sm) / 1 var(--font-sans);
+    letter-spacing: 0.01em;
+    color: var(--text-3);
+    white-space: nowrap;
+    transition: color var(--dur-1) var(--ease-out);
+  }
+
+  .navLink:hover {
+    color: var(--text-1);
+  }
+
+  .navLink[aria-current="page"] {
+    color: var(--text-1);
+  }
+
+  /* ---- The instrument cluster ----------------------------------------------------- */
+
+  .cluster {
+    margin-inline-start: auto;
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .cluster > * {
+    flex-shrink: 0;
+  }
+
+  .chip {
+    --c: var(--chamfer-sm, 8px);
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    min-block-size: 36px;
+    padding-inline: var(--space-3);
+    background: rgb(var(--ink-1-rgb) / 0.7);
+    box-shadow: inset 0 0 0 1px var(--line-2);
+    clip-path: polygon(
+      0 var(--bevel, 4px),
+      var(--bevel, 4px) 0,
+      calc(100% - var(--c)) 0,
+      100% var(--c),
+      100% calc(100% - var(--bevel, 4px)),
+      calc(100% - var(--bevel, 4px)) 100%,
+      var(--c) 100%,
+      0 calc(100% - var(--c))
+    );
+    color: var(--text-2);
+    font: 500 var(--fs-sm) / 1 var(--font-mono);
+    white-space: nowrap;
+    transition:
+      background var(--dur-1) var(--ease-out),
+      color var(--dur-1) var(--ease-out);
+  }
+
+  a.chip:hover,
+  button.chip:hover {
+    background: rgb(var(--ink-2-rgb, 17 20 27) / 0.9);
+    color: var(--text-1);
+  }
+
+  /* Block beat */
+
+  .beat {
+    gap: var(--space-2);
+    padding-inline-end: var(--space-3);
+  }
+
+  .beatRing {
+    position: relative;
+    inline-size: 22px;
+    block-size: 22px;
+    flex: none;
+    color: var(--accent-text);
+  }
+
+  .beatRing svg {
+    inline-size: 100%;
+    block-size: 100%;
+    overflow: visible;
+  }
+
+  .ringTrack {
+    stroke: var(--line-2);
+  }
+
+  .ringFill {
+    stroke: currentColor;
+    stroke-linecap: square;
+    transition: stroke-dashoffset 1s linear;
+  }
+
+  .beat[data-live="false"] .ringFill {
+    opacity: 0.25;
+  }
+
+  .flare {
+    position: absolute;
+    inset: -4px;
+    border: 1px solid var(--accent-text);
+    clip-path: var(--hex-clip);
+    opacity: 0;
+    animation: flare 900ms var(--ease-out) both;
+  }
+
+  @keyframes flare {
+    from {
+      opacity: 0.9;
+      transform: scale(0.7);
+    }
+    to {
+      opacity: 0;
+      transform: scale(1.6);
+    }
+  }
+
+  .height {
+    font-size: var(--fs-sm);
+    color: var(--text-1);
+    font-weight: var(--fw-medium);
+    letter-spacing: 0.01em;
+  }
+
+  .beat[data-live="false"] .height {
+    color: var(--text-3);
+  }
+
+  .status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 10.5px;
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+    color: var(--text-3);
+  }
+
+  .dot {
+    inline-size: 7px;
+    block-size: 7px;
+    background: var(--status, var(--status-off));
+    clip-path: var(--hex-clip);
+    flex: none;
+  }
+
+  .status[data-tone="ok"] .dot {
+    box-shadow: var(--glow-ok);
+  }
+
+  /* Rank */
+
+  .rank {
+    padding-inline-start: 6px;
+  }
+
+  .rankRing {
+    position: relative;
+    inline-size: 26px;
+    block-size: 26px;
+    flex: none;
+    display: grid;
+    place-items: center;
+    color: var(--tier, var(--text-2));
+  }
+
+  .rankRing svg:first-child {
+    position: absolute;
+    inset: 0;
+    inline-size: 100%;
+    block-size: 100%;
+    overflow: visible;
+  }
+
+  .rankName {
+    font-family: var(--font-sans);
+    font-weight: var(--fw-medium);
+    font-size: var(--fs-xs);
+    color: var(--text-2);
+  }
+
+  /* Deck button */
+
+  .deck {
+    gap: var(--space-2);
+  }
+
+  .kbd {
+    display: inline-flex;
+    gap: 2px;
+  }
+
+  .kbd kbd {
+    min-inline-size: 20px;
+    padding: 2px 5px;
+    font: 500 10.5px / 1.2 var(--font-mono);
+    color: var(--text-2);
+    text-align: center;
+    background: var(--ink-3);
+    box-shadow:
+      inset 0 -1px 0 rgb(0 0 0 / 0.5),
+      inset 0 0 0 1px var(--line-2);
+    border-radius: 2px;
+  }
+
+  /* Accent switcher */
+
+  .accents {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    margin: 0;
+    padding: 0 2px;
+    border: 0;
+    min-inline-size: 0;
+  }
+
+  .swatch {
+    position: relative;
+    inline-size: 30px;
+    block-size: 34px;
+    display: grid;
+    place-items: center;
+    color: var(--text-1);
+  }
+
+  .hex {
+    position: relative;
+    inline-size: 18px;
+    block-size: 20px;
+    background: var(--sw);
+    clip-path: var(--hex-clip);
+    transition:
+      transform var(--dur-2) var(--ease-snap),
+      filter var(--dur-2) var(--ease-out);
+  }
+
+  .swatch:hover .hex {
+    transform: scale(1.12);
+  }
+
+  .swatch[aria-pressed="true"] .hex {
+    transform: scale(1.18);
+    box-shadow: 0 0 0 2px var(--hot, #fff);
+  }
+
+  .swatch[aria-pressed="true"]::after {
+    content: "";
+    position: absolute;
+    inset-inline: 4px;
+    inset-block-end: 2px;
+    block-size: 2px;
+    background: var(--sw);
+  }
+
+  .swatch[data-locked="true"] .hex {
+    filter: grayscale(0.85) brightness(0.55);
+  }
+
+  .lock {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    color: var(--text-1);
+    pointer-events: none;
+  }
+
+  /* Icon buttons (sound, menu) */
+
+  .iconBtn {
+    inline-size: 38px;
+    block-size: 38px;
+    display: grid;
+    place-items: center;
+    color: var(--text-3);
+    clip-path: var(--hex-clip-flat);
+    background: transparent;
+    transition:
+      color var(--dur-1) var(--ease-out),
+      background var(--dur-1) var(--ease-out);
+  }
+
+  .iconBtn:hover {
+    color: var(--text-1);
+    background: rgb(255 255 255 / 0.06);
+  }
+
+  .iconBtn[aria-pressed="true"] {
+    color: var(--accent-text);
+    background: var(--accent-soft);
+  }
+
+  /* Overclock banner */
+
+  .overclock {
+    color: var(--stratus);
+    letter-spacing: var(--tracking-label);
+    font: 500 10.5px / 1 var(--font-mono);
+    text-transform: uppercase;
+  }
+
+  /* ---- Focus ---------------------------------------------------------------------------- */
+
+  .header :is(a, button):focus-visible {
+    outline: 2px solid var(--focus-color);
+    outline-offset: 2px;
+  }
+
+  /* The clip-path would cut an outline drawn outside the box: draw it inside for clipped controls.
+     Scoped under .header so it outranks the rule above (equal specificity would lose to it). */
+  .header :is(.chip, .iconBtn, .nav a):focus-visible {
+    outline-offset: -3px;
+  }
+
+  /* ---- Responsive --------------------------------------------------------------------------- */
+
+  .phoneOnly {
+    display: none;
+  }
+
+  /* The thresholds below are where the bar's content (lockup, pill nav, cluster) stops fitting its width,
+     measured per step: the beat's word and the rank name need 1320 px, the search label and its key
+     hint 1200 px, the accent switcher and the sound toggle 1100 px. A threshold too low overflows the
+     page sideways, so each has a little room.
+     Scoped to the header bar: the phone sheet re-uses the beat, the accents and the sound toggle and
+     has room to show all of them. */
+  @media (max-width: 1319.98px) {
+    .header .status span:last-child,
+    .header .rankName {
+      display: none;
+    }
+  }
+
+  @media (max-width: 1199.98px) {
+    .header .deckLabel,
+    .header .kbd {
+      display: none;
+    }
+  }
+
+  @media (max-width: 1099.98px) {
+    .header .accents,
+    .header .soundDesktop {
+      display: none;
+    }
+  }
+
+  @media (max-width: 899.98px) {
+    .header .nav,
+    .header .beatLong {
+      display: none;
+    }
+
+    .phoneOnly {
+      display: inline-grid;
+    }
+
+    .word {
+      font-size: 1.0625rem;
+    }
+  }
+
+  /* The beat chip (140 px) needs 505 px of bar; below 520 px it goes, and the rank chip stays. */
+  @media (max-width: 519.98px) {
+    .header .beat {
+      display: none;
+    }
+  }
+
+  /* Very narrow phones (320 to 359 px): the lockup, the rank chip, the deck button and the menu button add up
+     to 34 px more than the bar has, so the lockup and the gaps tighten. Nothing is hidden, and the three
+     controls keep their 44 px touch height. */
+  @media (max-width: 359.98px) {
+    .bar {
+      gap: var(--space-2);
+    }
+
+    .lockup {
+      gap: var(--space-2);
+    }
+
+    .symbol,
+    .header[data-condensed="true"] .symbol {
+      inline-size: 28px;
+      block-size: 28px;
+    }
+
+    .word {
+      font-size: 0.9375rem;
+    }
+
+    .cluster {
+      gap: var(--space-1);
+    }
+  }
+
+  @media (pointer: coarse) {
+    .iconBtn,
+    .chip {
+      min-block-size: var(--touch-min, 44px);
+    }
+
+    .iconBtn {
+      inline-size: var(--touch-min, 44px);
+      block-size: var(--touch-min, 44px);
+    }
+  }
+
+  @media (forced-colors: active) {
+    .chip,
+    .nav,
+    .navInner {
+      clip-path: none;
+      border: 1px solid CanvasText;
+    }
+  }
+}

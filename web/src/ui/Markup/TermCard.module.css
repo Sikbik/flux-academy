@@ -1,0 +1,172 @@
+/*
+ * The glossary term card, drawn once for the lesson popover, the command deck and the glossary page. The
+ * host places it (a popover body, the deck's panel, a list item); this file draws what is inside.
+ * `data-size="sm"` is the compact card; `md` is for where the card is the whole content.
+ */
+@layer reset, tokens, base, ui, route, utility;
+
+@layer ui {
+  .card {
+    display: grid;
+    gap: var(--space-3);
+    min-inline-size: 0;
+    color: var(--text-2);
+  }
+
+  .card[data-size="md"] {
+    gap: 14px;
+  }
+
+  .head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2) var(--space-3);
+  }
+
+  .name {
+    margin: 0;
+    color: var(--text-1);
+    font: 700 var(--fs-h4) / 1.2 var(--font-display);
+    letter-spacing: var(--tracking-heading);
+  }
+
+  .card[data-size="md"] .name {
+    font: var(--type-h3);
+    letter-spacing: var(--tracking-heading);
+  }
+
+  .short,
+  .why,
+  .lessons {
+    margin: 0;
+    max-inline-size: none;
+    font-size: var(--fs-sm);
+    line-height: 1.55;
+    text-wrap: pretty;
+  }
+
+  .card[data-size="md"] :is(.short, .why, .lessons) {
+    font-size: var(--fs-md);
+  }
+
+  .short {
+    color: var(--text-1);
+  }
+
+  .label {
+    display: block;
+    margin-block-end: 2px;
+    color: var(--text-3);
+    font: 500 var(--fs-2xs) / 1.2 var(--font-mono);
+    letter-spacing: var(--tracking-label);
+    text-transform: uppercase;
+  }
+
+  .lessons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1) var(--space-3);
+  }
+
+  .lessons .label {
+    flex: 1 0 100%;
+  }
+
+  .lesson {
+    color: var(--accent-text);
+    text-decoration: underline;
+    text-decoration-color: rgb(var(--accent-rgb) / 0.5);
+    text-underline-offset: 0.2em;
+  }
+
+  .lesson:hover {
+    color: var(--accent-strong);
+  }
+
+  .related {
+    display: grid;
+    gap: 4px;
+  }
+
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 10px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .chip {
+    display: inline-block;
+    padding: 5px 10px;
+    color: var(--text-2);
+    font: 500 var(--fs-xs) / 1 var(--font-sans);
+    text-decoration: none;
+    background: var(--ink-2);
+    border: 1px solid var(--line-2);
+    cursor: pointer;
+    clip-path: polygon(0 5px, 5px 0, 100% 0, 100% calc(100% - 5px), calc(100% - 5px) 100%, 0 100%);
+  }
+
+  .chip:hover {
+    color: var(--text-1);
+    border-color: var(--accent-line);
+  }
+
+  .foot {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 20px;
+  }
+
+  .card[data-size="md"] .foot {
+    padding-block-start: 10px;
+    border-block-start: 1px solid var(--line-1);
+  }
+
+  .open {
+    display: inline-flex;
+    align-items: center;
+    justify-self: start;
+    gap: var(--space-2);
+    color: var(--accent-text);
+    font: 500 var(--fs-xs) / 1.2 var(--font-mono);
+    letter-spacing: 0.04em;
+    text-decoration: none;
+  }
+
+  .card[data-size="md"] .open {
+    padding: 6px 4px;
+    font: 600 var(--fs-sm) / 1 var(--font-sans);
+    letter-spacing: 0;
+  }
+
+  .open:hover {
+    color: var(--accent-strong);
+  }
+
+  .open:focus-visible,
+  .lesson:focus-visible,
+  .chip:focus-visible {
+    outline: 2px solid var(--focus-color);
+    outline-offset: 3px;
+  }
+
+  /* The chip's chamfer clip would cut an outline drawn outside it. */
+  .chip:focus-visible {
+    outline-offset: -3px;
+  }
+
+  @media (forced-colors: active) {
+    .open,
+    .lesson {
+      color: LinkText;
+    }
+
+    .chip {
+      border-color: ButtonBorder;
+    }
+  }
+}
