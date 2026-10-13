@@ -37,7 +37,6 @@
     min-block-size: 0;
     max-block-size: var(--country-list-max, 30rem);
     overflow-y: auto;
-    overscroll-behavior: contain;
     scrollbar-width: thin;
     scrollbar-color: var(--ink-4) transparent;
     display: flex;
@@ -45,6 +44,13 @@
     gap: 2px;
     margin-inline: calc(-1 * var(--space-2));
     padding-inline: var(--space-2);
+  }
+
+  /* Wheel and trackpad stay in the list; a swipe hands over to the page at either end (DESIGN section 4). */
+  @media (hover: hover) and (pointer: fine) {
+    .list {
+      overscroll-behavior: contain;
+    }
   }
 
   .item {

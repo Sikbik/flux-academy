@@ -145,7 +145,6 @@
     min-block-size: 0;
     overflow-x: auto;
     overflow-y: auto;
-    overscroll-behavior: contain;
     scrollbar-gutter: stable;
     padding: var(--space-3) var(--tv-pad) var(--space-2);
     font: 400 var(--tv-font) / var(--tv-lh) var(--font-mono);
@@ -154,6 +153,13 @@
     color: var(--text-2);
     background: rgb(var(--ink-0-rgb) / 0.62);
     scroll-padding-block-end: var(--space-4);
+  }
+
+  /* Wheel and trackpad stay in the output; a swipe hands over to the page at either end (DESIGN section 4). */
+  @media (hover: hover) and (pointer: fine) {
+    .screen {
+      overscroll-behavior: contain;
+    }
   }
 
   .screen:focus-visible {

@@ -65,9 +65,15 @@
   .log {
     max-block-size: 19rem;
     overflow-y: auto;
-    overscroll-behavior: contain;
     scrollbar-width: thin;
     scrollbar-color: var(--ink-4) transparent;
+  }
+
+  /* Wheel and trackpad stay in the log; a swipe hands over to the page at either end (DESIGN section 4). */
+  @media (hover: hover) and (pointer: fine) {
+    .log {
+      overscroll-behavior: contain;
+    }
   }
 
   .log:focus-visible {

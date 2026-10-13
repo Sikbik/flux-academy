@@ -23,11 +23,17 @@
     flex: 1 1 auto;
     min-block-size: 12rem;
     overflow: auto;
-    overscroll-behavior: contain;
     background: rgb(var(--ink-1-rgb) / 0.78);
     box-shadow: inset 0 0 0 1px var(--line-1);
     scrollbar-color: var(--ink-4) transparent;
     scrollbar-width: thin;
+  }
+
+  /* Wheel and trackpad stay in the editor; a swipe hands over to the page at the end (DESIGN section 4). */
+  @media (hover: hover) and (pointer: fine) {
+    .scroller {
+      overscroll-behavior: contain;
+    }
   }
 
   .scroller:focus-within {
